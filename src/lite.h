@@ -7,6 +7,9 @@
 #include "core/lite_exception.h"
 #include "core/context.h"
 
+//audio
+#include "audio/audio_system.h"
+
 //event
 #include "event/event.h"
 

@@ -13,6 +13,9 @@ struct Event::Impl
 
     QuitEventCallback quit_event_callback = nullptr;
     KeyEventCallback key_event_callback = nullptr;
+    MouseButtonEventCallback mouse_event_callback = nullptr;
+    MouseWheelEventCallback mouse_wheel_event_callback = nullptr;
+    MouseMotionEventCallback mouse_motion_event_callback = nullptr;
 };
 
 Event::Event()
@@ -60,6 +63,57 @@ void Event::onUpdate()
                 );
             }
             break;
+        case SDL_EVENT_MOUSE_BUTTON_DOWN:
+            if(m_impl->mouse_event_callback)
+            {
+                m_impl->mouse_event_callback(
+                    sdl_event.button.button,
+                    sdl_event.button.x,
+                    sdl_event.button.y,
+                    sdl_event.button.down,
+                    sdl_event.button.clicks,
+                    m_impl->data
+                );
+            }
+            break;
+        case SDL_EVENT_MOUSE_BUTTON_UP:
+            if(m_impl->mouse_event_callback)
+            {
+                m_impl->mouse_event_callback(
+                    sdl_event.button.button,
+                    sdl_event.button.x,
+                    sdl_event.button.y,
+                    sdl_event.button.down,
+                    sdl_event.button.clicks,
+                    m_impl->data
+                );
+            }
+            break;
+        case SDL_EVENT_MOUSE_WHEEL:
+            if(m_impl->mouse_wheel_event_callback)
+            {
+                m_impl->mouse_wheel_event_callback(
+                    sdl_event.wheel.x,
+                    sdl_event.wheel.y,
+                    sdl_event.wheel.mouse_x,
+                    sdl_event.wheel.mouse_y,
+                    m_impl->data
+                );
+            }
+            break;
+        case SDL_EVENT_MOUSE_MOTION:
+            if(m_impl->mouse_motion_event_callback)
+            {
+                m_impl->mouse_motion_event_callback(
+                    sdl_event.motion.x,
+                    sdl_event.motion.y,
+                    sdl_event.motion.xrel,
+                    sdl_event.motion.yrel,
+                    sdl_event.motion.state,
+                    m_impl->data
+                );
+            }
+            break;
         default:
             break;
         }
@@ -79,6 +133,21 @@ void Event::registerQuitEventCallback(QuitEventCallback callback)
 void Event::registerKeyEventCallback(KeyEventCallback callback)
 {
     m_impl->key_event_callback = callback;
+}
+
+void Event::registerMouseButtonEventCallback(MouseButtonEventCallback callback)
+{
+    m_impl->mouse_event_callback = callback;
+}
+
+void Event::registerMouseWheelEventCallback(MouseWheelEventCallback callback)
+{
+    m_impl->mouse_wheel_event_callback = callback;
+}
+
+void Event::registerMouseMotionEventCallback(MouseMotionEventCallback callback)
+{
+    m_impl->mouse_motion_event_callback = callback;
 }
 
 }
