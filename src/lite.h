@@ -13,6 +13,9 @@
 //event
 #include "event/event.h"
 
+//input
+#include "input/input.h"
+
 //renderer
 #include "renderer/renderer.h"
 

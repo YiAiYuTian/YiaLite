@@ -23,7 +23,8 @@ target_sources(${PROJECT_NAME} PRIVATE "src/core/log.cpp"
                                        "src/event/event.cpp"
                                        "src/audio/audio_system.cpp"
                                        "src/audio/miniaudio/miniaudio.cpp"
-                                       "src/audio/miniaudio/libvorbis/miniaudio_libvorbis.c")
+                                       "src/audio/miniaudio/libvorbis/miniaudio_libvorbis.c"
+                                       "src/input/input.cpp")
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${MINIAUDIO_INCLUDE_DIRS})
 
