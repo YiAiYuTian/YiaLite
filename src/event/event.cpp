@@ -16,6 +16,10 @@ struct Event::Impl
     MouseButtonEventCallback mouse_event_callback = nullptr;
     MouseWheelEventCallback mouse_wheel_event_callback = nullptr;
     MouseMotionEventCallback mouse_motion_event_callback = nullptr;
+    WindowResizedEventCallback window_resized_event_callback = nullptr;
+    WindowMovedEventCallback window_moved_event_callback = nullptr;
+    WindowFocusGainedEventCallback window_focus_gained_event_callback = nullptr;
+    WindowFocusLostEventCallback window_focus_lost_event_callback = nullptr;
 };
 
 Event::Event()
@@ -114,6 +118,42 @@ void Event::onUpdate()
                 );
             }
             break;
+        case SDL_EVENT_WINDOW_RESIZED:
+            if(m_impl->window_resized_event_callback)
+            {
+                m_impl->window_resized_event_callback(
+                    sdl_event.window.data1,
+                    sdl_event.window.data2,
+                    m_impl->data
+                );
+            }
+            break;
+        case SDL_EVENT_WINDOW_MOVED:
+            if(m_impl->window_moved_event_callback)
+            {
+                m_impl->window_moved_event_callback(
+                    sdl_event.window.data1,
+                    sdl_event.window.data2,
+                    m_impl->data
+                );
+            }
+            break;
+        case SDL_EVENT_WINDOW_FOCUS_GAINED:
+            if(m_impl->window_focus_gained_event_callback)
+            {
+                m_impl->window_focus_gained_event_callback(
+                    m_impl->data
+                );
+            }
+            break;
+        case SDL_EVENT_WINDOW_FOCUS_LOST:
+            if(m_impl->window_focus_lost_event_callback)
+            {
+                m_impl->window_focus_lost_event_callback(
+                    m_impl->data
+                );
+            }
+            break;
         default:
             break;
         }
@@ -148,6 +188,26 @@ void Event::registerMouseWheelEventCallback(MouseWheelEventCallback callback)
 void Event::registerMouseMotionEventCallback(MouseMotionEventCallback callback)
 {
     m_impl->mouse_motion_event_callback = callback;
+}
+
+void Event::registerWindowResizedEventCallback(WindowResizedEventCallback callback)
+{
+    m_impl->window_resized_event_callback = callback;
+}
+
+void Event::registerWindowMovedEventCallback(WindowMovedEventCallback callback)
+{
+    m_impl->window_moved_event_callback = callback;
+}
+
+void Event::registerWindowFocusGainedEventCallback(WindowFocusGainedEventCallback callback)
+{
+    m_impl->window_focus_gained_event_callback = callback;
+}
+
+void Event::registerWindowFocusLostEventCallback(WindowFocusLostEventCallback callback)
+{
+    m_impl->window_focus_lost_event_callback = callback;
 }
 
 }

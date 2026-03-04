@@ -10,14 +10,14 @@
 namespace lite
 {
 
-struct AudioSystem::Impl
+struct AudioManager::Impl
 {
     ma_engine* engine = nullptr;
     ma_resource_manager* resource_manager = nullptr;
     std::unordered_map<std::string, ma_sound*> sounds;
 };
 
-AudioSystem::AudioSystem()
+AudioManager::AudioManager()
 {
     m_impl = new Impl();
     m_impl->engine = new ma_engine();
@@ -48,10 +48,10 @@ AudioSystem::AudioSystem()
     if (result != MA_SUCCESS)
         throw Lite_Exception("Failed to initialize engine: " + std::string(ma_result_description(result)));
 
-    LOG_INFO("Audio system initialized successfully");
+    LOG_INFO("AudioManager initialized successfully");
 }
 
-AudioSystem::~AudioSystem()
+AudioManager::~AudioManager()
 {
     for(auto& pair : m_impl->sounds)
     {
@@ -67,7 +67,7 @@ AudioSystem::~AudioSystem()
     delete m_impl;
 }
 
-bool AudioSystem::addSoundToSystem(std::string_view name, std::string_view path)
+bool AudioManager::addSound(std::string_view name, std::string_view path)
 {
     ma_result result;
     std::string sound_name(name);
@@ -103,7 +103,20 @@ bool AudioSystem::addSoundToSystem(std::string_view name, std::string_view path)
     return true;
 }
 
-void AudioSystem::removeSoundFromSystem(std::string_view name)
+bool AudioManager::replaceSound(std::string_view name, std::string_view path)
+{
+    if(auto it = m_impl->sounds.find(std::string(name)); it != m_impl->sounds.end())
+    {
+        ma_sound_uninit(it->second);
+        delete it->second;
+        m_impl->sounds.erase(it);
+        return addSound(name, path);
+    }
+    LOG_WARN("Sound '{}' not found, replace failed", name.data());
+    return false;
+}
+
+void AudioManager::removeSound(std::string_view name)
 {
     std::string sound_name(name);
     if(auto it = m_impl->sounds.find(sound_name); it != m_impl->sounds.end())
@@ -117,7 +130,22 @@ void AudioSystem::removeSoundFromSystem(std::string_view name)
     LOG_WARN("Sound '{}' not found, remove failed", sound_name);
 }
 
-bool AudioSystem::playSound(std::string_view path)
+void AudioManager::removeAllSounds()
+{
+    for(auto& pair : m_impl->sounds)
+    {
+        ma_sound_uninit(pair.second);
+        delete pair.second;
+    }
+    m_impl->sounds.clear();
+}
+
+bool AudioManager::hasSound(std::string_view name) const
+{
+    return m_impl->sounds.find(std::string(name)) != m_impl->sounds.end();
+}
+
+bool AudioManager::playSound(std::string_view path)
 {
     ma_result result;
     result = ma_engine_play_sound(m_impl->engine, path.data(), nullptr);
@@ -129,11 +157,15 @@ bool AudioSystem::playSound(std::string_view path)
     return true;
 }
 
-bool AudioSystem::playSoundFromName(std::string_view name)
+bool AudioManager::playSoundFromName(std::string_view name, bool loop, float volume)
 {
     if(auto it = m_impl->sounds.find(std::string(name)); it != m_impl->sounds.end())
     {
         ma_result result;
+        if(loop) ma_sound_set_looping(it->second, MA_TRUE);
+        volume = std::clamp(volume, 0.0f, 50.0f);
+        ma_sound_set_volume(it->second, volume);
+
         result = ma_sound_start(it->second);
         if(result != MA_SUCCESS)
         {
@@ -147,7 +179,7 @@ bool AudioSystem::playSoundFromName(std::string_view name)
     return false;
 }
 
-size_t AudioSystem::getSoundCount() const
+size_t AudioManager::getSoundCount() const
 {
     return m_impl->sounds.size();
 }
