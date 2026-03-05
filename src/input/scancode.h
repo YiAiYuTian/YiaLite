@@ -1,5 +1,5 @@
-#ifndef SCANCODE_H_
-#define SCANCODE_H_
+#ifndef _SCANCODE_H_
+#define _SCANCODE_H_
 
 namespace lite
 {
