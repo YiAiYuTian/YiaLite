@@ -1,3 +1,8 @@
+/* 
+    Simple DirectMedia Layer
+        Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
+*/
+
 #ifndef _SCANCODE_H_
 #define _SCANCODE_H_
 

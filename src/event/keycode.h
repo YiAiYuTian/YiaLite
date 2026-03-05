@@ -1,4 +1,9 @@
-﻿#ifndef KEYCODE_H
+﻿/* 
+    Simple DirectMedia Layer
+        Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
+*/
+
+#ifndef KEYCODE_H
 #define KEYCODE_H
 
 //keycode
