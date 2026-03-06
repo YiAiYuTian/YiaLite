@@ -5,10 +5,10 @@
 
 #include <string_view>
 
-namespace lite
+namespace yialite
 {
 
-class LITE_API AudioManager
+class YIALITE_API AudioManager
 {
 public:
     AudioManager();

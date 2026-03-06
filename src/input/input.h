@@ -7,11 +7,11 @@
 
 #include <stdint.h>
 
-namespace lite
+namespace yialite
 {
 
-LITE_API bool isKeyPressed(Scancode key);
-LITE_API bool isMouseButtonPressed(MouseButtonFlags button, float* x = nullptr, float* y = nullptr);
+YIALITE_API bool isKeyPressed(Scancode key);
+YIALITE_API bool isMouseButtonPressed(MouseButtonFlags button, float* x = nullptr, float* y = nullptr);
 
 }
 

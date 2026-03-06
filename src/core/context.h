@@ -3,7 +3,7 @@
 
 #include "../core/core.h"
 
-namespace lite
+namespace yialite
 {
 
 class Window;
@@ -11,7 +11,7 @@ class Renderer;
 
 struct WindowConfig;
 
-struct LITE_API Context
+struct YIALITE_API Context
 {
     Context(const WindowConfig& config);
     ~Context();

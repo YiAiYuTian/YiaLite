@@ -4,10 +4,10 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
-namespace lite
+namespace yialite
 {
 
-LITE_API bool initLite()
+YIALITE_API bool initLite()
 {
     bool is_initialized = true;
 
@@ -32,7 +32,7 @@ LITE_API bool initLite()
     return is_initialized;
 }
 
-LITE_API void quitLite()
+YIALITE_API void quitLite()
 {
     TTF_Quit();
     SDL_Quit();

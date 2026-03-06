@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.0)
-project(Lite VERSION 0.1.0 LANGUAGES C CXX)
+project(YiaLite VERSION 0.1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -13,7 +13,7 @@ find_package(Vorbis CONFIG REQUIRED)
 
 find_path(MINIAUDIO_INCLUDE_DIRS "miniaudio.h")
 
-add_library(Lite SHARED)
+add_library(${PROJECT_NAME} SHARED)
 
 target_sources(${PROJECT_NAME} PRIVATE "src/core/log.cpp"
                                        "src/core/context.cpp"
@@ -35,4 +35,4 @@ target_link_libraries(${PROJECT_NAME} PRIVATE imgui::imgui
                                               spdlog::spdlog_header_only
                                               Vorbis::vorbisfile)
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE LITE_EXPORTS)
+target_compile_definitions(${PROJECT_NAME} PRIVATE YIALITE_EXPORTS)

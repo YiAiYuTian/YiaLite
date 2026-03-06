@@ -5,7 +5,7 @@
 #include "keycode.h"
 #include "mouse_button.h"
 
-namespace lite
+namespace yialite
 {
 
 typedef uint32_t Keycode;
@@ -22,7 +22,7 @@ typedef void (*WindowMovedEventCallback)(int x, int y, void* data);
 typedef void (*WindowFocusGainedEventCallback)(void* data);
 typedef void (*WindowFocusLostEventCallback)(void* data);
 
-class LITE_API Event
+class YIALITE_API Event
 {
 public:
     Event();

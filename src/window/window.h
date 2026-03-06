@@ -8,7 +8,7 @@
 
 struct SDL_Window;
 
-namespace lite
+namespace yialite
 {
 
 enum WindowFlags : uint64_t
@@ -30,7 +30,7 @@ struct WindowConfig
     WindowFlags flags = WindowFlags_None;
 };
 
-class LITE_API Window
+class YIALITE_API Window
 {
     friend class Renderer;
 public:

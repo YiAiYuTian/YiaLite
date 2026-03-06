@@ -6,7 +6,7 @@
 #ifndef _SCANCODE_H_
 #define _SCANCODE_H_
 
-namespace lite
+namespace yialite
 {
 
 enum Scancode : int

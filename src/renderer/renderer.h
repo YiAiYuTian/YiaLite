@@ -4,12 +4,12 @@
 #include "../core/core.h"
 #include "../math/math.h"
 
-namespace lite
+namespace yialite
 {
 
 class Window;
 
-class LITE_API Renderer
+class YIALITE_API Renderer
 {
 public:
     Renderer(Window* window);

@@ -1,5 +1,5 @@
 #include "audio_system.h"
-#include "../core/lite_exception.h"
+#include "../core/yialite_exception.h"
 #include "../core/log.h"
 
 #include <miniaudio.h>
@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <string>
 
-namespace lite
+namespace yialite
 {
 
 struct AudioManager::Impl
@@ -39,14 +39,14 @@ AudioManager::AudioManager()
 
     result = ma_resource_manager_init(&resourceManagerConfig, m_impl->resource_manager);
     if (result != MA_SUCCESS)
-        throw Lite_Exception("Failed to initialize ma resource manager: " + std::string(ma_result_description(result)));
+        throw YiaLite_Exception("Failed to initialize ma resource manager: " + std::string(ma_result_description(result)));
 
     engineConfig = ma_engine_config_init();
     engineConfig.pResourceManager = m_impl->resource_manager;
 
     result = ma_engine_init(&engineConfig, m_impl->engine);
     if (result != MA_SUCCESS)
-        throw Lite_Exception("Failed to initialize engine: " + std::string(ma_result_description(result)));
+        throw YiaLite_Exception("Failed to initialize engine: " + std::string(ma_result_description(result)));
 
     LOG_INFO("AudioManager initialized successfully");
 }

@@ -1,10 +1,10 @@
 #include "window.h"
 #include "../core/log.h"
-#include "../core/lite_exception.h"
+#include "../core/yialite_exception.h"
 
 #include <SDL3/SDL.h>
 
-namespace lite
+namespace yialite
 {
 
 static SDL_WindowFlags convertToSDLWindowFlags(const WindowFlags flags)
@@ -42,7 +42,7 @@ Window::Window(const WindowConfig& config)
     if(!m_impl->window) 
     {
         delete m_impl;
-        throw Lite_Exception("Failed to initialize window: " + std::string(SDL_GetError()));
+        throw YiaLite_Exception("Failed to initialize window: " + std::string(SDL_GetError()));
     }
 
     LOG_INFO("Window initialized successfully: {}({}, {})", config.title, config.width, config.height);

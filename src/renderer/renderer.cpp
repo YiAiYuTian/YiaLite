@@ -1,10 +1,10 @@
 #include "renderer.h"
-#include "../core/lite_exception.h"
+#include "../core/yialite_exception.h"
 #include "../window/window.h"
 
 #include <SDL3/SDL.h>
 
-namespace lite
+namespace yialite
 {
 
 struct Renderer::Impl
@@ -17,7 +17,7 @@ Renderer::Renderer(Window* window)
     m_impl = new Renderer::Impl();
 
     m_impl->renderer = SDL_CreateRenderer(window->getSDLWindow(), nullptr);
-    if(!m_impl->renderer) throw Lite_Exception("Failed to initialize renderer: " + std::string(SDL_GetError()));
+    if(!m_impl->renderer) throw YiaLite_Exception("Failed to initialize renderer: " + std::string(SDL_GetError()));
     SDL_SetRenderDrawBlendMode(m_impl->renderer, SDL_BLENDMODE_BLEND);
 }
 

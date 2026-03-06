@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace lite
+namespace yialite
 {
 
 Log::Log()

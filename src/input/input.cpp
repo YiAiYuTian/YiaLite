@@ -2,7 +2,7 @@
 
 #include <SDL3/SDL.h>
 
-namespace lite
+namespace yialite
 {
 
 bool isKeyPressed(Scancode key)
@@ -13,7 +13,7 @@ bool isKeyPressed(Scancode key)
     return keyboard[key];
 }
 
-LITE_API bool isMouseButtonPressed(MouseButtonFlags button, float* x, float* y)
+YIALITE_API bool isMouseButtonPressed(MouseButtonFlags button, float* x, float* y)
 {
     SDL_MouseButtonFlags button_flag = SDL_GetMouseState(x, y);
 

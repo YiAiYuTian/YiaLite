@@ -4,7 +4,7 @@
 //core
 #include "core/core.h"
 #include "core/initialize.h"
-#include "core/lite_exception.h"
+#include "core/yialite_exception.h"
 #include "core/context.h"
 
 //audio

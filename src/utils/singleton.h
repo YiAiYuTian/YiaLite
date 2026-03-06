@@ -3,7 +3,7 @@
 
 #define LITE_SINGLETON(T) friend class Singleton<T>;
 
-namespace lite
+namespace yialite
 {
 
 template <typename T>

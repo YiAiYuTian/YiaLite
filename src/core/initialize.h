@@ -3,11 +3,11 @@
 
 #include "core.h"
 
-namespace lite
+namespace yialite
 {
 
-LITE_API bool initLite();
-LITE_API void quitLite();
+YIALITE_API bool initLite();
+YIALITE_API void quitLite();
 
 }
 

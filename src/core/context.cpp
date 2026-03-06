@@ -1,5 +1,5 @@
 #include "context.h"
-#include "lite_exception.h"
+#include "yialite_exception.h"
 #include "initialize.h"
 #include "../window/window.h"
 #include "../renderer/renderer.h" 
@@ -7,14 +7,14 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
-namespace lite
+namespace yialite
 {
 
 struct Context::Initializer
 {
     Initializer()
     {
-        if(!initLite()) throw Lite_Exception("Failed to initialize Lite");
+        if(!initLite()) throw YiaLite_Exception("Failed to initialize Lite");
     }
 
     ~Initializer()

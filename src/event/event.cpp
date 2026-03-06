@@ -2,7 +2,7 @@
 
 #include <SDL3/SDL.h>
 
-namespace lite
+namespace yialite
 {
 
 struct Event::Impl

@@ -16,7 +16,7 @@
 
 #define MOUSE_BUTTON_MASK(X)  (1u << ((X)-1))
 
-namespace lite
+namespace yialite
 {
     enum MouseButtonFlags : uint32_t
     {

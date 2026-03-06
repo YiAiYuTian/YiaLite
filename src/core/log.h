@@ -6,7 +6,7 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-namespace lite
+namespace yialite
 {
 
 class Log final : public Singleton<Log>
