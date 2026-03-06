@@ -1,26 +1,36 @@
 #include "log.h"
-
-#include <iostream>
+#include "logger.h"
 
 namespace yialite
 {
 
-Log::Log()
+static spdlog::level::level_enum toSpdlogLevel(LogLevel level)
 {
-    try
+    switch (level)
     {
-        m_logger = spdlog::stdout_color_mt("Lite");
-        m_logger->set_pattern("%^[%H:%M:%S][%n(%l)]:%v%$");
-        m_logger->set_level(spdlog::level::trace);
+    case LogLevel::Trace:
+        return spdlog::level::trace;
+    case LogLevel::Info:
+        return spdlog::level::info;
+    case LogLevel::Warn:
+        return spdlog::level::warn;
+    case LogLevel::Err:
+        return spdlog::level::err;
+    case LogLevel::Fatal:
+        return spdlog::level::critical;
+    default:
+        return spdlog::level::trace;
     }
-    catch(const spdlog::spdlog_ex& e)
-    {
-        std::cerr << e.what() << '\n';
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-    }
+}
+
+void setLogLevel(LogLevel level)
+{
+    Logger::setLogLevel(toSpdlogLevel(level));
+}
+
+void setLoggerEnabled(bool enabled)
+{
+    Logger::setLoggerEnabled(enabled);
 }
 
 }

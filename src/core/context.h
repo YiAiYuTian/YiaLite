@@ -1,5 +1,5 @@
-﻿#ifndef CONTEXT_H
-#define CONTEXT_H
+﻿#ifndef YIALITE_CONTEXT_H
+#define YIALITE_CONTEXT_H
 
 #include "../core/core.h"
 

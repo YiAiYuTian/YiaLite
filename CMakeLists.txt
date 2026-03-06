@@ -15,16 +15,21 @@ find_path(MINIAUDIO_INCLUDE_DIRS "miniaudio.h")
 
 add_library(${PROJECT_NAME} SHARED)
 
-target_sources(${PROJECT_NAME} PRIVATE "src/core/log.cpp"
-                                       "src/core/context.cpp"
-                                       "src/core/initialize.cpp"
-                                       "src/window/window.cpp"
-                                       "src/renderer/renderer.cpp"
-                                       "src/event/event.cpp"
-                                       "src/audio/audio_system.cpp"
-                                       "src/audio/miniaudio/miniaudio.cpp"
-                                       "src/audio/miniaudio/libvorbis/miniaudio_libvorbis.c"
-                                       "src/input/input.cpp")
+set(C_SRC "csrc/yialite.cpp")
+
+set(CXX_SRC "src/core/logger.cpp"
+            "src/core/context.cpp"
+            "src/core/initialize.cpp"
+            "src/core/log.cpp"
+            "src/window/window.cpp"
+            "src/renderer/renderer.cpp"
+            "src/event/event.cpp"
+            "src/audio/audio_manager.cpp"
+            "src/audio/miniaudio/miniaudio.cpp"
+            "src/audio/miniaudio/libvorbis/miniaudio_libvorbis.c"
+            "src/input/input.cpp")
+
+target_sources(${PROJECT_NAME} PRIVATE ${CXX_SRC} ${C_SRC})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${MINIAUDIO_INCLUDE_DIRS})
 

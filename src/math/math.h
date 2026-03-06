@@ -1,5 +1,5 @@
-#ifndef MATH_H
-#define MATH_H
+#ifndef YIALITE_MATH_H
+#define YIALITE_MATH_H
 
 namespace yialite
 {
@@ -27,6 +27,7 @@ struct Vector3
 
 using Vector3i = Vector3<int>;
 using Vector3f = Vector3<float>;
+using Vector3d = Vector3<double>;
 
 //Vector4 Tag
 struct DefaultVector4Tag {};

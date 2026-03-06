@@ -1,11 +1,14 @@
-﻿#ifndef RENDERER_H
-#define RENDERER_H
+﻿#ifndef YIALITE_RENDERER_H
+#define YIALITE_RENDERER_H
 
 #include "../core/core.h"
 #include "../math/math.h"
 
 namespace yialite
 {
+
+constexpr Color default_color = { 255, 255, 255, 255 };
+constexpr FColor default_fcolor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 class Window;
 
@@ -21,24 +24,25 @@ public:
     Renderer& operator=(Renderer&&) = delete;
 
     void beginDraw(Color background_color = { 0, 0, 0, 255 });
+    void beginDrawF(FColor background_color = { 0.0f, 0.0f, 0.0f, 1.0f });
     void endDraw();
 
     //tools
-    void drawPoint(const Vector2f& pos, Color color = { 255, 255, 255, 255 });
-    void drawPoints(const Vector2f* pos, int count, Color color = { 255, 255, 255, 255 });
-    void drawLine(const Vector2f& start, const Vector2f& end, Color color = { 255, 255, 255, 255 });
-    void drawRect(const Vector2f& pos, const Vector2f& size, Color color = { 255, 255, 255, 255 });
-    void drawRect(const FRect& rect, Color color = { 255, 255, 255, 255 });
-    void drawFillRect(const Vector2f& pos, const Vector2f& size, Color color = { 255, 255, 255, 255 });
-    void drawFillRect(const FRect& rect, Color color = { 255, 255, 255, 255 });
+    void drawPoint(const Vector2f& pos, Color color = default_color);
+    void drawPoints(const Vector2f* pos, int count, Color color = default_color);
+    void drawLine(const Vector2f& start, const Vector2f& end, Color color = default_color);
+    void drawRect(const Vector2f& pos, const Vector2f& size, Color color = default_color);
+    void drawRect(const FRect& rect, Color color = default_color);
+    void drawFillRect(const Vector2f& pos, const Vector2f& size, Color color = default_color);
+    void drawFillRect(const FRect& rect, Color color = default_color);
     
-    void fdrawPoint(const Vector2f& pos, FColor color = { 1.0f, 1.0f, 1.0f, 1.0f });
-    void fdrawPoints(const Vector2f* pos, int count, FColor color = { 1.0f, 1.0f, 1.0f, 1.0f });
-    void fdrawLine(const Vector2f& start, const Vector2f& end, FColor color = { 1.0f, 1.0f, 1.0f, 1.0f });
-    void fdrawRect(const Vector2f& pos, const Vector2f& size, FColor color = { 1.0f, 1.0f, 1.0f, 1.0f });
-    void fdrawRect(const FRect& rect, FColor color = { 1.0f, 1.0f, 1.0f, 1.0f });
-    void fdrawFillRect(const Vector2f& pos, const Vector2f& size, FColor color = { 1.0f, 1.0f, 1.0f, 1.0f });
-    void fdrawFillRect(const FRect& rect, FColor color = { 1.0f, 1.0f, 1.0f, 1.0f });
+    void drawPointF(const Vector2f& pos, FColor color = default_fcolor);
+    void drawPointsF(const Vector2f* pos, int count, FColor color = default_fcolor);
+    void drawLineF(const Vector2f& start, const Vector2f& end, FColor color = default_fcolor);
+    void drawRectF(const Vector2f& pos, const Vector2f& size, FColor color = default_fcolor);
+    void drawRectF(const FRect& rect, FColor color = default_fcolor);
+    void drawFillRectF(const Vector2f& pos, const Vector2f& size, FColor color = default_fcolor);
+    void drawFillRectF(const FRect& rect, FColor color = default_fcolor);
 private:
     struct Impl;
     Impl* m_impl = nullptr;

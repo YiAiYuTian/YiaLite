@@ -3,8 +3,16 @@
         Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 */
 
-#ifndef KEYCODE_H
-#define KEYCODE_H
+#ifndef YIALITE_KEYCODE_H
+#define YIALITE_KEYCODE_H
+
+#include <stdint.h>
+
+namespace yialite
+{
+    typedef uint32_t Keycode;
+    typedef uint16_t Keymod;
+}
 
 //keycode
 #define YIALITE_KEY_EXTENDED_MASK          (1u << 29)

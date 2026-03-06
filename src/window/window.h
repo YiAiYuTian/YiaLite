@@ -1,5 +1,5 @@
-﻿#ifndef WINDOW_H
-#define WINDOW_H
+﻿#ifndef YIALITE_WINDOW_H
+#define YIALITE_WINDOW_H
 
 #include "../core/core.h"
 
@@ -24,7 +24,7 @@ enum WindowFlags : uint64_t
 
 struct WindowConfig
 {
-    std::string title = "Lite Window";
+    std::string title = "YiaLite Window";
     int width = 1280;
     int height = 720;
     WindowFlags flags = WindowFlags_None;

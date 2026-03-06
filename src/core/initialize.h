@@ -1,13 +1,13 @@
-﻿#ifndef INITIALIZE_H
-#define INITIALIZE_H
+﻿#ifndef YIALITE_INITIALIZE_H
+#define YIALITE_INITIALIZE_H
 
 #include "core.h"
 
 namespace yialite
 {
 
-YIALITE_API bool initLite();
-YIALITE_API void quitLite();
+YIALITE_API bool init();
+YIALITE_API void quit();
 
 }
 

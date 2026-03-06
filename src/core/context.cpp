@@ -14,12 +14,12 @@ struct Context::Initializer
 {
     Initializer()
     {
-        if(!initLite()) throw YiaLite_Exception("Failed to initialize Lite");
+        if(!init()) throw YiaLite_Exception("Failed to initialize Lite");
     }
 
     ~Initializer()
     {
-        quitLite();
+        quit();
     }
 };
 

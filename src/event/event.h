@@ -1,5 +1,5 @@
-﻿#ifndef EVENT_H
-#define EVENT_H
+﻿#ifndef YIALITE_EVENT_H
+#define YIALITE_EVENT_H
 
 #include "../core/core.h"
 #include "keycode.h"
@@ -7,10 +7,6 @@
 
 namespace yialite
 {
-
-typedef uint32_t Keycode;
-typedef uint16_t Keymod;
-typedef uint8_t MouseButton;
 
 typedef void (*QuitEventCallback)(void* data);
 typedef void (*KeyEventCallback)(Keycode keycode, bool repeat, bool down, Keymod keymod, void* data);

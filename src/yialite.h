@@ -1,14 +1,15 @@
-﻿#ifndef LITE_H
-#define LITE_H
+﻿#ifndef YIALITE_H
+#define YIALITE_H
 
 //core
 #include "core/core.h"
 #include "core/initialize.h"
 #include "core/yialite_exception.h"
 #include "core/context.h"
+#include "core/log.h"
 
 //audio
-#include "audio/audio_system.h"
+#include "audio/audio_manager.h"
 
 //event
 #include "event/event.h"

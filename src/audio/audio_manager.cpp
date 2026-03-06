@@ -1,6 +1,6 @@
-#include "audio_system.h"
+#include "audio_manager.h"
 #include "../core/yialite_exception.h"
-#include "../core/log.h"
+#include "../core/logger.h"
 
 #include <miniaudio.h>
 #include "miniaudio/libvorbis/miniaudio_libvorbis.h"
@@ -48,7 +48,7 @@ AudioManager::AudioManager()
     if (result != MA_SUCCESS)
         throw YiaLite_Exception("Failed to initialize engine: " + std::string(ma_result_description(result)));
 
-    LOG_INFO("AudioManager initialized successfully");
+    Logger::info("AudioManager initialized successfully");
 }
 
 AudioManager::~AudioManager()
@@ -79,7 +79,7 @@ bool AudioManager::addSound(std::string_view name, std::string_view path)
     }
     catch(const std::exception& e)
     {
-        LOG_ERROR("{}", e.what());
+        Logger::error("{}", e.what());
         return false;
     }
 
@@ -95,11 +95,11 @@ bool AudioManager::addSound(std::string_view name, std::string_view path)
     {
         ma_sound_uninit(sound);
         delete sound;
-        LOG_WARN("Sound '{}' already exists, insert failed", sound_name);
+        Logger::warn("Sound '{}' already exists, insert failed", sound_name);
         return false;
     }
 
-    LOG_INFO("Sound '{}' added to system", sound_name);
+    Logger::info("Sound '{}' added to system", sound_name);
     return true;
 }
 
@@ -112,7 +112,7 @@ bool AudioManager::replaceSound(std::string_view name, std::string_view path)
         m_impl->sounds.erase(it);
         return addSound(name, path);
     }
-    LOG_WARN("Sound '{}' not found, replace failed", name.data());
+    Logger::warn("Sound '{}' not found, replace failed", name.data());
     return false;
 }
 
@@ -124,10 +124,10 @@ void AudioManager::removeSound(std::string_view name)
         ma_sound_uninit(it->second);
         delete it->second;
         m_impl->sounds.erase(it);
-        LOG_INFO("Sound '{}' removed from system", sound_name);
+        Logger::info("Sound '{}' removed from system", sound_name);
         return;
     }
-    LOG_WARN("Sound '{}' not found, remove failed", sound_name);
+    Logger::warn("Sound '{}' not found, remove failed", sound_name);
 }
 
 void AudioManager::removeAllSounds()
@@ -151,7 +151,7 @@ bool AudioManager::playSound(std::string_view path)
     result = ma_engine_play_sound(m_impl->engine, path.data(), nullptr);
     if(result != MA_SUCCESS)
     {
-        LOG_ERROR("Failed to play sound '{}': {}", path.data(), ma_result_description(result));
+        Logger::error("Failed to play sound '{}': {}", path.data(), ma_result_description(result));
         return false;
     }
     return true;
@@ -169,13 +169,13 @@ bool AudioManager::playSoundFromName(std::string_view name, bool loop, float vol
         result = ma_sound_start(it->second);
         if(result != MA_SUCCESS)
         {
-            LOG_ERROR("Failed to play sound '{}': {}", name.data(), ma_result_description(result));
+            Logger::error("Failed to play sound '{}': {}", name.data(), ma_result_description(result));
             return false;
         }
         return true;
     }
 
-    LOG_WARN("Sound '{}' not found", name.data());
+    Logger::warn("Sound '{}' not found", name.data());
     return false;
 }
 

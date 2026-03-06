@@ -1,5 +1,5 @@
 #include "window.h"
-#include "../core/log.h"
+#include "../core/logger.h"
 #include "../core/yialite_exception.h"
 
 #include <SDL3/SDL.h>
@@ -39,18 +39,18 @@ Window::Window(const WindowConfig& config)
     m_impl = new Window::Impl();
 
     m_impl->window = SDL_CreateWindow(config.title.c_str(), config.width, config.height, convertToSDLWindowFlags(config.flags));
-    if(!m_impl->window) 
+    if(!m_impl->window)
     {
         delete m_impl;
         throw YiaLite_Exception("Failed to initialize window: " + std::string(SDL_GetError()));
     }
 
-    LOG_INFO("Window initialized successfully: {}({}, {})", config.title, config.width, config.height);
+    Logger::info("Window initialized successfully: {}({}, {})", config.title, config.width, config.height);
 }
 
 Window::~Window()
 {
-    SDL_DestroyWindow(m_impl->window);
+    if(m_impl) SDL_DestroyWindow(m_impl->window);
     delete m_impl;
 }
 

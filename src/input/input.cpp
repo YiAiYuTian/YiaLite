@@ -13,7 +13,7 @@ bool isKeyPressed(Scancode key)
     return keyboard[key];
 }
 
-YIALITE_API bool isMouseButtonPressed(MouseButtonFlags button, float* x, float* y)
+bool isMouseButtonPressed(MouseButtonFlags button, float* x, float* y)
 {
     SDL_MouseButtonFlags button_flag = SDL_GetMouseState(x, y);
 

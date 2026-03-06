@@ -1,0 +1,31 @@
+/* 
+    Simple DirectMedia Layer
+        Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
+*/
+
+#ifndef MOUSE_BUTTON_H
+#define MOUSE_BUTTON_H
+
+#include <stdint.h>
+
+#define MOUSE_BUTTON_LEFT     1
+#define MOUSE_BUTTON_MIDDLE   2
+#define MOUSE_BUTTON_RIGHT    3
+#define MOUSE_BUTTON_X1       4
+#define MOUSE_BUTTON_X2       5
+
+#define MOUSE_BUTTON_MASK(X)  (1u << ((X)-1))
+
+namespace yialite
+{
+    enum MouseButtonFlags : uint32_t
+    {
+        MOUSE_BUTTON_LMASK = MOUSE_BUTTON_MASK(MOUSE_BUTTON_LEFT),
+        MOUSE_BUTTON_MMASK = MOUSE_BUTTON_MASK(MOUSE_BUTTON_MIDDLE),
+        MOUSE_BUTTON_RMASK = MOUSE_BUTTON_MASK(MOUSE_BUTTON_RIGHT),
+        MOUSE_BUTTON_X1MASK = MOUSE_BUTTON_MASK(MOUSE_BUTTON_X1),
+        MOUSE_BUTTON_X2MASK = MOUSE_BUTTON_MASK(MOUSE_BUTTON_X2),
+    };
+}
+
+#endif

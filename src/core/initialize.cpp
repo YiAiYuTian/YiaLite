@@ -1,5 +1,5 @@
 #include "initialize.h"
-#include "log.h"
+#include "logger.h"
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -7,19 +7,19 @@
 namespace yialite
 {
 
-YIALITE_API bool initLite()
+bool init()
 {
     bool is_initialized = true;
 
     if(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
     {
-        LOG_FATAL("Failed to initialize SDL: {}", SDL_GetError());
+        Logger::fatal("Failed to initialize SDL: {}", SDL_GetError());
         is_initialized = false;
     }
     
     if(!TTF_Init())
     {
-        LOG_FATAL("Failed to initialize SDL_ttf: {}", SDL_GetError());
+        Logger::fatal("Failed to initialize SDL_ttf: {}", SDL_GetError());
         is_initialized = false;
     }
 
@@ -32,7 +32,7 @@ YIALITE_API bool initLite()
     return is_initialized;
 }
 
-YIALITE_API void quitLite()
+void quit()
 {
     TTF_Quit();
     SDL_Quit();

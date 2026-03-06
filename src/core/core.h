@@ -1,5 +1,5 @@
-﻿#ifndef CORE_H
-#define CORE_H
+﻿#ifndef YIALITE_CORE_H
+#define YIALITE_CORE_H
 
 #ifdef _WIN32
     #ifdef YIALITE_EXPORTS
