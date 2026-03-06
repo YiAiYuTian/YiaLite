@@ -3,8 +3,8 @@
         Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 */
 
-#ifndef _SCANCODE_H_
-#define _SCANCODE_H_
+#ifndef YIALITE_SCANCODE_H
+#define YIALITE_SCANCODE_H
 
 namespace yialite
 {

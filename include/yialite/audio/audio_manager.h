@@ -1,5 +1,5 @@
-#ifndef AUDIO_SYSTEM_H
-#define AUDIO_SYSTEM_H
+#ifndef YIALITE_AUDIO_MANAGER_H
+#define YIALITE_AUDIO_MANAGER_H
 
 #include "../core/core.h"
 

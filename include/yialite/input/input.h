@@ -1,5 +1,5 @@
-#ifndef INPUT_H
-#define INPUT_H
+#ifndef YIALITE_INPUT_H
+#define YIALITE_INPUT_H
 
 #include "../core/core.h"
 #include "../event/mouse_button.h"
