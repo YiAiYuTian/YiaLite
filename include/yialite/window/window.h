@@ -6,8 +6,6 @@
 #include <string>
 #include <memory>
 
-struct SDL_Window;
-
 namespace yialite
 {
 
@@ -33,6 +31,7 @@ struct WindowConfig
 class YIALITE_API Window
 {
     friend class Renderer;
+    friend class DevUI;
 public:
     Window(const WindowConfig& config);
     ~Window();
@@ -44,8 +43,6 @@ public:
     WindowConfig getConfig() const { return m_config; }
     void setWidth(int width);
     void setHeight(int height);
-private:
-    SDL_Window* getSDLWindow() const;
 private:
     struct Impl;
     Impl* m_impl = nullptr;

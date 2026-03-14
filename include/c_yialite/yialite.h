@@ -21,4 +21,7 @@
 //audio
 #include "audio/audio_manager.h"
 
+//devui
+#include "devui/devui.h"
+
 #endif
