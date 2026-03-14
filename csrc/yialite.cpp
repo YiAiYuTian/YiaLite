@@ -7,8 +7,11 @@
 #include "../src/input/input.h"
 #include "../src/core/logger.h"
 #include "../src/core/log.h"
+#include "../src/devui/devui.h"
 #include "../src/core/initialize.h"
 #include "../src/core/yialite_exception.h"
+
+#include <imgui.h>
 
 //window
 struct YiaLite_Window
@@ -234,6 +237,60 @@ void YiaLite_DrawFillRectRF(YiaLite_Renderer* renderer, const YiaLite_FRect rect
     renderer->cpp_renderer->drawFillRectF(cpp_rect, cpp_fcolor);
 }
 
+//devui
+struct YiaLite_DevUI
+{
+    yialite::DevUI* cpp_devui = nullptr;
+};
+
+YiaLite_DevUI* YiaLite_CreateDevUI(YiaLite_Window* window, YiaLite_Renderer* renderer)
+{
+    YiaLite_DevUI* devui = nullptr;
+    try
+    {
+        devui = new YiaLite_DevUI();
+        devui->cpp_devui = new yialite::DevUI(window->cpp_window, renderer->cpp_renderer);
+    }
+    catch(const yialite::YiaLite_Exception& e)
+    {
+        yialite::Logger::error("{}", e.what());
+        delete devui;
+        return NULL;
+    }
+    catch(const std::exception& e)
+    {
+        yialite::Logger::error("Failed to create devui: {}", e.what());
+        delete devui;
+        return NULL;
+    }
+
+    return devui;
+}
+
+void YiaLite_DestroyDevUI(YiaLite_DevUI* devui)
+{
+    if(devui) delete devui->cpp_devui;
+    delete devui;
+}
+
+void YiaLite_DevUIOnUpdate(YiaLite_DevUI* devui)
+{
+    devui->cpp_devui->onUpdate();
+}
+
+void YiaLite_DevUIOnRender(YiaLite_DevUI* devui)
+{
+    devui->cpp_devui->onRender();
+}
+
+void YiaLite_DevUIText(YiaLite_DevUI* devui, const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    ImGui::TextV(fmt, args);
+    va_end(args);
+}
+
 // event
 struct YiaLite_Event
 {
@@ -278,6 +335,11 @@ void YiaLite_EventOnUpdate(YiaLite_Event* event)
 void YiaLite_SetEventCallbackGlobalData(YiaLite_Event* event, void* data)
 {
     event->cpp_event->setGlobalData(data);
+}
+
+void YiaLite_RegisterDevUIEvent(YiaLite_Event* event, YiaLite_DevUI* devui)
+{
+    event->cpp_event->registerDevUIEvent(devui->cpp_devui);
 }
 
 void YiaLite_RegisterQuitEventCallback(YiaLite_Event* event, YiaLite_QuitEventCallback callback)
@@ -369,7 +431,7 @@ void YiaLite_Quit()
 }
 
 //context
-YiaLite_Context* YiaLite_InitContext(const YiaLite_WindowConfig* config)
+YiaLite_Context* YiaLite_InitContext(const YiaLite_WindowConfig* config, bool enable_devui)
 {
     if(!yialite::init()) return NULL;
 
@@ -397,11 +459,34 @@ YiaLite_Context* YiaLite_InitContext(const YiaLite_WindowConfig* config)
         return NULL;
     }
 
+    if(enable_devui)
+    {    
+        if(context->devui = YiaLite_CreateDevUI(context->window, context->renderer); !context->devui)
+        {
+            YiaLite_DestroyRenderer(context->renderer);
+            YiaLite_DestroyWindow(context->window);
+            delete context;
+            return NULL;
+        }
+    }
+
+    if(context->event = YiaLite_CreateEvent(); !context->event)
+    {
+        if(enable_devui) YiaLite_DestroyDevUI(context->devui);
+        YiaLite_DestroyRenderer(context->renderer);
+        YiaLite_DestroyWindow(context->window);
+        delete context;
+        return NULL;
+    }
+    if(enable_devui) YiaLite_RegisterDevUIEvent(context->event, context->devui);
+
     return context;
 }
 
 void YiaLite_QuitContext(YiaLite_Context* context)
 {
+    YiaLite_DestroyDevUI(context->devui);
+    YiaLite_DestroyEvent(context->event);
     YiaLite_DestroyRenderer(context->renderer);
     YiaLite_DestroyWindow(context->window);
     delete context;

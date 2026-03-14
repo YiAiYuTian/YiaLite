@@ -14,6 +14,7 @@ class Window;
 
 class YIALITE_API Renderer
 {
+    friend class DevUI;
 public:
     Renderer(Window* window);
     ~Renderer();

@@ -18,6 +18,8 @@ typedef void (*WindowMovedEventCallback)(int x, int y, void* data);
 typedef void (*WindowFocusGainedEventCallback)(void* data);
 typedef void (*WindowFocusLostEventCallback)(void* data);
 
+class DevUI;
+
 class YIALITE_API Event
 {
 public:
@@ -26,7 +28,9 @@ public:
 
     void onUpdate();
 
+    
     void setGlobalData(void* data);
+    void registerDevUIEvent(DevUI* devui);
     void registerQuitEventCallback(QuitEventCallback callback);
     void registerKeyEventCallback(KeyEventCallback callback);
     void registerMouseButtonEventCallback(MouseButtonEventCallback callback);
