@@ -10,6 +10,7 @@ find_package(SDL3_image CONFIG REQUIRED)
 find_package(SDL3_ttf CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(Vorbis CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
 
 find_path(MINIAUDIO_INCLUDE_DIRS "miniaudio.h")
 
@@ -35,6 +36,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE imgui::imgui
                                               $<IF:$<TARGET_EXISTS:SDL3_image::SDL3_image-shared>,SDL3_image::SDL3_image-shared,SDL3_image::SDL3_image-static>
                                               SDL3_ttf::SDL3_ttf
                                               spdlog::spdlog_header_only
-                                              Vorbis::vorbisfile)
+                                              Vorbis::vorbisfile
+                                              glm::glm-header-only)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE YIALITE_EXPORTS)

@@ -14,12 +14,6 @@ typedef struct YiaLite_Vector2i
     int y;
 } YiaLite_Vector2i;
 
-typedef struct YiaLite_Vector2d
-{
-    double x;
-    double y;
-} YiaLite_Vector2d;
-
 //Vector3
 typedef struct YiaLite_Vector3f
 {
@@ -34,13 +28,6 @@ typedef struct YiaLite_Vector3i
     int y;
     int z;
 } YiaLite_Vector3i;
-
-typedef struct YiaLite_Vector3d
-{
-    double x;
-    double y;
-    double z;
-} YiaLite_Vector3d;
 
 //Vector4
 typedef struct YiaLite_Vector4f
