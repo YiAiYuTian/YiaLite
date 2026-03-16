@@ -23,7 +23,4 @@
 //window
 #include "window/window.h"
 
-//devui
-#include "devui/devui.h"
-
 #endif

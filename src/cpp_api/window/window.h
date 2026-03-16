@@ -9,7 +9,9 @@
 namespace yialite
 {
 
-enum WindowFlags : uint64_t
+typedef uint64_t WindowFlags;
+
+enum WindowFlags_ : uint64_t
 {
     WindowFlags_None                = 0,
     WindowFlags_Fullscreen          = 1ULL << 0,

@@ -2,14 +2,10 @@
 #include "logger.h"
 #include "initialize.h"
 #include "yialite_exception.h"
-#include "../devui/devui.h"
 #include "../event/event.h"
 #include "../window/window.h"
 #include "../renderer/renderer.h" 
 
-#include <imgui.h>
-#include <imgui_impl_sdl3.h>
-#include <imgui_impl_sdlrenderer3.h>
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
@@ -101,13 +97,13 @@ Renderer::~Renderer()
     delete m_impl;
 }
 
-void Renderer::beginDraw(Color background_color)
+void Renderer::beginDraw(const Color& background_color)
 {
     SDL_SetRenderDrawColor(m_impl->renderer, background_color.r, background_color.g, background_color.b, background_color.a);
     SDL_RenderClear(m_impl->renderer);
 }
 
-void Renderer::beginDrawF(FColor background_color)
+void Renderer::beginDrawF(const FColor& background_color)
 {
     SDL_SetRenderDrawColorFloat(m_impl->renderer, background_color.r, background_color.g, background_color.b, background_color.a);
     SDL_RenderClear(m_impl->renderer);
@@ -118,161 +114,98 @@ void Renderer::endDraw()
     SDL_RenderPresent(m_impl->renderer);
 }
 
-void Renderer::drawPoint(const Vector2f &pos, Color color)
+void Renderer::drawPoint(const Vector2f &pos, const Color& color)
 {
     SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderPoint(m_impl->renderer, pos.x, pos.y);
 }
 
-void Renderer::drawPoints(const Vector2f* pos, int count, Color color)
+void Renderer::drawPoints(const Vector2f* pos, int count, const Color& color)
 {
     SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderPoints(m_impl->renderer, reinterpret_cast<const SDL_FPoint*>(pos), count);
 }
 
-void Renderer::drawLine(const Vector2f &start, const Vector2f &end, Color color)
+void Renderer::drawLine(const Vector2f &start, const Vector2f &end, const Color& color)
 {
     SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderLine(m_impl->renderer, start.x, start.y, end.x, end.y);
 }
 
-void Renderer::drawRect(const Vector2f &pos, const Vector2f &size, Color color)
+void Renderer::drawRect(const Vector2f &pos, const Vector2f &size, const Color& color)
 {
     SDL_FRect frect = { pos.x, pos.y, size.x, size.y };
     SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderRect(m_impl->renderer, &frect);
 }
 
-void Renderer::drawRect(const FRect &rect, Color color)
+void Renderer::drawRect(const FRect &rect, const Color& color)
 {
     SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderRect(m_impl->renderer, reinterpret_cast<const SDL_FRect*>(&rect));
 }
 
-void Renderer::drawFillRect(const Vector2f &pos, const Vector2f &size, Color color)
+void Renderer::drawFillRect(const Vector2f &pos, const Vector2f &size, const Color& color)
 {
     SDL_FRect frect = { pos.x, pos.y, size.x, size.y };
     SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(m_impl->renderer, &frect);
 }
 
-void Renderer::drawFillRect(const FRect &rect, Color color)
+void Renderer::drawFillRect(const FRect &rect, const Color& color)
 {
     SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(m_impl->renderer, reinterpret_cast<const SDL_FRect*>(&rect));
 }
 
-void Renderer::drawPointF(const Vector2f &pos, FColor color)
+void Renderer::drawPointF(const Vector2f &pos, const FColor& color)
 {
     SDL_SetRenderDrawColorFloat(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderPoint(m_impl->renderer, pos.x, pos.y);
 }
 
-void Renderer::drawPointsF(const Vector2f *pos, int count, FColor color)
+void Renderer::drawPointsF(const Vector2f *pos, int count, const FColor& color)
 {
     SDL_SetRenderDrawColorFloat(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderPoints(m_impl->renderer, reinterpret_cast<const SDL_FPoint*>(pos), count);
 }
 
-void Renderer::drawLineF(const Vector2f &start, const Vector2f &end, FColor color)
+void Renderer::drawLineF(const Vector2f &start, const Vector2f &end, const FColor& color)
 {
     SDL_SetRenderDrawColorFloat(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderLine(m_impl->renderer, start.x, start.y, end.x, end.y);
 }
 
-void Renderer::drawRectF(const Vector2f &pos, const Vector2f &size, FColor color)
+void Renderer::drawRectF(const Vector2f &pos, const Vector2f &size, const FColor& color)
 {
     SDL_FRect frect = { pos.x, pos.y, size.x, size.y };
     SDL_SetRenderDrawColorFloat(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderRect(m_impl->renderer, &frect);
 }
 
-void Renderer::drawRectF(const FRect &rect, FColor color)
+void Renderer::drawRectF(const FRect &rect, const FColor& color)
 {
     SDL_SetRenderDrawColorFloat(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderRect(m_impl->renderer, reinterpret_cast<const SDL_FRect*>(&rect));
 }
 
-void Renderer::drawFillRectF(const Vector2f &pos, const Vector2f &size, FColor color)
+void Renderer::drawFillRectF(const Vector2f &pos, const Vector2f &size, const FColor& color)
 {
     SDL_FRect frect = { pos.x, pos.y, size.x, size.y };
     SDL_SetRenderDrawColorFloat(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(m_impl->renderer, &frect);
 }
 
-void Renderer::drawFillRectF(const FRect &rect, FColor color)
+void Renderer::drawFillRectF(const FRect &rect, const FColor& color)
 {
     SDL_SetRenderDrawColorFloat(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(m_impl->renderer, reinterpret_cast<const SDL_FRect*>(&rect));
-}
-
-//devui
-struct DevUI::Impl
-{
-    SDL_Renderer *renderer = nullptr;
-
-    void processEvent(const SDL_Event* sdl_event)
-    {
-        ImGui_ImplSDL3_ProcessEvent(sdl_event);
-    }
-};
-
-DevUI::DevUI(Window* window, Renderer *renderer)
-{
-    m_impl = new DevUI::Impl();
-    m_impl->renderer = renderer->m_impl->renderer;
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
-    ImGui::StyleColorsDark();
-
-    if(!ImGui_ImplSDL3_InitForSDLRenderer(window->m_impl->window, m_impl->renderer))
-        throw YiaLite_Exception("Failed to initialize DevUI");
-    if(!ImGui_ImplSDLRenderer3_Init(m_impl->renderer))
-        throw YiaLite_Exception("Failed to initialize DevUI");
-}
-
-DevUI::~DevUI()
-{
-    ImGui_ImplSDLRenderer3_Shutdown();
-    ImGui_ImplSDL3_Shutdown();
-    ImGui::DestroyContext();
-    delete m_impl;
-}
-
-void DevUI::onUpdate()
-{    
-    auto& io = ImGui::GetIO();
-    SDL_SetRenderScale(m_impl->renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-
-    ImGui_ImplSDLRenderer3_NewFrame();
-    ImGui_ImplSDL3_NewFrame();
-    ImGui::NewFrame();
-}
-
-void DevUI::onRender()
-{
-    ImGui::Render();
-    ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), m_impl->renderer);
-}
-
-void DevUI::Text(const char *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    ImGui::TextV(fmt, args);
-    va_end(args);
 }
 
 //event
 struct Event::Impl
 {
     SDL_Event event;
-
-    DevUI* devui = nullptr;
 
     void* data = nullptr;
 
@@ -302,8 +235,6 @@ void Event::onUpdate()
     auto& sdl_event = m_impl->event;
     while (SDL_PollEvent(&sdl_event))
     {
-        if(m_impl->devui) m_impl->devui->m_impl->processEvent(&sdl_event); 
-
         switch (sdl_event.type)
         {
         case SDL_EVENT_QUIT:
@@ -427,11 +358,6 @@ void Event::onUpdate()
     }
 }
 
-void Event::registerDevUIEvent(DevUI* devui)
-{
-    m_impl->devui = devui;
-}
-
 void Event::setGlobalData(void *data)
 {
     m_impl->data = data;
@@ -496,23 +422,16 @@ struct Context::Initializer
     }
 };
 
-Context::Context(const WindowConfig &config, bool enable_devui)
+Context::Context(const WindowConfig &config)
 {
     initializer = new Initializer();
     window = new Window(config);
     renderer = new Renderer(window);
     event = new Event();
-    
-    if(enable_devui)
-    {
-        devui = new DevUI(window, renderer);
-        event->registerDevUIEvent(devui);
-    }
 }
 
 Context::~Context()
 {
-    delete devui;
     delete event;
     delete renderer;
     delete window;

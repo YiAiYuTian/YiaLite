@@ -5,7 +5,9 @@
 
 #include <stdint.h>
 
-typedef enum YiaLite_WindowFlags
+typedef uint64_t YiaLite_WindowFlags;
+
+typedef enum YiaLite_WindowFlags_
 {
     YiaLite_WindowFlags_None                = 0,
     YiaLite_WindowFlags_Fullscreen          = 1ULL << 0,
@@ -14,7 +16,7 @@ typedef enum YiaLite_WindowFlags
     YiaLite_WindowFlags_MouseGrabbed        = 1ULL << 3,
     YiaLite_WindowFlags_MouseCapture        = 1ULL << 4,
     YiaLite_WindowFlags_KeyboardGrabbed     = 1ULL << 5
-} YiaLite_WindowFlags;
+} YiaLite_WindowFlags_;
 
 typedef struct YiaLite_WindowConfig
 {

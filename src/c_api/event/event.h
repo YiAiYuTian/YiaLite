@@ -18,8 +18,6 @@ typedef void (*YiaLite_WindowMovedEventCallback)(int x, int y, void* data);
 typedef void (*YiaLite_WindowFocusGainedEventCallback)(void* data);
 typedef void (*YiaLite_WindowFocusLostEventCallback)(void* data);
 
-typedef struct YiaLite_DevUI YiaLite_DevUI;
-
 typedef struct YiaLite_Event YiaLite_Event;
 
 #ifdef __cplusplus
@@ -32,7 +30,6 @@ YIALITE_API void YiaLite_DestroyEvent(YiaLite_Event* event);
 YIALITE_API void YiaLite_EventOnUpdate(YiaLite_Event* event);
 
 YIALITE_API void YiaLite_SetEventCallbackGlobalData             (YiaLite_Event* event, void* data);
-YIALITE_API void YiaLite_RegisterDevUIEvent                     (YiaLite_Event* event, YiaLite_DevUI* devui);
 YIALITE_API void YiaLite_RegisterQuitEventCallback              (YiaLite_Event* event, YiaLite_QuitEventCallback callback);
 YIALITE_API void YiaLite_RegisterKeyEventCallback               (YiaLite_Event* event, YiaLite_KeyEventCallback callback);
 YIALITE_API void YiaLite_RegisterMouseButtonEventCallback       (YiaLite_Event* event, YiaLite_MouseButtonEventCallback callback);

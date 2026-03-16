@@ -4,7 +4,6 @@ project(YiaLite VERSION 0.1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(imgui CONFIG REQUIRED)
 find_package(SDL3 CONFIG REQUIRED)
 find_package(SDL3_image CONFIG REQUIRED)
 find_package(SDL3_ttf CONFIG REQUIRED)
@@ -30,8 +29,7 @@ target_sources(${PROJECT_NAME} PRIVATE ${CXX_SRC} ${C_SRC})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${MINIAUDIO_INCLUDE_DIRS})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE imgui::imgui
-                                              SDL3::SDL3
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3
                                               $<IF:$<TARGET_EXISTS:SDL3_image::SDL3_image-shared>,SDL3_image::SDL3_image-shared,SDL3_image::SDL3_image-static>
                                               SDL3_ttf::SDL3_ttf
                                               spdlog::spdlog_header_only
