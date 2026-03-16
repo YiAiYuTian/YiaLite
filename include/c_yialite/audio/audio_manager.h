@@ -1,7 +1,7 @@
 #ifndef C_YIALITE_AUDIO_MANAGER_H
 #define C_YIALITE_AUDIO_MANAGER_H
 
-#include "../../src/core/core.h"
+#include "../../cpp_api/core/core.h"
 
 #include <stdbool.h>
 

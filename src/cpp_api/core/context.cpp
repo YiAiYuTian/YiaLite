@@ -145,9 +145,8 @@ void Renderer::drawRect(const Vector2f &pos, const Vector2f &size, Color color)
 
 void Renderer::drawRect(const FRect &rect, Color color)
 {
-    SDL_FRect frect = { rect.x, rect.y, rect.w, rect.h };
     SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderRect(m_impl->renderer, &frect);
+    SDL_RenderRect(m_impl->renderer, reinterpret_cast<const SDL_FRect*>(&rect));
 }
 
 void Renderer::drawFillRect(const Vector2f &pos, const Vector2f &size, Color color)
@@ -159,9 +158,8 @@ void Renderer::drawFillRect(const Vector2f &pos, const Vector2f &size, Color col
 
 void Renderer::drawFillRect(const FRect &rect, Color color)
 {
-    SDL_FRect frect = { rect.x, rect.y, rect.w, rect.h };
     SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderFillRect(m_impl->renderer, &frect);
+    SDL_RenderFillRect(m_impl->renderer, reinterpret_cast<const SDL_FRect*>(&rect));
 }
 
 void Renderer::drawPointF(const Vector2f &pos, FColor color)
@@ -191,9 +189,8 @@ void Renderer::drawRectF(const Vector2f &pos, const Vector2f &size, FColor color
 
 void Renderer::drawRectF(const FRect &rect, FColor color)
 {
-    SDL_FRect frect = { rect.x, rect.y, rect.w, rect.h };
     SDL_SetRenderDrawColorFloat(m_impl->renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderRect(m_impl->renderer, &frect);
+    SDL_RenderRect(m_impl->renderer, reinterpret_cast<const SDL_FRect*>(&rect));
 }
 
 void Renderer::drawFillRectF(const Vector2f &pos, const Vector2f &size, FColor color)
@@ -205,9 +202,8 @@ void Renderer::drawFillRectF(const Vector2f &pos, const Vector2f &size, FColor c
 
 void Renderer::drawFillRectF(const FRect &rect, FColor color)
 {
-    SDL_FRect frect = { rect.x, rect.y, rect.w, rect.h };
     SDL_SetRenderDrawColorFloat(m_impl->renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderFillRect(m_impl->renderer, &frect);
+    SDL_RenderFillRect(m_impl->renderer, reinterpret_cast<const SDL_FRect*>(&rect));
 }
 
 //devui

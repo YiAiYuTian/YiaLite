@@ -1,15 +1,15 @@
 #include "yialite.h"
 
-#include "../src/window/window.h"
-#include "../src/renderer/renderer.h"
-#include "../src/audio/audio_manager.h" 
-#include "../src/event/event.h"
-#include "../src/input/input.h"
-#include "../src/core/logger.h"
-#include "../src/core/log.h"
-#include "../src/devui/devui.h"
-#include "../src/core/initialize.h"
-#include "../src/core/yialite_exception.h"
+#include "../cpp_api/window/window.h"
+#include "../cpp_api/renderer/renderer.h"
+#include "../cpp_api/audio/audio_manager.h" 
+#include "../cpp_api/event/event.h"
+#include "../cpp_api/input/input.h"
+#include "../cpp_api/core/logger.h"
+#include "../cpp_api/core/log.h"
+#include "../cpp_api/devui/devui.h"
+#include "../cpp_api/core/initialize.h"
+#include "../cpp_api/core/yialite_exception.h"
 
 #include <imgui.h>
 
@@ -568,4 +568,236 @@ bool YiaLite_PlaySoundFromName(YiaLite_AudioManager* audio_manager, const char* 
 size_t YiaLite_GetSoundCount(YiaLite_AudioManager* audio_manager)
 {
     return audio_manager->cpp_audio_manager->getSoundCount();
+}
+
+//math
+//vector2
+YiaLite_Vector2f YiaLite_Vector2fAdd(YiaLite_Vector2f a, YiaLite_Vector2f b)
+{
+    return {a.x + b.x, a.y + b.y};
+}
+
+YiaLite_Vector2f YiaLite_Vector2fSub(YiaLite_Vector2f a, YiaLite_Vector2f b)
+{
+    return {a.x - b.x, a.y - b.y};
+}
+
+YiaLite_Vector2f YiaLite_Vector2fMul(YiaLite_Vector2f v, float scalar)
+{
+    return {v.x * scalar, v.y * scalar};
+}
+
+YiaLite_Vector2f YiaLite_Vector2fDiv(YiaLite_Vector2f v, float scalar)
+{
+    auto& cpp_vec2 = *reinterpret_cast<yialite::Vector2f*>(&v);
+    cpp_vec2 /= scalar;
+    return *reinterpret_cast<YiaLite_Vector2f*>(&cpp_vec2);
+}
+
+YiaLite_Vector2f YiaLite_Vector2fNeg(YiaLite_Vector2f v)
+{
+    return {-v.x, -v.y};
+}
+
+float YiaLite_Vector2fLengthSquared(YiaLite_Vector2f v)
+{
+    return v.x * v.x + v.y * v.y;
+}
+
+float YiaLite_Vector2fLength(YiaLite_Vector2f v)
+{
+    return sqrt(YiaLite_Vector2fLengthSquared(v));
+}
+
+void YiaLite_Vector2fNormalize(YiaLite_Vector2f* v)
+{
+    auto& cpp_vec2 = *reinterpret_cast<yialite::Vector2f*>(v);
+    cpp_vec2.normalize();
+}
+
+YiaLite_Vector2f YiaLite_Vector2fNormalized(YiaLite_Vector2f v)
+{
+    YiaLite_Vector2fNormalize(&v);
+    return v;
+}
+
+YiaLite_Vector2i YiaLite_Vector2iAdd(YiaLite_Vector2i a, YiaLite_Vector2i b)
+{
+    return {a.x + b.x, a.y + b.y};
+}
+
+YiaLite_Vector2i YiaLite_Vector2iSub(YiaLite_Vector2i a, YiaLite_Vector2i b)
+{
+    return {a.x - b.x, a.y - b.y};
+}
+
+YiaLite_Vector2i YiaLite_Vector2iMul(YiaLite_Vector2i v, int scalar)
+{
+    return {v.x * scalar, v.y * scalar};
+}
+
+YiaLite_Vector2i YiaLite_Vector2iDiv(YiaLite_Vector2i v, int scalar)
+{
+    auto& cpp_vec2 = *reinterpret_cast<yialite::Vector2i*>(&v);
+    cpp_vec2 /= scalar;
+    return *reinterpret_cast<YiaLite_Vector2i*>(&cpp_vec2);
+}
+
+YiaLite_Vector2i YiaLite_Vector2iNeg(YiaLite_Vector2i v)
+{
+    return {-v.x, -v.y};
+}
+
+//vector3
+YiaLite_Vector3f YiaLite_Vector3fAdd(YiaLite_Vector3f a, YiaLite_Vector3f b)
+{
+    return {a.x + b.x, a.y + b.y, a.z + b.z};
+}
+
+YiaLite_Vector3f YiaLite_Vector3fSub(YiaLite_Vector3f a, YiaLite_Vector3f b)
+{
+    return {a.x - b.x, a.y - b.y, a.z - b.z};
+}
+
+YiaLite_Vector3f YiaLite_Vector3fMul(YiaLite_Vector3f v, float scalar)
+{
+    return {v.x * scalar, v.y * scalar, v.z * scalar};
+}
+
+YiaLite_Vector3f YiaLite_Vector3fDiv(YiaLite_Vector3f v, float scalar)
+{
+    auto& cpp_vec3 = *reinterpret_cast<yialite::Vector3f*>(&v);
+    cpp_vec3 /= scalar;
+    return *reinterpret_cast<YiaLite_Vector3f*>(&cpp_vec3);
+}
+
+YiaLite_Vector3f YiaLite_Vector3fNeg(YiaLite_Vector3f v)
+{
+    return {-v.x, -v.y, -v.z};
+}
+
+float YiaLite_Vector3fLengthSquared(YiaLite_Vector3f v)
+{
+    return v.x * v.x + v.y * v.y + v.z * v.z;
+}
+
+float YiaLite_Vector3fLength(YiaLite_Vector3f v)
+{
+    return sqrt(YiaLite_Vector3fLengthSquared(v));
+}
+
+void YiaLite_Vector3fNormalize(YiaLite_Vector3f* v)
+{
+    auto& cpp_vec3 = *reinterpret_cast<yialite::Vector3f*>(v);
+    cpp_vec3.normalize();
+}
+
+YiaLite_Vector3f YiaLite_Vector3fNormalized(YiaLite_Vector3f v)
+{
+    YiaLite_Vector3fNormalize(&v);
+    return v;
+}
+
+YiaLite_Vector3i YiaLite_Vector3iAdd(YiaLite_Vector3i a, YiaLite_Vector3i b)
+{
+    return {a.x + b.x, a.y + b.y, a.z + b.z};
+}
+
+YiaLite_Vector3i YiaLite_Vector3iSub(YiaLite_Vector3i a, YiaLite_Vector3i b)
+{
+    return {a.x - b.x, a.y - b.y, a.z - b.z};
+}
+
+YiaLite_Vector3i YiaLite_Vector3iMul(YiaLite_Vector3i v, int scalar)
+{
+    return {v.x * scalar, v.y * scalar, v.z * scalar};
+}
+
+YiaLite_Vector3i YiaLite_Vector3iDiv(YiaLite_Vector3i v, int scalar)
+{
+    auto& cpp_vec3 = *reinterpret_cast<yialite::Vector3i*>(&v);
+    cpp_vec3 /= scalar;
+    return *reinterpret_cast<YiaLite_Vector3i*>(&cpp_vec3);
+}
+
+YiaLite_Vector3i YiaLite_Vector3iNeg(YiaLite_Vector3i v)
+{
+    return {-v.x, -v.y, -v.z};
+}
+
+//vector4
+YiaLite_Vector4f YiaLite_Vector4fAdd(YiaLite_Vector4f a, YiaLite_Vector4f b)
+{
+    return {a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
+}
+
+YiaLite_Vector4f YiaLite_Vector4fSub(YiaLite_Vector4f a, YiaLite_Vector4f b)
+{
+    return {a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
+}
+
+YiaLite_Vector4f YiaLite_Vector4fMul(YiaLite_Vector4f v, float scalar)
+{
+    return {v.x * scalar, v.y * scalar, v.z * scalar, v.w * scalar};
+}
+
+YiaLite_Vector4f YiaLite_Vector4fDiv(YiaLite_Vector4f v, float scalar)
+{
+    auto& cpp_vec4 = *reinterpret_cast<yialite::Vector4f*>(&v);
+    cpp_vec4 /= scalar;
+    return *reinterpret_cast<YiaLite_Vector4f*>(&cpp_vec4);
+}
+
+YiaLite_Vector4f YiaLite_Vector4fNeg(YiaLite_Vector4f v)
+{
+    return {-v.x, -v.y, -v.z, -v.w};
+}
+
+float YiaLite_Vector4fLengthSquared(YiaLite_Vector4f v)
+{
+    return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
+}
+
+float YiaLite_Vector4fLength(YiaLite_Vector4f v)
+{
+    return sqrt(YiaLite_Vector4fLengthSquared(v));
+}
+
+void YiaLite_Vector4fNormalize(YiaLite_Vector4f* v)
+{
+    auto& cpp_vec4 = *reinterpret_cast<yialite::Vector4f*>(v);
+    cpp_vec4.normalize();
+}
+
+YiaLite_Vector4f YiaLite_Vector4fNormalized(YiaLite_Vector4f v)
+{
+    YiaLite_Vector4fNormalize(&v);
+    return v;
+}
+
+YiaLite_Vector4i YiaLite_Vector4iAdd(YiaLite_Vector4i a, YiaLite_Vector4i b)
+{
+    return {a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
+}
+
+YiaLite_Vector4i YiaLite_Vector4iSub(YiaLite_Vector4i a, YiaLite_Vector4i b)
+{
+    return {a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
+}
+
+YiaLite_Vector4i YiaLite_Vector4iMul(YiaLite_Vector4i v, int scalar)
+{
+    return {v.x * scalar, v.y * scalar, v.z * scalar, v.w * scalar};
+}
+
+YiaLite_Vector4i YiaLite_Vector4iDiv(YiaLite_Vector4i v, int scalar)
+{
+    auto& cpp_vec4 = *reinterpret_cast<yialite::Vector4i*>(&v);
+    cpp_vec4 /= scalar;
+    return *reinterpret_cast<YiaLite_Vector4i*>(&cpp_vec4);
+}
+
+YiaLite_Vector4i YiaLite_Vector4iNeg(YiaLite_Vector4i v)
+{
+    return {-v.x, -v.y, -v.z, -v.w};
 }

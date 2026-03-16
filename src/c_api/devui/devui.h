@@ -1,7 +1,7 @@
 #ifndef C_YIALITE_DEVUI_H
 #define C_YIALITE_DEVUI_H
 
-#include "../../src/core/core.h"
+#include "../../cpp_api/core/core.h"
 
 typedef struct YiaLite_Window YiaLite_Window;
 typedef struct YiaLite_Renderer YiaLite_Renderer;

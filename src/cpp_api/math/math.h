@@ -55,7 +55,7 @@ struct Vector2Base
         auto& self = static_cast<const Derived&>(*this);
 
         if constexpr (std::is_floating_point_v<T>) {
-            assert(fabs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector2 division by zero!");
+            assert(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector2 division by zero!");
         } else {
             assert(scalar != 0 && "Vector2 division by zero!");
         }
@@ -100,7 +100,7 @@ struct Vector2Base
         auto& self = static_cast<Derived&>(*this);
 
         if constexpr (std::is_floating_point_v<T>) {
-            assert(fabs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector2 division by zero!");
+            assert(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector2 division by zero!");
         } else {
             assert(scalar != 0 && "Vector2 division by zero!");
         }
@@ -133,6 +133,11 @@ struct Vector2Base
         if (len < std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE) return Derived{0};
         return self / len;
     }
+
+    constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0]; }
+    constexpr const T* begin() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
+    constexpr T* end() noexcept { return begin() + 2; }
+    constexpr const T* end() const noexcept { return begin() + 2; }
 };
 
 template <typename T, typename Derived>
@@ -236,7 +241,7 @@ struct Vector3Base
         auto& self = static_cast<const Derived&>(*this);
 
         if constexpr (std::is_floating_point_v<T>) {
-            assert(fabs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector3 division by zero!");
+            assert(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector3 division by zero!");
         } else {
             assert(scalar != 0 && "Vector3 division by zero!");
         }
@@ -285,7 +290,7 @@ struct Vector3Base
         auto& self = static_cast<Derived&>(*this);
 
         if constexpr (std::is_floating_point_v<T>) {
-            assert(fabs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector3 division by zero!");
+            assert(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector3 division by zero!");
         } else {
             assert(scalar != 0 && "Vector3 division by zero!");
         }
@@ -319,6 +324,11 @@ struct Vector3Base
         if (len < std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE) return Derived{0};
         return self / len;
     }
+
+    constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0]; }
+    constexpr const T* begin() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
+    constexpr T* end() noexcept { return begin() + 3; }
+    constexpr const T* end() const noexcept { return begin() + 3; }
 };
 
 template <typename T, typename Derived>
@@ -435,7 +445,7 @@ struct Vector4Base
         auto& self = static_cast<const Derived&>(*this);
 
         if constexpr (std::is_floating_point_v<T>) {
-            assert(fabs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector4 division by zero!");
+            assert(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector4 division by zero!");
         } else {
             assert(scalar != 0 && "Vector4 division by zero!");
         }
@@ -492,7 +502,7 @@ struct Vector4Base
         auto& self = static_cast<Derived&>(*this);
 
         if constexpr (std::is_floating_point_v<T>) {
-            assert(fabs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector4 division by zero!");
+            assert(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector4 division by zero!");
         } else {
             assert(scalar != 0 && "Vector4 division by zero!");
         }
@@ -527,6 +537,11 @@ struct Vector4Base
         if (len < std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE) return Derived{0};
         return self / len;
     }
+
+    constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0]; }
+    constexpr const T* begin() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
+    constexpr T* end() noexcept { return begin() + 4; }
+    constexpr const T* end() const noexcept { return begin() + 4; }
 };
 
 template <typename T, typename Derived, typename Tag = Vector4Tag>
@@ -622,7 +637,7 @@ struct alignas(16) FRect : public Vector4Base<float, FRect, RectTag>
     }
 };
 
-struct alignas(16) Color : public Vector4Base<unsigned char, Color, ColorTag>
+struct Color : public Vector4Base<unsigned char, Color, ColorTag>
 {
     unsigned char r, g, b, a;
 
@@ -661,6 +676,17 @@ struct alignas(16) FColor : public Vector4Base<float, FColor, ColorTag>
         return (&r)[i];
     }
 };
+
+static_assert(std::is_standard_layout_v<Vector2f>, "must be C layout");
+static_assert(std::is_standard_layout_v<Vector2i>, "must be C layout");
+static_assert(std::is_standard_layout_v<Vector3f>, "must be C layout");
+static_assert(std::is_standard_layout_v<Vector3i>, "must be C layout");
+static_assert(std::is_standard_layout_v<Vector4f>, "must be C layout");
+static_assert(std::is_standard_layout_v<Vector4i>, "must be C layout");
+static_assert(std::is_standard_layout_v<Rect>,     "must be C layout");
+static_assert(std::is_standard_layout_v<FRect>,    "must be C layout");
+static_assert(std::is_standard_layout_v<Color>,    "must be C layout");
+static_assert(std::is_standard_layout_v<FColor>,   "must be C layout");
 
 }
 

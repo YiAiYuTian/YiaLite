@@ -10,22 +10,21 @@ find_package(SDL3_image CONFIG REQUIRED)
 find_package(SDL3_ttf CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(Vorbis CONFIG REQUIRED)
-find_package(glm CONFIG REQUIRED)
 
 find_path(MINIAUDIO_INCLUDE_DIRS "miniaudio.h")
 
 add_library(${PROJECT_NAME} SHARED)
 
-set(C_SRC "csrc/yialite.cpp")
+set(C_SRC "src/c_api/yialite.cpp")
 
-set(CXX_SRC "src/core/logger.cpp"
-            "src/core/context.cpp"
-            "src/core/initialize.cpp"
-            "src/core/log.cpp"
-            "src/audio/audio_manager.cpp"
-            "src/audio/miniaudio/miniaudio.cpp"
-            "src/audio/miniaudio/libvorbis/miniaudio_libvorbis.c"
-            "src/input/input.cpp")
+set(CXX_SRC "src/cpp_api/core/logger.cpp"
+            "src/cpp_api/core/context.cpp"
+            "src/cpp_api/core/initialize.cpp"
+            "src/cpp_api/core/log.cpp"
+            "src/cpp_api/audio/audio_manager.cpp"
+            "src/cpp_api/audio/miniaudio/miniaudio.cpp"
+            "src/cpp_api/audio/miniaudio/libvorbis/miniaudio_libvorbis.c"
+            "src/cpp_api/input/input.cpp")
 
 target_sources(${PROJECT_NAME} PRIVATE ${CXX_SRC} ${C_SRC})
 
@@ -36,7 +35,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE imgui::imgui
                                               $<IF:$<TARGET_EXISTS:SDL3_image::SDL3_image-shared>,SDL3_image::SDL3_image-shared,SDL3_image::SDL3_image-static>
                                               SDL3_ttf::SDL3_ttf
                                               spdlog::spdlog_header_only
-                                              Vorbis::vorbisfile
-                                              glm::glm-header-only)
+                                              Vorbis::vorbisfile)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE YIALITE_EXPORTS)

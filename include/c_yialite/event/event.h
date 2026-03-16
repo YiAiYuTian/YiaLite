@@ -1,7 +1,7 @@
 ﻿#ifndef C_YIALITE_EVENT_H
 #define C_YIALITE_EVENT_H
 
-#include "../../src/core/core.h"
+#include "../../cpp_api/core/core.h"
 
 #include "keycode.h"
 #include "mouse_button.h"
