@@ -9,6 +9,7 @@ namespace yialite
 class Window;
 class Renderer;
 class Event;
+class DevUI;
 
 struct WindowConfig;
 
@@ -21,6 +22,7 @@ struct YIALITE_API Context
     Window* window = nullptr;
     Renderer* renderer = nullptr;
     Event* event = nullptr;
+    DevUI* devui = nullptr;
 };
 
 }

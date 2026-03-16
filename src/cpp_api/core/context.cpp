@@ -5,6 +5,11 @@
 #include "../event/event.h"
 #include "../window/window.h"
 #include "../renderer/renderer.h" 
+#include "../devui/devui.h"
+
+#include "../devui/imgui/imgui.h"
+#include "../devui/imgui/backends/imgui_impl_sdl3.h"
+#include "../devui/imgui/backends/imgui_impl_sdlrenderer3.h"
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -202,10 +207,66 @@ void Renderer::drawFillRectF(const FRect &rect, const FColor& color)
     SDL_RenderFillRect(m_impl->renderer, reinterpret_cast<const SDL_FRect*>(&rect));
 }
 
+//devui
+struct DevUI::Impl
+{
+    SDL_Renderer* sdl_renderer = nullptr;
+
+    void processEvent(const SDL_Event& sdl_event)
+    {
+        ImGui_ImplSDL3_ProcessEvent(&sdl_event);
+    }
+};
+
+DevUI::DevUI(Window* window, Renderer* renderer)
+{
+    m_impl = new DevUI::Impl();
+    m_impl->sdl_renderer = renderer->m_impl->renderer;
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplSDL3_InitForSDLRenderer(window->m_impl->window, renderer->m_impl->renderer);
+    ImGui_ImplSDLRenderer3_Init(renderer->m_impl->renderer);
+}
+
+DevUI::~DevUI()
+{
+    ImGui_ImplSDLRenderer3_Shutdown();
+    ImGui_ImplSDL3_Shutdown();
+    ImGui::DestroyContext();
+
+    delete m_impl;
+}
+
+void DevUI::onUpdate()
+{
+    ImGui_ImplSDLRenderer3_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
+    ImGui::NewFrame();
+}
+
+void DevUI::onRender()
+{
+    auto& renderer = m_impl->sdl_renderer;
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
+    
+    ImGui::Render();
+    ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
+}
+
 //event
 struct Event::Impl
 {
     SDL_Event event;
+
+    DevUI* devui = nullptr;
 
     void* data = nullptr;
 
@@ -235,6 +296,9 @@ void Event::onUpdate()
     auto& sdl_event = m_impl->event;
     while (SDL_PollEvent(&sdl_event))
     {
+        if(m_impl->devui)
+            m_impl->devui->m_impl->processEvent(sdl_event);
+
         switch (sdl_event.type)
         {
         case SDL_EVENT_QUIT:
@@ -363,6 +427,11 @@ void Event::setGlobalData(void *data)
     m_impl->data = data;
 }
 
+void Event::registerDevUIEvent(DevUI* devui)
+{
+    m_impl->devui = devui;
+}
+
 void Event::registerQuitEventCallback(QuitEventCallback callback)
 {
     m_impl->quit_event_callback = callback;
@@ -428,10 +497,12 @@ Context::Context(const WindowConfig &config)
     window = new Window(config);
     renderer = new Renderer(window);
     event = new Event();
+    devui = new DevUI(window, renderer);
 }
 
 Context::~Context()
 {
+    delete devui;
     delete event;
     delete renderer;
     delete window;

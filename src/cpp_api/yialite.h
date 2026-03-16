@@ -23,4 +23,8 @@
 //window
 #include "window/window.h"
 
+//devui
+#include "devui/devui.h"
+#include "devui/imgui/imgui.h"
+
 #endif
