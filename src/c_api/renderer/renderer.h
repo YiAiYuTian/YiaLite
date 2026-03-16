@@ -3,10 +3,7 @@
 
 #include "../../cpp_api/core/core.h"
 
-#include "../math/math.h"
-
-#define DEFAULT_COLOR ((YiaLite_Color){ 255, 255, 255, 255 })
-#define DEFAULT_FCOLOR ((YiaLite_FColor){ 1.0f, 1.0f, 1.0f, 1.0f })
+#include "render_color.h"
 
 typedef struct YiaLite_Window YiaLite_Window;
 typedef struct YiaLite_Renderer YiaLite_Renderer;
