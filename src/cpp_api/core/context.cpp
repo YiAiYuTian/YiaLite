@@ -491,13 +491,19 @@ struct Context::Initializer
     }
 };
 
-Context::Context(const WindowConfig &config)
+Context::Context(const ContextConfig &config)
 {
     initializer = new Initializer();
-    window = new Window(config);
+    window = new Window(config.window_config);
     renderer = new Renderer(window);
     event = new Event();
-    devui = new DevUI(window, renderer);
+    devui = nullptr;
+    
+    if(config.enable_devui)
+    {
+        devui = new DevUI(window, renderer);
+        event->registerDevUIEvent(devui);
+    }
 }
 
 Context::~Context()

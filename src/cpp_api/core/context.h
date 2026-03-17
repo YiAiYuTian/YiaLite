@@ -1,7 +1,8 @@
 ﻿#ifndef YIALITE_CONTEXT_H
 #define YIALITE_CONTEXT_H
 
-#include "../core/core.h"
+#include "core.h"
+#include "config.h"
 
 namespace yialite
 {
@@ -11,11 +12,9 @@ class Renderer;
 class Event;
 class DevUI;
 
-struct WindowConfig;
-
 struct YIALITE_API Context
 {
-    Context(const WindowConfig& config);
+    Context(const ContextConfig& config);
     ~Context();
     struct Initializer;
     Initializer* initializer = nullptr;
