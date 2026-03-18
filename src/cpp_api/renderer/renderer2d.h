@@ -1,5 +1,5 @@
-﻿#ifndef YIALITE_RENDERER_H
-#define YIALITE_RENDERER_H
+﻿#ifndef YIALITE_RENDERER2D_H
+#define YIALITE_RENDERER2D_H
 
 #include "render_color.h"
 #include "../core/core.h"
@@ -9,17 +9,17 @@ namespace yialite
 
 class Window;
 
-class YIALITE_API Renderer
+class YIALITE_API Renderer2D
 {
     friend class DevUI;
 public:
-    Renderer(Window* window);
-    ~Renderer();
+    Renderer2D(Window* window);
+    ~Renderer2D();
 
-    Renderer(const Renderer&) = delete;
-    Renderer& operator=(const Renderer&) = delete;
-    Renderer(Renderer&&) = delete;
-    Renderer& operator=(Renderer&&) = delete;
+    Renderer2D(const Renderer2D&) = delete;
+    Renderer2D& operator=(const Renderer2D&) = delete;
+    Renderer2D(Renderer2D&&) = delete;
+    Renderer2D& operator=(Renderer2D&&) = delete;
 
     void beginDraw(const Color& background_color = COLOR_BLACK);
     void beginDrawF(const FColor& background_color = FCOLOR_BLACK);

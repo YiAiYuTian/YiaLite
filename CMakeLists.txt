@@ -14,7 +14,7 @@ find_path(MINIAUDIO_INCLUDE_DIRS "miniaudio.h")
 
 add_library(${PROJECT_NAME} SHARED)
 
-set(C_SRC "src/c_api/yialite.cpp")
+set(C_SRC "src/c_api(discard)/yialite.cpp")
 
 set(CXX_SRC "src/cpp_api/core/logger.cpp"
             "src/cpp_api/core/context.cpp"

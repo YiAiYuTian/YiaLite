@@ -677,6 +677,341 @@ struct alignas(16) FColor : public Vector4Base<float, FColor, ColorTag>
     }
 };
 
+//mat3
+template<typename T, typename Derived>
+struct Matrix3Base
+{
+    [[nodiscard]] constexpr Derived operator-() const noexcept
+    {
+        auto& self = static_cast<const Derived&>(*this);
+        return Derived(
+            -self[0][0], -self[1][0], -self[2][0],
+            -self[0][1], -self[1][1], -self[2][1],
+            -self[0][2], -self[1][2], -self[2][2]
+        );
+    }
+
+    [[nodiscard]] constexpr Derived operator+(const Derived &other) const noexcept
+    {
+        auto& self = static_cast<const Derived&>(*this);
+
+        return Derived(
+            self[0][0] + other[0][0], self[1][0] + other[1][0], self[2][0] + other[2][0],
+            self[0][1] + other[0][1], self[1][1] + other[1][1], self[2][1] + other[2][1],
+            self[0][2] + other[0][2], self[1][2] + other[1][2], self[2][2] + other[2][2]
+        );
+    }
+
+    [[nodiscard]] constexpr Derived operator-(const Derived& other) const noexcept
+    {
+        auto& self = static_cast<const Derived&>(*this);
+
+        return Derived(
+            self[0][0] - other[0][0], self[1][0] - other[1][0], self[2][0] - other[2][0],
+            self[0][1] - other[0][1], self[1][1] - other[1][1], self[2][1] - other[2][1],
+            self[0][2] - other[0][2], self[1][2] - other[1][2], self[2][2] - other[2][2]
+        );
+    }
+
+    [[nodiscard]] constexpr Derived operator*(T scalar) const noexcept
+    {
+        auto& self = static_cast<const Derived&>(*this);
+
+        return Derived(
+            self[0][0] * scalar, self[1][0] * scalar, self[2][0] * scalar,
+            self[0][1] * scalar, self[1][1] * scalar, self[2][1] * scalar,
+            self[0][2] * scalar, self[1][2] * scalar, self[2][2] * scalar
+        );
+    }
+
+    constexpr Derived& operator+=(const Derived& other) noexcept
+    {
+        auto& self = static_cast<Derived&>(*this);
+        self[0][0] += other[0][0]; self[0][1] += other[0][1]; self[0][2] += other[0][2];
+        self[1][0] += other[1][0]; self[1][1] += other[1][1]; self[1][2] += other[1][2];
+        self[2][0] += other[2][0]; self[2][1] += other[2][1]; self[2][2] += other[2][2];
+
+        return self;
+    }
+
+    constexpr Derived& operator-=(const Derived& other) noexcept
+    {
+        auto& self = static_cast<Derived&>(*this);
+        self[0][0] -= other[0][0]; self[0][1] -= other[0][1]; self[0][2] -= other[0][2];
+        self[1][0] -= other[1][0]; self[1][1] -= other[1][1]; self[1][2] -= other[1][2];
+        self[2][0] -= other[2][0]; self[2][1] -= other[2][1]; self[2][2] -= other[2][2];
+
+        return self;
+    }
+
+    constexpr Derived& operator*=(T scalar) noexcept
+    {
+        auto& self = static_cast<Derived&>(*this);
+        self[0][0] *= scalar; self[1][0] *= scalar; self[2][0] *= scalar;
+        self[0][1] *= scalar; self[1][1] *= scalar; self[2][1] *= scalar;
+        self[0][2] *= scalar; self[1][2] *= scalar; self[2][2] *= scalar;
+
+        return self;
+    }
+
+    constexpr Derived& operator*=(const Derived& other) noexcept
+    {
+        auto& self = static_cast<Derived&>(*this);
+        self = self * other;
+
+        return self;
+    }
+
+    constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0][0]; }
+    constexpr const T* begin() const noexcept { return &static_cast<const Derived&>(*this)[0][0]; }
+    constexpr T* end() noexcept { return begin() + 9; }
+    constexpr const T* end() const noexcept { return begin() + 9; }
+};
+
+template<typename T, typename Derived>
+[[nodiscard]] constexpr Derived operator*(T scalar, const Matrix3Base<T, Derived>& mat3) noexcept
+{
+    return static_cast<const Derived&>(mat3) * scalar;
+}
+
+template<typename T, typename Derived>
+[[nodiscard]] constexpr Derived operator*(const Matrix3Base<T, Derived>& lhs, const Matrix3Base<T, Derived>& rhs) noexcept
+{
+    const auto& self = static_cast<const Derived&>(lhs);
+    const auto& other = static_cast<const Derived&>(rhs);
+
+    return Derived(
+        self[0][0] * other[0][0] + self[0][1] * other[1][0] + self[0][2] * other[2][0],
+        self[1][0] * other[0][0] + self[1][1] * other[1][0] + self[1][2] * other[2][0],
+        self[2][0] * other[0][0] + self[2][1] * other[1][0] + self[2][2] * other[2][0],
+
+        self[0][0] * other[0][1] + self[0][1] * other[1][1] + self[0][2] * other[2][1],
+        self[1][0] * other[0][1] + self[1][1] * other[1][1] + self[1][2] * other[2][1],
+        self[2][0] * other[0][1] + self[2][1] * other[1][1] + self[2][2] * other[2][1],
+
+        self[0][0] * other[0][2] + self[0][1] * other[1][2] + self[0][2] * other[2][2],
+        self[1][0] * other[0][2] + self[1][1] * other[1][2] + self[1][2] * other[2][2],
+        self[2][0] * other[0][2] + self[2][1] * other[1][2] + self[2][2] * other[2][2]
+    );
+}
+
+struct Matrix3f : public Matrix3Base<float, Matrix3f>
+{
+    float data[3][3];
+
+    constexpr Matrix3f() : data{} {}
+    constexpr explicit Matrix3f(float v)
+    { 
+        data[0][0] = data[1][1] = data[2][2] = v;
+        data[0][1] = data[0][2] = 0.0f;
+        data[1][0] = data[1][2] = 0.0f;
+        data[2][0] = data[2][1] = 0.0f;
+    }
+    constexpr Matrix3f(float m00, float m01, float m02,
+                       float m10, float m11, float m12,
+                       float m20, float m21, float m22)
+    : data{{m00, m10, m20},
+           {m01, m11, m21},
+           {m02, m12, m22}} {}
+
+    [[nodiscard]] constexpr Vector3f operator*(const Vector3f& other) const noexcept
+    {
+        return Vector3f(
+            data[0][0] * other[0] + data[1][0] * other[1] + data[2][0] * other[2],
+            data[0][1] * other[0] + data[1][1] * other[1] + data[2][1] * other[2],
+            data[0][2] * other[0] + data[1][2] * other[1] + data[2][2] * other[2]
+        );
+    }
+
+    constexpr float* operator[](int i) noexcept
+    {
+        assert(i >= 0 && i < 3 && "Matrix3f index out of bounds!");
+        return data[i];
+    }
+    constexpr const float* operator[](int i) const noexcept 
+    {
+        assert(i >= 0 && i < 3 && "Matrix3f index out of bounds!");
+        return data[i];
+    }
+};
+
+//mat4
+template<typename T, typename Derived>
+struct Matrix4Base
+{
+    [[nodiscard]] constexpr Derived operator-() const noexcept
+    {
+        auto& self = static_cast<const Derived&>(*this);
+        return Derived(
+            -self[0][0], -self[1][0], -self[2][0], -self[3][0],
+            -self[0][1], -self[1][1], -self[2][1], -self[3][1],
+            -self[0][2], -self[1][2], -self[2][2], -self[3][2],
+            -self[0][3], -self[1][3], -self[2][3], -self[3][3]
+        );
+    }
+
+    [[nodiscard]] constexpr Derived operator+(const Derived &other) const noexcept
+    {
+        auto& self = static_cast<const Derived&>(*this);
+
+        return Derived(
+            self[0][0] + other[0][0], self[1][0] + other[1][0], self[2][0] + other[2][0], self[3][0] + other[3][0],
+            self[0][1] + other[0][1], self[1][1] + other[1][1], self[2][1] + other[2][1], self[3][1] + other[3][1],
+            self[0][2] + other[0][2], self[1][2] + other[1][2], self[2][2] + other[2][2], self[3][2] + other[3][2],
+            self[0][3] + other[0][3], self[1][3] + other[1][3], self[2][3] + other[2][3], self[3][3] + other[3][3]
+        );
+    }
+
+    [[nodiscard]] constexpr Derived operator-(const Derived& other) const noexcept
+    {
+        auto& self = static_cast<const Derived&>(*this);
+
+        return Derived(
+            self[0][0] - other[0][0], self[1][0] - other[1][0], self[2][0] - other[2][0], self[3][0] - other[3][0],
+            self[0][1] - other[0][1], self[1][1] - other[1][1], self[2][1] - other[2][1], self[3][1] - other[3][1],
+            self[0][2] - other[0][2], self[1][2] - other[1][2], self[2][2] - other[2][2], self[3][2] - other[3][2],
+            self[0][3] - other[0][3], self[1][3] - other[1][3], self[2][3] - other[2][3], self[3][3] - other[3][3]
+        );
+    }
+
+    [[nodiscard]] constexpr Derived operator*(T scalar) const noexcept
+    {
+        auto& self = static_cast<const Derived&>(*this);
+
+        return Derived(
+            self[0][0] * scalar, self[1][0] * scalar, self[2][0] * scalar, self[3][0] * scalar,
+            self[0][1] * scalar, self[1][1] * scalar, self[2][1] * scalar, self[3][1] * scalar,
+            self[0][2] * scalar, self[1][2] * scalar, self[2][2] * scalar, self[3][2] * scalar,
+            self[0][3] * scalar, self[1][3] * scalar, self[2][3] * scalar, self[3][3] * scalar
+        );
+    }
+
+    constexpr Derived& operator+=(const Derived& other) noexcept
+    {
+        auto& self = static_cast<Derived&>(*this);
+        self[0][0] += other[0][0]; self[1][0] += other[1][0]; self[2][0] += other[2][0]; self[3][0] += other[3][0];
+        self[0][1] += other[0][1]; self[1][1] += other[1][1]; self[2][1] += other[2][1]; self[3][1] += other[3][1];
+        self[0][2] += other[0][2]; self[1][2] += other[1][2]; self[2][2] += other[2][2]; self[3][2] += other[3][2];
+        self[0][3] += other[0][3]; self[1][3] += other[1][3]; self[2][3] += other[2][3]; self[3][3] += other[3][3];
+
+        return self;
+    }
+
+    constexpr Derived& operator-=(const Derived& other) noexcept
+    {
+        auto& self = static_cast<Derived&>(*this);
+        self[0][0] -= other[0][0]; self[1][0] -= other[1][0]; self[2][0] -= other[2][0]; self[3][0] -= other[3][0];
+        self[0][1] -= other[0][1]; self[1][1] -= other[1][1]; self[2][1] -= other[2][1]; self[3][1] -= other[3][1];
+        self[0][2] -= other[0][2]; self[1][2] -= other[1][2]; self[2][2] -= other[2][2]; self[3][2] -= other[3][2];
+        self[0][3] -= other[0][3]; self[1][3] -= other[1][3]; self[2][3] -= other[2][3]; self[3][3] -= other[3][3];
+
+        return self;
+    }
+
+    constexpr Derived& operator*=(T scalar) noexcept
+    {
+        auto& self = static_cast<Derived&>(*this);
+        self[0][0] *= scalar; self[1][0] *= scalar; self[2][0] *= scalar; self[3][0] *= scalar;
+        self[0][1] *= scalar; self[1][1] *= scalar; self[2][1] *= scalar; self[3][1] *= scalar;
+        self[0][2] *= scalar; self[1][2] *= scalar; self[2][2] *= scalar; self[3][2] *= scalar;
+        self[0][3] *= scalar; self[1][3] *= scalar; self[2][3] *= scalar; self[3][3] *= scalar;
+
+        return self;
+    }
+
+    constexpr Derived& operator*=(const Derived& other) noexcept
+    {
+        auto& self = static_cast<Derived&>(*this);
+        self = self * other;
+
+        return self;
+    }
+
+    constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0][0]; }
+    constexpr const T* begin() const noexcept { return &static_cast<const Derived&>(*this)[0][0]; }
+    constexpr T* end() noexcept { return begin() + 16; }
+    constexpr const T* end() const noexcept { return begin() + 16; }
+};
+
+template<typename T, typename Derived>
+[[nodiscard]] constexpr Derived operator*(T scalar, const Matrix4Base<T, Derived>& mat4) noexcept
+{
+    return static_cast<const Derived&>(mat4) * scalar;
+}
+
+template<typename T, typename Derived>
+[[nodiscard]] constexpr Derived operator*(const Matrix4Base<T, Derived>& lhs, const Matrix4Base<T, Derived>& rhs) noexcept
+{
+    const auto& self = static_cast<const Derived&>(lhs);
+    const auto& other = static_cast<const Derived&>(rhs);
+
+    return Derived(
+        self[0][0] * other[0][0] + self[0][1] * other[1][0] + self[0][2] * other[2][0] + self[0][3] * other[3][0],
+        self[1][0] * other[0][0] + self[1][1] * other[1][0] + self[1][2] * other[2][0] + self[1][3] * other[3][0],
+        self[2][0] * other[0][0] + self[2][1] * other[1][0] + self[2][2] * other[2][0] + self[2][3] * other[3][0],
+        self[3][0] * other[0][0] + self[3][1] * other[1][0] + self[3][2] * other[2][0] + self[3][3] * other[3][0],
+
+        self[0][0] * other[0][1] + self[0][1] * other[1][1] + self[0][2] * other[2][1] + self[0][3] * other[3][1],
+        self[1][0] * other[0][1] + self[1][1] * other[1][1] + self[1][2] * other[2][1] + self[1][3] * other[3][1],
+        self[2][0] * other[0][1] + self[2][1] * other[1][1] + self[2][2] * other[2][1] + self[2][3] * other[3][1],
+        self[3][0] * other[0][1] + self[3][1] * other[1][1] + self[3][2] * other[2][1] + self[3][3] * other[3][1],
+
+        self[0][0] * other[0][2] + self[0][1] * other[1][2] + self[0][2] * other[2][2] + self[0][3] * other[3][2],
+        self[1][0] * other[0][2] + self[1][1] * other[1][2] + self[1][2] * other[2][2] + self[1][3] * other[3][2],
+        self[2][0] * other[0][2] + self[2][1] * other[1][2] + self[2][2] * other[2][2] + self[2][3] * other[3][2],
+        self[3][0] * other[0][2] + self[3][1] * other[1][2] + self[3][2] * other[2][2] + self[3][3] * other[3][2],
+
+        self[0][0] * other[0][3] + self[0][1] * other[1][3] + self[0][2] * other[2][3] + self[0][3] * other[3][3],
+        self[1][0] * other[0][3] + self[1][1] * other[1][3] + self[1][2] * other[2][3] + self[1][3] * other[3][3],
+        self[2][0] * other[0][3] + self[2][1] * other[1][3] + self[2][2] * other[2][3] + self[2][3] * other[3][3],
+        self[3][0] * other[0][3] + self[3][1] * other[1][3] + self[3][2] * other[2][3] + self[3][3] * other[3][3]
+    );
+}
+
+struct Matrix4f : public Matrix4Base<float, Matrix4f>
+{
+    float data[4][4];
+
+    constexpr Matrix4f() : data{} {}
+    constexpr explicit Matrix4f(float v)
+    { 
+        data[0][0] = data[1][1] = data[2][2] = data[3][3] = v;
+        data[0][1] = data[0][2] = data[0][3] = 0.0f;
+        data[1][0] = data[1][2] = data[1][3] = 0.0f;
+        data[2][0] = data[2][1] = data[2][3] = 0.0f;
+        data[3][0] = data[3][1] = data[3][2] = 0.0f;
+    }
+    constexpr Matrix4f(float m00, float m01, float m02, float m03,
+                       float m10, float m11, float m12, float m13,
+                       float m20, float m21, float m22, float m23,
+                       float m30, float m31, float m32, float m33)
+    : data{{m00, m10, m20, m30},
+           {m01, m11, m21, m31},
+           {m02, m12, m22, m32},
+           {m03, m13, m23, m33}} {}
+
+    [[nodiscard]] constexpr Vector4f operator*(const Vector4f& other) const noexcept
+    {
+        return Vector4f(
+            data[0][0] * other[0] + data[1][0] * other[1] + data[2][0] * other[2] + data[3][0] * other[3],
+            data[0][1] * other[0] + data[1][1] * other[1] + data[2][1] * other[2] + data[3][1] * other[3],
+            data[0][2] * other[0] + data[1][2] * other[1] + data[2][2] * other[2] + data[3][2] * other[3],
+            data[0][3] * other[0] + data[1][3] * other[1] + data[2][3] * other[2] + data[3][3] * other[3]
+        );
+    }
+
+    constexpr float* operator[](int i) noexcept
+    {
+        assert(i >= 0 && i < 4 && "Matrix4f index out of bounds!");
+        return data[i];
+    }
+    constexpr const float* operator[](int i) const noexcept 
+    {
+        assert(i >= 0 && i < 4 && "Matrix4f index out of bounds!");
+        return data[i];
+    }
+};
+
 static_assert(std::is_standard_layout_v<Vector2f>, "must be C layout");
 static_assert(std::is_standard_layout_v<Vector2i>, "must be C layout");
 static_assert(std::is_standard_layout_v<Vector3f>, "must be C layout");
@@ -687,6 +1022,8 @@ static_assert(std::is_standard_layout_v<Rect>,     "must be C layout");
 static_assert(std::is_standard_layout_v<FRect>,    "must be C layout");
 static_assert(std::is_standard_layout_v<Color>,    "must be C layout");
 static_assert(std::is_standard_layout_v<FColor>,   "must be C layout");
+static_assert(std::is_standard_layout_v<Matrix3f>, "must be C layout");
+static_assert(std::is_standard_layout_v<Matrix4f>, "must be C layout");
 
 }
 

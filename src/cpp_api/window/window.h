@@ -9,7 +9,7 @@ namespace yialite
 
 class YIALITE_API Window
 {
-    friend class Renderer;
+    friend class Renderer2D;
     friend class DevUI;
 public:
     Window(const WindowConfig& config);

@@ -7,13 +7,13 @@ namespace yialite
 {
 
 class Window;
-class Renderer;
+class Renderer2D;
 
 class YIALITE_API DevUI
 {
     friend class Event;
 public:
-    DevUI(Window* window, Renderer* renderer);
+    DevUI(Window* window, Renderer2D* renderer);
     ~DevUI();
     DevUI(const DevUI&) = delete;
     DevUI& operator=(const DevUI&) = delete;

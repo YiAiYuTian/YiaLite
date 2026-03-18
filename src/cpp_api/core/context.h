@@ -8,7 +8,7 @@ namespace yialite
 {
 
 class Window;
-class Renderer;
+class Renderer2D;
 class Event;
 class DevUI;
 
@@ -19,7 +19,7 @@ struct YIALITE_API Context
     struct Initializer;
     Initializer* initializer = nullptr;
     Window* window = nullptr;
-    Renderer* renderer = nullptr;
+    Renderer2D* renderer2d = nullptr;
     Event* event = nullptr;
     DevUI* devui = nullptr;
 };

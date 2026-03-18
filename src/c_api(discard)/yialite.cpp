@@ -1,7 +1,7 @@
 #include "yialite.h"
 
 #include "../cpp_api/window/window.h"
-#include "../cpp_api/renderer/renderer.h"
+#include "../cpp_api/renderer/renderer2d.h"
 #include "../cpp_api/audio/audio_manager.h" 
 #include "../cpp_api/event/event.h"
 #include "../cpp_api/input/input.h"
@@ -78,7 +78,7 @@ void YiaLite_SetWindowHeight(YiaLite_Window *window, int height)
 //renderer
 struct YiaLite_Renderer
 {
-    yialite::Renderer* cpp_renderer = nullptr;
+    yialite::Renderer2D* cpp_renderer = nullptr;
 };
 
 YiaLite_Renderer *YiaLite_CreateRenderer(YiaLite_Window *window)
@@ -89,7 +89,7 @@ YiaLite_Renderer *YiaLite_CreateRenderer(YiaLite_Window *window)
     try
     {
         renderer = new YiaLite_Renderer();
-        renderer->cpp_renderer = new yialite::Renderer(cpp_window);
+        renderer->cpp_renderer = new yialite::Renderer2D(cpp_window);
     }
     catch(const yialite::YiaLite_Exception& e)
     {

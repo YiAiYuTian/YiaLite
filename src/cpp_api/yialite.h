@@ -18,7 +18,7 @@
 #include "input/input.h"
 
 //renderer
-#include "renderer/renderer.h"
+#include "renderer/renderer2d.h"
 
 //window
 #include "window/window.h"

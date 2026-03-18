@@ -4,13 +4,15 @@
 #include "yialite_exception.h"
 #include "../event/event.h"
 #include "../window/window.h"
-#include "../renderer/renderer.h" 
+#include "../renderer/renderer2d.h"
 #include "../devui/devui.h"
 
 #include "../devui/imgui/imgui.h"
 #include "../devui/imgui/backends/imgui_impl_sdl3.h"
 #include "../devui/imgui/backends/imgui_impl_sdlrenderer3.h"
 
+#include <deque>
+#include <vector>
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
@@ -78,14 +80,85 @@ void Window::setHeight(int height)
 }
 
 //renderer
-struct Renderer::Impl
+static void colorToSDLFColor(const Color& color, SDL_FColor& out_fcolor)
 {
-    SDL_Renderer* renderer = nullptr;
+    out_fcolor.r = color.r / 255.0f;
+    out_fcolor.g = color.g / 255.0f;
+    out_fcolor.b = color.b / 255.0f;
+    out_fcolor.a = color.a / 255.0f;
+}
+
+static void fcolorToSDLFColor(const FColor& fcolor, SDL_FColor& out_fcolor)
+{
+    out_fcolor.r = fcolor.r;
+    out_fcolor.g = fcolor.g;
+    out_fcolor.b = fcolor.b;
+    out_fcolor.a = fcolor.a;
+}
+
+struct Renderer2DCommand
+{
+    std::vector<SDL_Vertex> vertices;
+    SDL_Texture* texture = nullptr;
 };
 
-Renderer::Renderer(Window* window)
+class Renderer2DCommandPool
 {
-    m_impl = new Renderer::Impl();
+public:
+    Renderer2DCommandPool(size_t initial_size = 256)
+    {
+        m_pool.resize(initial_size);
+        m_free_commands.reserve(initial_size);
+
+        for(size_t i = 0; i < initial_size; ++i)
+        {
+            auto& cmd = m_pool[i];
+            cmd.vertices.reserve(4);
+            m_free_commands.push_back(&cmd);
+        }
+    }
+
+    Renderer2DCommand* allocate()
+    {
+        if(m_free_commands.empty())
+        {
+            m_pool.emplace_back();
+            auto& new_cmd = m_pool.back();
+            new_cmd.vertices.reserve(4);
+            m_free_commands.push_back(&new_cmd);
+        }
+
+        Renderer2DCommand* cmd = m_free_commands.back();
+        cmd->vertices.clear();
+        cmd->texture = nullptr;
+
+        m_free_commands.pop_back();
+        m_used_commands.push_back(cmd);
+
+        return cmd;
+    }
+
+    void resetFrame()
+    {
+        m_free_commands.insert(m_free_commands.end(), m_used_commands.begin(), m_used_commands.end());
+        m_used_commands.clear();
+    }
+private:
+    std::deque<Renderer2DCommand> m_pool;
+    std::vector<Renderer2DCommand*> m_free_commands;
+    std::vector<Renderer2DCommand*> m_used_commands;
+};
+
+struct Renderer2D::Impl
+{
+    SDL_Renderer* renderer = nullptr;
+    std::vector<Renderer2DCommand*> render_commands;
+    Renderer2DCommandPool command_pool;
+};
+
+Renderer2D::Renderer2D(Window* window)
+{
+    m_impl = new Renderer2D::Impl();
 
     m_impl->renderer = SDL_CreateRenderer(window->m_impl->window, nullptr);
     if(!m_impl->renderer)
@@ -96,115 +169,306 @@ Renderer::Renderer(Window* window)
     SDL_SetRenderDrawBlendMode(m_impl->renderer, SDL_BLENDMODE_BLEND);
 }
 
-Renderer::~Renderer()
+Renderer2D::~Renderer2D()
 {
     if(m_impl) SDL_DestroyRenderer(m_impl->renderer);
     delete m_impl;
 }
 
-void Renderer::beginDraw(const Color& background_color)
+void Renderer2D::beginDraw(const Color& background_color)
 {
     SDL_SetRenderDrawColor(m_impl->renderer, background_color.r, background_color.g, background_color.b, background_color.a);
     SDL_RenderClear(m_impl->renderer);
 }
 
-void Renderer::beginDrawF(const FColor& background_color)
+void Renderer2D::beginDrawF(const FColor& background_color)
 {
     SDL_SetRenderDrawColorFloat(m_impl->renderer, background_color.r, background_color.g, background_color.b, background_color.a);
     SDL_RenderClear(m_impl->renderer);
 }
 
-void Renderer::endDraw()
+void Renderer2D::endDraw()
 {
+    static std::vector<SDL_Vertex> batch_vertices;
+    static SDL_Texture* batch_texture;
+    if(batch_vertices.capacity() == 0) batch_vertices.reserve(1024 * 10);
+    batch_vertices.clear();
+    batch_texture = nullptr;
+
+    for(auto& cmd : m_impl->render_commands)
+    {
+        SDL_RenderGeometry(
+            m_impl->renderer,
+            cmd->texture,
+            cmd->vertices.data(),
+            static_cast<int>(cmd->vertices.size()),
+            nullptr,
+            0
+        );
+    }
+/*
+    for(auto& cmd : m_impl->render_commands)
+    {
+        if(cmd->texture != batch_texture)
+        {
+            if(!batch_vertices.empty())
+            {
+                SDL_RenderGeometry(
+                    m_impl->renderer,
+                    batch_texture,
+                    batch_vertices.data(),
+                    static_cast<int>(batch_vertices.size()),
+                    nullptr,
+                    0
+                );
+                batch_vertices.clear();
+            }
+            batch_texture = cmd->texture;
+        }
+
+        batch_vertices.insert(batch_vertices.end(), cmd->vertices.begin(), cmd->vertices.end());
+    }
+
+    if(!batch_vertices.empty())
+    {
+        SDL_RenderGeometry(
+            m_impl->renderer,
+            batch_texture,
+            batch_vertices.data(),
+            static_cast<int>(batch_vertices.size()),
+            nullptr,
+            0
+        );
+    }
+*/
     SDL_RenderPresent(m_impl->renderer);
+
+    m_impl->render_commands.clear();
+    m_impl->command_pool.resetFrame();
 }
 
-void Renderer::drawPoint(const Vector2f &pos, const Color& color)
+void Renderer2D::drawPoint(const Vector2f &pos, const Color& color)
 {
     SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderPoint(m_impl->renderer, pos.x, pos.y);
+
+    Renderer2DCommand* cmd = m_impl->command_pool.allocate();
+    SDL_FColor sdl_fcolor;
+    colorToSDLFColor(color, sdl_fcolor);
+    
+    cmd->vertices.emplace_back(SDL_Vertex{
+        { pos.x, pos.y },
+        sdl_fcolor,
+        { 0.0f, 0.0f }
+    });
+
+    m_impl->render_commands.push_back(cmd);
 }
 
-void Renderer::drawPoints(const Vector2f* pos, int count, const Color& color)
+void Renderer2D::drawPoints(const Vector2f* pos, int count, const Color& color)
 {
     SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderPoints(m_impl->renderer, reinterpret_cast<const SDL_FPoint*>(pos), count);
 }
 
-void Renderer::drawLine(const Vector2f &start, const Vector2f &end, const Color& color)
+void Renderer2D::drawLine(const Vector2f &start, const Vector2f &end, const Color& color)
 {
     SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderLine(m_impl->renderer, start.x, start.y, end.x, end.y);
 }
 
-void Renderer::drawRect(const Vector2f &pos, const Vector2f &size, const Color& color)
+void Renderer2D::drawRect(const Vector2f &pos, const Vector2f &size, const Color& color)
 {
-    SDL_FRect frect = { pos.x, pos.y, size.x, size.y };
-    SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderRect(m_impl->renderer, &frect);
+    Renderer2DCommand* cmd = m_impl->command_pool.allocate();
+    SDL_FColor sdl_fcolor;
+    colorToSDLFColor(color, sdl_fcolor);
+
+    float x1 = pos.x;
+    float y1 = pos.y;
+    float x2 = pos.x + size.x;
+    float y2 = pos.y + size.y;
+
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y2}, sdl_fcolor, {0,0}});
+
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y2}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y2}, sdl_fcolor, {0,0}});
+
+    m_impl->render_commands.push_back(cmd);
 }
 
-void Renderer::drawRect(const FRect &rect, const Color& color)
+void Renderer2D::drawRect(const FRect &rect, const Color& color)
 {
-    SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderRect(m_impl->renderer, reinterpret_cast<const SDL_FRect*>(&rect));
+    Renderer2DCommand* cmd = m_impl->command_pool.allocate();
+    SDL_FColor sdl_fcolor;
+    colorToSDLFColor(color, sdl_fcolor);
+
+    float x1 = rect.x;
+    float y1 = rect.y;
+    float x2 = rect.x + rect.w;
+    float y2 = rect.y + rect.h;
+
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y2}, sdl_fcolor, {0,0}});
+
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y2}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y2}, sdl_fcolor, {0,0}});
+
+    m_impl->render_commands.push_back(cmd);
 }
 
-void Renderer::drawFillRect(const Vector2f &pos, const Vector2f &size, const Color& color)
+void Renderer2D::drawFillRect(const Vector2f &pos, const Vector2f &size, const Color& color)
 {
-    SDL_FRect frect = { pos.x, pos.y, size.x, size.y };
-    SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderFillRect(m_impl->renderer, &frect);
+    Renderer2DCommand* cmd = m_impl->command_pool.allocate();
+    SDL_FColor sdl_fcolor;
+    colorToSDLFColor(color, sdl_fcolor);
+
+    float x1 = pos.x;
+    float y1 = pos.y;
+    float x2 = pos.x + size.x;
+    float y2 = pos.y + size.y;
+
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y2}, sdl_fcolor, {0,0}});
+
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y2}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y2}, sdl_fcolor, {0,0}});
+
+    m_impl->render_commands.push_back(cmd);
 }
 
-void Renderer::drawFillRect(const FRect &rect, const Color& color)
+void Renderer2D::drawFillRect(const FRect &rect, const Color& color)
 {
-    SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderFillRect(m_impl->renderer, reinterpret_cast<const SDL_FRect*>(&rect));
+    Renderer2DCommand* cmd = m_impl->command_pool.allocate();
+    SDL_FColor sdl_fcolor;
+    colorToSDLFColor(color, sdl_fcolor);
+
+    float x1 = rect.x;
+    float y1 = rect.y;
+    float x2 = rect.x + rect.w;
+    float y2 = rect.y + rect.h;
+
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y2}, sdl_fcolor, {0,0}});
+
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y2}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y2}, sdl_fcolor, {0,0}});
+
+    m_impl->render_commands.push_back(cmd);
 }
 
-void Renderer::drawPointF(const Vector2f &pos, const FColor& color)
+void Renderer2D::drawPointF(const Vector2f &pos, const FColor& color)
 {
     SDL_SetRenderDrawColorFloat(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderPoint(m_impl->renderer, pos.x, pos.y);
 }
 
-void Renderer::drawPointsF(const Vector2f *pos, int count, const FColor& color)
+void Renderer2D::drawPointsF(const Vector2f *pos, int count, const FColor& color)
 {
     SDL_SetRenderDrawColorFloat(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderPoints(m_impl->renderer, reinterpret_cast<const SDL_FPoint*>(pos), count);
 }
 
-void Renderer::drawLineF(const Vector2f &start, const Vector2f &end, const FColor& color)
+void Renderer2D::drawLineF(const Vector2f &start, const Vector2f &end, const FColor& color)
 {
     SDL_SetRenderDrawColorFloat(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderLine(m_impl->renderer, start.x, start.y, end.x, end.y);
 }
 
-void Renderer::drawRectF(const Vector2f &pos, const Vector2f &size, const FColor& color)
+void Renderer2D::drawRectF(const Vector2f &pos, const Vector2f &size, const FColor& color)
 {
-    SDL_FRect frect = { pos.x, pos.y, size.x, size.y };
-    SDL_SetRenderDrawColorFloat(m_impl->renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderRect(m_impl->renderer, &frect);
+    Renderer2DCommand* cmd = m_impl->command_pool.allocate();
+    SDL_FColor sdl_fcolor;
+    fcolorToSDLFColor(color, sdl_fcolor);
+
+    float x1 = pos.x;
+    float y1 = pos.y;
+    float x2 = pos.x + size.x;
+    float y2 = pos.y + size.y;
+
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y2}, sdl_fcolor, {0,0}});
+
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y2}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y2}, sdl_fcolor, {0,0}});
+
+    m_impl->render_commands.push_back(cmd);
 }
 
-void Renderer::drawRectF(const FRect &rect, const FColor& color)
+void Renderer2D::drawRectF(const FRect &rect, const FColor& color)
 {
-    SDL_SetRenderDrawColorFloat(m_impl->renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderRect(m_impl->renderer, reinterpret_cast<const SDL_FRect*>(&rect));
+    Renderer2DCommand* cmd = m_impl->command_pool.allocate();
+    SDL_FColor sdl_fcolor;
+    fcolorToSDLFColor(color, sdl_fcolor);
+
+    float x1 = rect.x;
+    float y1 = rect.y;
+    float x2 = rect.x + rect.w;
+    float y2 = rect.y + rect.h;
+
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y2}, sdl_fcolor, {0,0}});
+
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y2}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y2}, sdl_fcolor, {0,0}});
+
+    m_impl->render_commands.push_back(cmd);
 }
 
-void Renderer::drawFillRectF(const Vector2f &pos, const Vector2f &size, const FColor& color)
+void Renderer2D::drawFillRectF(const Vector2f &pos, const Vector2f &size, const FColor& color)
 {
-    SDL_FRect frect = { pos.x, pos.y, size.x, size.y };
-    SDL_SetRenderDrawColorFloat(m_impl->renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderFillRect(m_impl->renderer, &frect);
+    Renderer2DCommand* cmd = m_impl->command_pool.allocate();
+    SDL_FColor sdl_fcolor;
+    fcolorToSDLFColor(color, sdl_fcolor);
+
+    float x1 = pos.x;
+    float y1 = pos.y;
+    float x2 = pos.x + size.x;
+    float y2 = pos.y + size.y;
+
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y2}, sdl_fcolor, {0,0}});
+
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y2}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y2}, sdl_fcolor, {0,0}});
+
+    m_impl->render_commands.push_back(cmd);
 }
 
-void Renderer::drawFillRectF(const FRect &rect, const FColor& color)
+void Renderer2D::drawFillRectF(const FRect &rect, const FColor& color)
 {
-    SDL_SetRenderDrawColorFloat(m_impl->renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderFillRect(m_impl->renderer, reinterpret_cast<const SDL_FRect*>(&rect));
+    Renderer2DCommand* cmd = m_impl->command_pool.allocate();
+    SDL_FColor sdl_fcolor;
+    fcolorToSDLFColor(color, sdl_fcolor);
+
+    float x1 = rect.x;
+    float y1 = rect.y;
+    float x2 = rect.x + rect.w;
+    float y2 = rect.y + rect.h;
+
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y2}, sdl_fcolor, {0,0}});
+
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y1}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x2, y2}, sdl_fcolor, {0,0}});
+    cmd->vertices.emplace_back(SDL_Vertex{{x1, y2}, sdl_fcolor, {0,0}});
+
+    m_impl->render_commands.push_back(cmd);
 }
 
 //devui
@@ -218,10 +482,10 @@ struct DevUI::Impl
     }
 };
 
-DevUI::DevUI(Window* window, Renderer* renderer)
+DevUI::DevUI(Window* window, Renderer2D* renderer2d)
 {
     m_impl = new DevUI::Impl();
-    m_impl->sdl_renderer = renderer->m_impl->renderer;
+    m_impl->sdl_renderer = renderer2d->m_impl->renderer;
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -231,8 +495,8 @@ DevUI::DevUI(Window* window, Renderer* renderer)
 
     ImGui::StyleColorsDark();
 
-    ImGui_ImplSDL3_InitForSDLRenderer(window->m_impl->window, renderer->m_impl->renderer);
-    ImGui_ImplSDLRenderer3_Init(renderer->m_impl->renderer);
+    ImGui_ImplSDL3_InitForSDLRenderer(window->m_impl->window, renderer2d->m_impl->renderer);
+    ImGui_ImplSDLRenderer3_Init(renderer2d->m_impl->renderer);
 }
 
 DevUI::~DevUI()
@@ -495,13 +759,13 @@ Context::Context(const ContextConfig &config)
 {
     initializer = new Initializer();
     window = new Window(config.window_config);
-    renderer = new Renderer(window);
+    renderer2d = new Renderer2D(window);
     event = new Event();
     devui = nullptr;
     
     if(config.enable_devui)
     {
-        devui = new DevUI(window, renderer);
+        devui = new DevUI(window, renderer2d);
         event->registerDevUIEvent(devui);
     }
 }
@@ -510,7 +774,7 @@ Context::~Context()
 {
     delete devui;
     delete event;
-    delete renderer;
+    delete renderer2d;
     delete window;
     delete initializer;
 }
