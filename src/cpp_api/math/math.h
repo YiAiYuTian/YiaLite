@@ -364,7 +364,7 @@ struct alignas(16) Vector3f : public Vector3Base<float, Vector3f>
     }
 };
 
-struct Vector3i : public Vector3Base<int, Vector3i>
+struct alignas(16) Vector3i : public Vector3Base<int, Vector3i>
 {
     int x, y, z;
 
@@ -685,9 +685,9 @@ struct Matrix3Base
     {
         auto& self = static_cast<const Derived&>(*this);
         return Derived(
-            -self[0][0], -self[1][0], -self[2][0],
-            -self[0][1], -self[1][1], -self[2][1],
-            -self[0][2], -self[1][2], -self[2][2]
+            -self[0][0], -self[0][1], -self[0][2],
+            -self[1][0], -self[1][1], -self[1][2],
+            -self[2][0], -self[2][1], -self[2][2]
         );
     }
 
@@ -696,9 +696,9 @@ struct Matrix3Base
         auto& self = static_cast<const Derived&>(*this);
 
         return Derived(
-            self[0][0] + other[0][0], self[1][0] + other[1][0], self[2][0] + other[2][0],
-            self[0][1] + other[0][1], self[1][1] + other[1][1], self[2][1] + other[2][1],
-            self[0][2] + other[0][2], self[1][2] + other[1][2], self[2][2] + other[2][2]
+            self[0][0] + other[0][0], self[0][1] + other[0][1], self[0][2] + other[0][2],
+            self[1][0] + other[1][0], self[1][1] + other[1][1], self[1][2] + other[1][2],
+            self[2][0] + other[2][0], self[2][1] + other[2][1], self[2][2] + other[2][2]
         );
     }
 
@@ -707,9 +707,9 @@ struct Matrix3Base
         auto& self = static_cast<const Derived&>(*this);
 
         return Derived(
-            self[0][0] - other[0][0], self[1][0] - other[1][0], self[2][0] - other[2][0],
-            self[0][1] - other[0][1], self[1][1] - other[1][1], self[2][1] - other[2][1],
-            self[0][2] - other[0][2], self[1][2] - other[1][2], self[2][2] - other[2][2]
+            self[0][0] - other[0][0], self[0][1] - other[0][1], self[0][2] - other[0][2],
+            self[1][0] - other[1][0], self[1][1] - other[1][1], self[1][2] - other[1][2],
+            self[2][0] - other[2][0], self[2][1] - other[2][1], self[2][2] - other[2][2]
         );
     }
 
@@ -718,9 +718,9 @@ struct Matrix3Base
         auto& self = static_cast<const Derived&>(*this);
 
         return Derived(
-            self[0][0] * scalar, self[1][0] * scalar, self[2][0] * scalar,
-            self[0][1] * scalar, self[1][1] * scalar, self[2][1] * scalar,
-            self[0][2] * scalar, self[1][2] * scalar, self[2][2] * scalar
+            self[0][0] * scalar, self[0][1] * scalar, self[0][2] * scalar,
+            self[1][0] * scalar, self[1][1] * scalar, self[1][2] * scalar,
+            self[2][0] * scalar, self[2][1] * scalar, self[2][2] * scalar
         );
     }
 
@@ -777,25 +777,25 @@ template<typename T, typename Derived>
 template<typename T, typename Derived>
 [[nodiscard]] constexpr Derived operator*(const Matrix3Base<T, Derived>& lhs, const Matrix3Base<T, Derived>& rhs) noexcept
 {
-    const auto& self = static_cast<const Derived&>(lhs);
-    const auto& other = static_cast<const Derived&>(rhs);
+    const auto& a = static_cast<const Derived&>(lhs);
+    const auto& b = static_cast<const Derived&>(rhs);
 
     return Derived(
-        self[0][0] * other[0][0] + self[0][1] * other[1][0] + self[0][2] * other[2][0],
-        self[1][0] * other[0][0] + self[1][1] * other[1][0] + self[1][2] * other[2][0],
-        self[2][0] * other[0][0] + self[2][1] * other[1][0] + self[2][2] * other[2][0],
+        a[0][0] * b[0][0] + a[1][0] * b[0][1] + a[2][0] * b[0][2],
+        a[0][1] * b[0][0] + a[1][1] * b[0][1] + a[2][1] * b[0][2],
+        a[0][2] * b[0][0] + a[1][2] * b[0][1] + a[2][2] * b[0][2],
 
-        self[0][0] * other[0][1] + self[0][1] * other[1][1] + self[0][2] * other[2][1],
-        self[1][0] * other[0][1] + self[1][1] * other[1][1] + self[1][2] * other[2][1],
-        self[2][0] * other[0][1] + self[2][1] * other[1][1] + self[2][2] * other[2][1],
+        a[0][0] * b[1][0] + a[1][0] * b[1][1] + a[2][0] * b[1][2],
+        a[0][1] * b[1][0] + a[1][1] * b[1][1] + a[2][1] * b[1][2],
+        a[0][2] * b[1][0] + a[1][2] * b[1][1] + a[2][2] * b[1][2],
 
-        self[0][0] * other[0][2] + self[0][1] * other[1][2] + self[0][2] * other[2][2],
-        self[1][0] * other[0][2] + self[1][1] * other[1][2] + self[1][2] * other[2][2],
-        self[2][0] * other[0][2] + self[2][1] * other[1][2] + self[2][2] * other[2][2]
+        a[0][0] * b[2][0] + a[1][0] * b[2][1] + a[2][0] * b[2][2],
+        a[0][1] * b[2][0] + a[1][1] * b[2][1] + a[2][1] * b[2][2],
+        a[0][2] * b[2][0] + a[1][2] * b[2][1] + a[2][2] * b[2][2]
     );
 }
 
-struct Matrix3f : public Matrix3Base<float, Matrix3f>
+struct alignas(16) Matrix3f : public Matrix3Base<float, Matrix3f>
 {
     float data[3][3];
 
@@ -807,9 +807,9 @@ struct Matrix3f : public Matrix3Base<float, Matrix3f>
         data[1][0] = data[1][2] = 0.0f;
         data[2][0] = data[2][1] = 0.0f;
     }
-    constexpr Matrix3f(float m00, float m01, float m02,
-                       float m10, float m11, float m12,
-                       float m20, float m21, float m22)
+    constexpr Matrix3f(float m00, float m10, float m20,
+                       float m01, float m11, float m21,
+                       float m02, float m12, float m22)
     : data{{m00, m10, m20},
            {m01, m11, m21},
            {m02, m12, m22}} {}
@@ -817,9 +817,9 @@ struct Matrix3f : public Matrix3Base<float, Matrix3f>
     [[nodiscard]] constexpr Vector3f operator*(const Vector3f& other) const noexcept
     {
         return Vector3f(
-            data[0][0] * other[0] + data[1][0] * other[1] + data[2][0] * other[2],
-            data[0][1] * other[0] + data[1][1] * other[1] + data[2][1] * other[2],
-            data[0][2] * other[0] + data[1][2] * other[1] + data[2][2] * other[2]
+            data[0][0] * other.x + data[1][0] * other.y + data[2][0] * other.z,
+            data[0][1] * other.x + data[1][1] * other.y + data[2][1] * other.z,
+            data[0][2] * other.x + data[1][2] * other.y + data[2][2] * other.z
         );
     }
 
@@ -843,10 +843,10 @@ struct Matrix4Base
     {
         auto& self = static_cast<const Derived&>(*this);
         return Derived(
-            -self[0][0], -self[1][0], -self[2][0], -self[3][0],
-            -self[0][1], -self[1][1], -self[2][1], -self[3][1],
-            -self[0][2], -self[1][2], -self[2][2], -self[3][2],
-            -self[0][3], -self[1][3], -self[2][3], -self[3][3]
+            -self[0][0], -self[0][1], -self[0][2], -self[0][3],
+            -self[1][0], -self[1][1], -self[1][2], -self[1][3],
+            -self[2][0], -self[2][1], -self[2][2], -self[2][3],
+            -self[3][0], -self[3][1], -self[3][2], -self[3][3]
         );
     }
 
@@ -855,22 +855,22 @@ struct Matrix4Base
         auto& self = static_cast<const Derived&>(*this);
 
         return Derived(
-            self[0][0] + other[0][0], self[1][0] + other[1][0], self[2][0] + other[2][0], self[3][0] + other[3][0],
-            self[0][1] + other[0][1], self[1][1] + other[1][1], self[2][1] + other[2][1], self[3][1] + other[3][1],
-            self[0][2] + other[0][2], self[1][2] + other[1][2], self[2][2] + other[2][2], self[3][2] + other[3][2],
-            self[0][3] + other[0][3], self[1][3] + other[1][3], self[2][3] + other[2][3], self[3][3] + other[3][3]
-        );
-    }
+            self[0][0] + other[0][0], self[0][1] + other[0][1], self[0][2] + other[0][2], self[0][3] + other[0][3],
+            self[1][0] + other[1][0], self[1][1] + other[1][1], self[1][2] + other[1][2], self[1][3] + other[1][3],
+            self[2][0] + other[2][0], self[2][1] + other[2][1], self[2][2] + other[2][2], self[2][3] + other[2][3],
+            self[3][0] + other[3][0], self[3][1] + other[3][1], self[3][2] + other[3][2], self[3][3] + other[3][3]
+        ); 
+     }
 
     [[nodiscard]] constexpr Derived operator-(const Derived& other) const noexcept
     {
         auto& self = static_cast<const Derived&>(*this);
 
-        return Derived(
-            self[0][0] - other[0][0], self[1][0] - other[1][0], self[2][0] - other[2][0], self[3][0] - other[3][0],
-            self[0][1] - other[0][1], self[1][1] - other[1][1], self[2][1] - other[2][1], self[3][1] - other[3][1],
-            self[0][2] - other[0][2], self[1][2] - other[1][2], self[2][2] - other[2][2], self[3][2] - other[3][2],
-            self[0][3] - other[0][3], self[1][3] - other[1][3], self[2][3] - other[2][3], self[3][3] - other[3][3]
+          return Derived(
+            self[0][0] - other[0][0], self[0][1] - other[0][1], self[0][2] - other[0][2], self[0][3] - other[0][3],
+            self[1][0] - other[1][0], self[1][1] - other[1][1], self[1][2] - other[1][2], self[1][3] - other[1][3],
+            self[2][0] - other[2][0], self[2][1] - other[2][1], self[2][2] - other[2][2], self[2][3] - other[2][3],
+            self[3][0] - other[3][0], self[3][1] - other[3][1], self[3][2] - other[3][2], self[3][3] - other[3][3]
         );
     }
 
@@ -879,10 +879,10 @@ struct Matrix4Base
         auto& self = static_cast<const Derived&>(*this);
 
         return Derived(
-            self[0][0] * scalar, self[1][0] * scalar, self[2][0] * scalar, self[3][0] * scalar,
-            self[0][1] * scalar, self[1][1] * scalar, self[2][1] * scalar, self[3][1] * scalar,
-            self[0][2] * scalar, self[1][2] * scalar, self[2][2] * scalar, self[3][2] * scalar,
-            self[0][3] * scalar, self[1][3] * scalar, self[2][3] * scalar, self[3][3] * scalar
+            self[0][0] * scalar, self[0][1] * scalar, self[0][2] * scalar, self[0][3] * scalar,
+            self[1][0] * scalar, self[1][1] * scalar, self[1][2] * scalar, self[1][3] * scalar,
+            self[2][0] * scalar, self[2][1] * scalar, self[2][2] * scalar, self[2][3] * scalar,
+            self[3][0] * scalar, self[3][1] * scalar, self[3][2] * scalar, self[3][3] * scalar
         );
     }
 
@@ -942,33 +942,33 @@ template<typename T, typename Derived>
 template<typename T, typename Derived>
 [[nodiscard]] constexpr Derived operator*(const Matrix4Base<T, Derived>& lhs, const Matrix4Base<T, Derived>& rhs) noexcept
 {
-    const auto& self = static_cast<const Derived&>(lhs);
-    const auto& other = static_cast<const Derived&>(rhs);
+    const auto& a = static_cast<const Derived&>(lhs);
+    const auto& b = static_cast<const Derived&>(rhs);
 
     return Derived(
-        self[0][0] * other[0][0] + self[0][1] * other[1][0] + self[0][2] * other[2][0] + self[0][3] * other[3][0],
-        self[1][0] * other[0][0] + self[1][1] * other[1][0] + self[1][2] * other[2][0] + self[1][3] * other[3][0],
-        self[2][0] * other[0][0] + self[2][1] * other[1][0] + self[2][2] * other[2][0] + self[2][3] * other[3][0],
-        self[3][0] * other[0][0] + self[3][1] * other[1][0] + self[3][2] * other[2][0] + self[3][3] * other[3][0],
+        a[0][0] * b[0][0] + a[1][0] * b[0][1] + a[2][0] * b[0][2] + a[3][0] * b[0][3],
+        a[0][1] * b[0][0] + a[1][1] * b[0][1] + a[2][1] * b[0][2] + a[3][1] * b[0][3],
+        a[0][2] * b[0][0] + a[1][2] * b[0][1] + a[2][2] * b[0][2] + a[3][2] * b[0][3],
+        a[0][3] * b[0][0] + a[1][3] * b[0][1] + a[2][3] * b[0][2] + a[3][3] * b[0][3],
 
-        self[0][0] * other[0][1] + self[0][1] * other[1][1] + self[0][2] * other[2][1] + self[0][3] * other[3][1],
-        self[1][0] * other[0][1] + self[1][1] * other[1][1] + self[1][2] * other[2][1] + self[1][3] * other[3][1],
-        self[2][0] * other[0][1] + self[2][1] * other[1][1] + self[2][2] * other[2][1] + self[2][3] * other[3][1],
-        self[3][0] * other[0][1] + self[3][1] * other[1][1] + self[3][2] * other[2][1] + self[3][3] * other[3][1],
+        a[0][0] * b[1][0] + a[1][0] * b[1][1] + a[2][0] * b[1][2] + a[3][0] * b[1][3],
+        a[0][1] * b[1][0] + a[1][1] * b[1][1] + a[2][1] * b[1][2] + a[3][1] * b[1][3],
+        a[0][2] * b[1][0] + a[1][2] * b[1][1] + a[2][2] * b[1][2] + a[3][2] * b[1][3],
+        a[0][3] * b[1][0] + a[1][3] * b[1][1] + a[2][3] * b[1][2] + a[3][3] * b[1][3],
 
-        self[0][0] * other[0][2] + self[0][1] * other[1][2] + self[0][2] * other[2][2] + self[0][3] * other[3][2],
-        self[1][0] * other[0][2] + self[1][1] * other[1][2] + self[1][2] * other[2][2] + self[1][3] * other[3][2],
-        self[2][0] * other[0][2] + self[2][1] * other[1][2] + self[2][2] * other[2][2] + self[2][3] * other[3][2],
-        self[3][0] * other[0][2] + self[3][1] * other[1][2] + self[3][2] * other[2][2] + self[3][3] * other[3][2],
+        a[0][0] * b[2][0] + a[1][0] * b[2][1] + a[2][0] * b[2][2] + a[3][0] * b[2][3],
+        a[0][1] * b[2][0] + a[1][1] * b[2][1] + a[2][1] * b[2][2] + a[3][1] * b[2][3],
+        a[0][2] * b[2][0] + a[1][2] * b[2][1] + a[2][2] * b[2][2] + a[3][2] * b[2][3],
+        a[0][3] * b[2][0] + a[1][3] * b[2][1] + a[2][3] * b[2][2] + a[3][3] * b[2][3],
 
-        self[0][0] * other[0][3] + self[0][1] * other[1][3] + self[0][2] * other[2][3] + self[0][3] * other[3][3],
-        self[1][0] * other[0][3] + self[1][1] * other[1][3] + self[1][2] * other[2][3] + self[1][3] * other[3][3],
-        self[2][0] * other[0][3] + self[2][1] * other[1][3] + self[2][2] * other[2][3] + self[2][3] * other[3][3],
-        self[3][0] * other[0][3] + self[3][1] * other[1][3] + self[3][2] * other[2][3] + self[3][3] * other[3][3]
+        a[0][0] * b[3][0] + a[1][0] * b[3][1] + a[2][0] * b[3][2] + a[3][0] * b[3][3],
+        a[0][1] * b[3][0] + a[1][1] * b[3][1] + a[2][1] * b[3][2] + a[3][1] * b[3][3],
+        a[0][2] * b[3][0] + a[1][2] * b[3][1] + a[2][2] * b[3][2] + a[3][2] * b[3][3],
+        a[0][3] * b[3][0] + a[1][3] * b[3][1] + a[2][3] * b[3][2] + a[3][3] * b[3][3]
     );
 }
 
-struct Matrix4f : public Matrix4Base<float, Matrix4f>
+struct alignas(16) Matrix4f : public Matrix4Base<float, Matrix4f>
 {
     float data[4][4];
 
@@ -981,10 +981,10 @@ struct Matrix4f : public Matrix4Base<float, Matrix4f>
         data[2][0] = data[2][1] = data[2][3] = 0.0f;
         data[3][0] = data[3][1] = data[3][2] = 0.0f;
     }
-    constexpr Matrix4f(float m00, float m01, float m02, float m03,
-                       float m10, float m11, float m12, float m13,
-                       float m20, float m21, float m22, float m23,
-                       float m30, float m31, float m32, float m33)
+    constexpr Matrix4f(float m00, float m10, float m20, float m30,
+                       float m01, float m11, float m21, float m31,
+                       float m02, float m12, float m22, float m32,
+                       float m03, float m13, float m23, float m33)
     : data{{m00, m10, m20, m30},
            {m01, m11, m21, m31},
            {m02, m12, m22, m32},
@@ -993,10 +993,10 @@ struct Matrix4f : public Matrix4Base<float, Matrix4f>
     [[nodiscard]] constexpr Vector4f operator*(const Vector4f& other) const noexcept
     {
         return Vector4f(
-            data[0][0] * other[0] + data[1][0] * other[1] + data[2][0] * other[2] + data[3][0] * other[3],
-            data[0][1] * other[0] + data[1][1] * other[1] + data[2][1] * other[2] + data[3][1] * other[3],
-            data[0][2] * other[0] + data[1][2] * other[1] + data[2][2] * other[2] + data[3][2] * other[3],
-            data[0][3] * other[0] + data[1][3] * other[1] + data[2][3] * other[2] + data[3][3] * other[3]
+            data[0][0] * other.x + data[1][0] * other.y + data[2][0] * other.z + data[3][0] * other.w,
+            data[0][1] * other.x + data[1][1] * other.y + data[2][1] * other.z + data[3][1] * other.w,
+            data[0][2] * other.x + data[1][2] * other.y + data[2][2] * other.z + data[3][2] * other.w,
+            data[0][3] * other.x + data[1][3] * other.y + data[2][3] * other.z + data[3][3] * other.w
         );
     }
 
