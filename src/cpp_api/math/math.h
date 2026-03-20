@@ -1,16 +1,30 @@
+// Matrices and vectors use column-major order.
+
 #ifndef YIALITE_MATH_H
 #define YIALITE_MATH_H
 
-#include <cassert>
+#ifdef YIALITE_MATH_STANDALONE
+    #include <cassert>
+    
+    #ifdef _DEBUG
+        #define YIALITE_ASSERT(expression) assert(expression)
+    #else
+        #define YIALITE_ASSERT(expression) ((void)0)
+    #endif
+#else
+    #include "../core/core.h"
+#endif
+
 #include <cmath>
 #include <limits>
-
-#define TOLERANCE_SCALE 10
 
 namespace yialite
 {
 
-//Vector2
+constexpr int TOLERANCE_SCALE = 10;
+
+//================================================================================
+//vector2
 template<typename T, typename Derived>
 struct Vector2Base
 {
@@ -55,9 +69,9 @@ struct Vector2Base
         auto& self = static_cast<const Derived&>(*this);
 
         if constexpr (std::is_floating_point_v<T>) {
-            assert(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector2 division by zero!");
+            YIALITE_ASSERT(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector2 division by zero!");
         } else {
-            assert(scalar != 0 && "Vector2 division by zero!");
+            YIALITE_ASSERT(scalar != 0 && "Vector2 division by zero!");
         }
 
         T inv = static_cast<T>(1) / scalar;
@@ -100,9 +114,9 @@ struct Vector2Base
         auto& self = static_cast<Derived&>(*this);
 
         if constexpr (std::is_floating_point_v<T>) {
-            assert(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector2 division by zero!");
+            YIALITE_ASSERT(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector2 division by zero!");
         } else {
-            assert(scalar != 0 && "Vector2 division by zero!");
+            YIALITE_ASSERT(scalar != 0 && "Vector2 division by zero!");
         }
         
         T inv = static_cast<T>(1) / scalar;
@@ -110,28 +124,6 @@ struct Vector2Base
         self[1] *= inv;
 
         return self;
-    }
-
-    [[nodiscard]] constexpr T lengthSquared() const noexcept
-    requires(std::is_floating_point_v<T>)
-    {
-        const Derived& self = static_cast<const Derived&>(*this);
-        return self[0]*self[0] + self[1]*self[1];
-    }
-
-    [[nodiscard]] constexpr T length() const noexcept
-    requires(std::is_floating_point_v<T>)
-    {
-        return std::sqrt(lengthSquared());
-    }
-
-    [[nodiscard]] constexpr Derived normalized() const noexcept
-    requires(std::is_floating_point_v<T>)
-    {
-        const Derived& self = static_cast<const Derived&>(*this);
-        T len = length();
-        if (len < std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE) return Derived{0};
-        return self / len;
     }
 
     constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0]; }
@@ -154,21 +146,14 @@ struct Vector2f : public Vector2Base<float, Vector2f>
     constexpr explicit Vector2f(float v) : x(v), y(v) {}
     constexpr Vector2f(float x_, float y_) : x(x_), y(y_) {}
 
-    constexpr void normalize() noexcept
-    {
-        float len = length();
-        if (len < std::numeric_limits<float>::epsilon() * TOLERANCE_SCALE) return;
-        *this /= len;
-    }
-
     constexpr float& operator[](int i) noexcept 
     {
-        assert(i >= 0 && i < 2 && "Vector2f index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 2 && "Vector2f index out of bounds!");
         return (&x)[i];
     }
     constexpr const float& operator[](int i) const noexcept 
     {
-        assert(i >= 0 && i < 2 && "Vector2f index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 2 && "Vector2f index out of bounds!");
         return (&x)[i];
     }
 };
@@ -183,17 +168,18 @@ struct Vector2i : public Vector2Base<int, Vector2i>
 
     constexpr int& operator[](int i) noexcept 
     {
-        assert(i >= 0 && i < 2 && "Vector2i index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 2 && "Vector2i index out of bounds!");
         return (&x)[i]; 
     }
     constexpr const int& operator[](int i) const noexcept 
     {
-        assert(i >= 0 && i < 2 && "Vector2i index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 2 && "Vector2i index out of bounds!");
         return (&x)[i];
     }
 };
 
-//Vector3
+//================================================================================
+//vector3
 template<typename T, typename Derived>
 struct Vector3Base
 {
@@ -241,9 +227,9 @@ struct Vector3Base
         auto& self = static_cast<const Derived&>(*this);
 
         if constexpr (std::is_floating_point_v<T>) {
-            assert(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector3 division by zero!");
+            YIALITE_ASSERT(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector3 division by zero!");
         } else {
-            assert(scalar != 0 && "Vector3 division by zero!");
+            YIALITE_ASSERT(scalar != 0 && "Vector3 division by zero!");
         }
 
         T inv = static_cast<T>(1) / scalar;
@@ -290,9 +276,9 @@ struct Vector3Base
         auto& self = static_cast<Derived&>(*this);
 
         if constexpr (std::is_floating_point_v<T>) {
-            assert(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector3 division by zero!");
+            YIALITE_ASSERT(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector3 division by zero!");
         } else {
-            assert(scalar != 0 && "Vector3 division by zero!");
+            YIALITE_ASSERT(scalar != 0 && "Vector3 division by zero!");
         }
         
         T inv = static_cast<T>(1) / scalar;
@@ -301,28 +287,6 @@ struct Vector3Base
         self[2] *= inv;
 
         return self;
-    }
-
-    [[nodiscard]] constexpr T lengthSquared() const noexcept
-    requires(std::is_floating_point_v<T>)
-    {
-        const Derived& self = static_cast<const Derived&>(*this);
-        return self[0]*self[0] + self[1]*self[1] + self[2]*self[2];
-    }
-
-    [[nodiscard]] constexpr T length() const noexcept
-    requires(std::is_floating_point_v<T>)
-    {
-        return std::sqrt(lengthSquared());
-    }
-
-    [[nodiscard]] constexpr Derived normalized() const noexcept
-    requires(std::is_floating_point_v<T>)
-    {
-        const Derived& self = static_cast<const Derived&>(*this);
-        T len = length();
-        if (len < std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE) return Derived{0};
-        return self / len;
     }
 
     constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0]; }
@@ -345,21 +309,14 @@ struct alignas(16) Vector3f : public Vector3Base<float, Vector3f>
     constexpr explicit Vector3f(float v) : x(v), y(v), z(v) {}
     constexpr Vector3f(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {}
 
-    constexpr void normalize() noexcept
-    {
-        float len = length();
-        if (len < std::numeric_limits<float>::epsilon() * TOLERANCE_SCALE) return;
-        *this /= len;
-    }
-
     constexpr float& operator[](int i) noexcept 
     {
-        assert(i >= 0 && i < 3 && "Vector3f index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 3 && "Vector3f index out of bounds!");
         return (&x)[i];
     }
     constexpr const float& operator[](int i) const noexcept 
     {
-        assert(i >= 0 && i < 3 && "Vector3f index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 3 && "Vector3f index out of bounds!");
         return (&x)[i];
     }
 };
@@ -374,22 +331,23 @@ struct alignas(16) Vector3i : public Vector3Base<int, Vector3i>
 
     constexpr int& operator[](int i) noexcept 
     {
-        assert(i >= 0 && i < 3 && "Vector3i index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 3 && "Vector3i index out of bounds!");
         return (&x)[i];
     }
     constexpr const int& operator[](int i) const noexcept 
     {
-        assert(i >= 0 && i < 3 && "Vector3i index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 3 && "Vector3i index out of bounds!");
         return (&x)[i];
     }
 };
 
-//Vector4Tag
+//================================================================================
+//vector4 tag
 struct Vector4Tag {};
 struct RectTag {};
 struct ColorTag {};
 
-//Vector4
+//vector4
 template<typename T, typename Derived, typename Tag = Vector4Tag>
 struct Vector4Base
 {
@@ -445,9 +403,9 @@ struct Vector4Base
         auto& self = static_cast<const Derived&>(*this);
 
         if constexpr (std::is_floating_point_v<T>) {
-            assert(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector4 division by zero!");
+            YIALITE_ASSERT(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector4 division by zero!");
         } else {
-            assert(scalar != 0 && "Vector4 division by zero!");
+            YIALITE_ASSERT(scalar != 0 && "Vector4 division by zero!");
         }
 
         T inv = static_cast<T>(1) / scalar;
@@ -502,9 +460,9 @@ struct Vector4Base
         auto& self = static_cast<Derived&>(*this);
 
         if constexpr (std::is_floating_point_v<T>) {
-            assert(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector4 division by zero!");
+            YIALITE_ASSERT(std::abs(scalar) > std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE && "Vector4 division by zero!");
         } else {
-            assert(scalar != 0 && "Vector4 division by zero!");
+            YIALITE_ASSERT(scalar != 0 && "Vector4 division by zero!");
         }
         
         T inv = static_cast<T>(1) / scalar;
@@ -514,28 +472,6 @@ struct Vector4Base
         self[3] *= inv;
 
         return self;
-    }
-
-    [[nodiscard]] constexpr T lengthSquared() const noexcept
-    requires(std::is_floating_point_v<T> && std::is_same_v<Tag, Vector4Tag>)
-    {
-        const Derived& self = static_cast<const Derived&>(*this);
-        return self[0]*self[0] + self[1]*self[1] + self[2]*self[2] + self[3]*self[3];
-    }
-
-    [[nodiscard]] constexpr T length() const noexcept
-    requires(std::is_floating_point_v<T> && std::is_same_v<Tag, Vector4Tag>)
-    {
-        return std::sqrt(lengthSquared());
-    }
-
-    [[nodiscard]] constexpr Derived normalized() const noexcept
-    requires(std::is_floating_point_v<T> && std::is_same_v<Tag, Vector4Tag>)
-    {
-        const Derived& self = static_cast<const Derived&>(*this);
-        T len = length();
-        if (len < std::numeric_limits<T>::epsilon() * TOLERANCE_SCALE) return Derived{0};
-        return self / len;
     }
 
     constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0]; }
@@ -558,21 +494,14 @@ struct alignas(16) Vector4f : public Vector4Base<float, Vector4f>
     constexpr explicit Vector4f(float v) : x(v), y(v), z(v), w(v) {}
     constexpr Vector4f(float x_, float y_, float z_, float w_) : x(x_), y(y_), z(z_), w(w_) {}
 
-    constexpr void normalize() noexcept
-    {
-        float len = length();
-        if (len < std::numeric_limits<float>::epsilon() * TOLERANCE_SCALE) return;
-        *this /= len;
-    }
-
     constexpr float& operator[](int i) noexcept 
     {
-        assert(i >= 0 && i < 4 && "Vector4f index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 4 && "Vector4f index out of bounds!");
         return (&x)[i];
     }
     constexpr const float& operator[](int i) const noexcept 
     {
-        assert(i >= 0 && i < 4 && "Vector4f index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 4 && "Vector4f index out of bounds!");
         return (&x)[i];
     }
 };
@@ -587,12 +516,12 @@ struct alignas(16) Vector4i : public Vector4Base<int, Vector4i>
 
     constexpr int& operator[](int i) noexcept 
     {
-        assert(i >= 0 && i < 4 && "Vector4i index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 4 && "Vector4i index out of bounds!");
         return (&x)[i];
     }
     constexpr const int& operator[](int i) const noexcept 
     {
-        assert(i >= 0 && i < 4 && "Vector4i index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 4 && "Vector4i index out of bounds!");
         return (&x)[i];
     }
 };
@@ -607,12 +536,12 @@ struct alignas(16) Rect : public Vector4Base<int, Rect, RectTag>
 
     constexpr int& operator[](int i) noexcept 
     {
-        assert(i >= 0 && i < 4 && "Rect index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 4 && "Rect index out of bounds!");
         return (&x)[i];
     }
     constexpr const int& operator[](int i) const noexcept 
     {
-        assert(i >= 0 && i < 4 && "Rect index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 4 && "Rect index out of bounds!");
         return (&x)[i];
     }
 };
@@ -627,12 +556,12 @@ struct alignas(16) FRect : public Vector4Base<float, FRect, RectTag>
 
     constexpr float& operator[](int i) noexcept 
     {
-        assert(i >= 0 && i < 4 && "FRect index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 4 && "FRect index out of bounds!");
         return (&x)[i];
     }
     constexpr const float& operator[](int i) const noexcept 
     {
-        assert(i >= 0 && i < 4 && "FRect index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 4 && "FRect index out of bounds!");
         return (&x)[i];
     }
 };
@@ -647,12 +576,12 @@ struct Color : public Vector4Base<unsigned char, Color, ColorTag>
 
     constexpr unsigned char& operator[](int i) noexcept 
     {
-        assert(i >= 0 && i < 4 && "Color index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 4 && "Color index out of bounds!");
         return (&r)[i];
     }
     constexpr const unsigned char& operator[](int i) const noexcept 
     {
-        assert(i >= 0 && i < 4 && "Color index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 4 && "Color index out of bounds!");
         return (&r)[i];
     }
 };
@@ -667,16 +596,17 @@ struct alignas(16) FColor : public Vector4Base<float, FColor, ColorTag>
 
     constexpr float& operator[](int i) noexcept 
     {
-        assert(i >= 0 && i < 4 && "FColor index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 4 && "FColor index out of bounds!");
         return (&r)[i];
     }
     constexpr const float& operator[](int i) const noexcept 
     {
-        assert(i >= 0 && i < 4 && "FColor index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 4 && "FColor index out of bounds!");
         return (&r)[i];
     }
 };
 
+//================================================================================
 //mat3
 template<typename T, typename Derived>
 struct Matrix3Base
@@ -825,16 +755,17 @@ struct alignas(16) Matrix3f : public Matrix3Base<float, Matrix3f>
 
     constexpr float* operator[](int i) noexcept
     {
-        assert(i >= 0 && i < 3 && "Matrix3f index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 3 && "Matrix3f index out of bounds!");
         return data[i];
     }
     constexpr const float* operator[](int i) const noexcept 
     {
-        assert(i >= 0 && i < 3 && "Matrix3f index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 3 && "Matrix3f index out of bounds!");
         return data[i];
     }
 };
 
+//================================================================================
 //mat4
 template<typename T, typename Derived>
 struct Matrix4Base
@@ -1002,12 +933,12 @@ struct alignas(16) Matrix4f : public Matrix4Base<float, Matrix4f>
 
     constexpr float* operator[](int i) noexcept
     {
-        assert(i >= 0 && i < 4 && "Matrix4f index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 4 && "Matrix4f index out of bounds!");
         return data[i];
     }
     constexpr const float* operator[](int i) const noexcept 
     {
-        assert(i >= 0 && i < 4 && "Matrix4f index out of bounds!");
+        YIALITE_ASSERT(i >= 0 && i < 4 && "Matrix4f index out of bounds!");
         return data[i];
     }
 };
@@ -1024,6 +955,275 @@ static_assert(std::is_standard_layout_v<Color>,    "must be C layout");
 static_assert(std::is_standard_layout_v<FColor>,   "must be C layout");
 static_assert(std::is_standard_layout_v<Matrix3f>, "must be C layout");
 static_assert(std::is_standard_layout_v<Matrix4f>, "must be C layout");
+
+//================================================================================
+//tools
+
+//vector
+[[nodiscard]] constexpr inline float lengthSquared(const Vector2f& v) noexcept
+{
+    return v.x * v.x + v.y * v.y;
+}
+
+[[nodiscard]] constexpr inline float lengthSquared(const Vector3f& v) noexcept
+{
+    return v.x * v.x + v.y * v.y + v.z * v.z;
+}
+
+[[nodiscard]] constexpr inline float lengthSquared(const Vector4f& v) noexcept
+{
+    return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
+}
+
+[[nodiscard]] constexpr inline float dot(const Vector2f& a, const Vector2f& b) noexcept
+{
+    return a.x * b.x + a.y * b.y;
+}
+
+[[nodiscard]] constexpr inline float dot(const Vector3f& a, const Vector3f& b) noexcept
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+[[nodiscard]] constexpr inline float dot(const Vector4f& a, const Vector4f& b) noexcept
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+}
+
+[[nodiscard]] constexpr inline float cross(const Vector2f& a, const Vector2f& b) noexcept
+{
+    return a.x * b.y - a.y * b.x;
+}
+
+[[nodiscard]] constexpr inline Vector3f cross(const Vector3f& a, const Vector3f& b) noexcept
+{
+    return Vector3f(
+        a.y * b.z - a.z * b.y,
+        a.z * b.x - a.x * b.z,
+        a.x * b.y - a.y * b.x
+    );
+}
+
+template <typename T>
+[[nodiscard]] constexpr float length(const T& v) noexcept
+{
+    return std::sqrt(lengthSquared(v));
+}
+
+template <typename T>
+[[nodiscard]] constexpr T normalize(const T& v) noexcept
+{
+    float len = length(v);
+    if (len < std::numeric_limits<float>::epsilon() * TOLERANCE_SCALE) return T();
+    return v / len;
+}
+
+template<typename T>
+[[nodiscard]] constexpr float distanceSquared(const T& a, const T& b) noexcept
+{
+    return lengthSquared(b - a);
+}
+
+template<typename T>
+[[nodiscard]] constexpr float distance(const T& a, const T& b) noexcept
+{
+    return length(b - a);
+}
+
+//matrix
+[[nodiscard]] constexpr inline Matrix3f transpose(const Matrix3f& m) noexcept
+{
+    return Matrix3f(
+        m[0][0], m[1][0], m[2][0],
+        m[0][1], m[1][1], m[2][1],
+        m[0][2], m[1][2], m[2][2]
+    );
+}
+
+[[nodiscard]] inline Matrix3f inverse(const Matrix3f& m) noexcept
+{
+    float det0 = m[1][1] * m[2][2] - m[1][2] * m[2][1];
+    float det1 = m[1][0] * m[2][2] - m[1][2] * m[2][0];
+    float det2 = m[1][0] * m[2][1] - m[1][1] * m[2][0];
+
+    float det = m[0][0] * det0 - m[0][1] * det1 + m[0][2] * det2;
+    if(std::abs(det) < std::numeric_limits<float>::epsilon() * TOLERANCE_SCALE) 
+    {
+        return Matrix3f(
+            NAN, NAN, NAN,
+            NAN, NAN, NAN,
+            NAN, NAN, NAN
+        );
+    }
+
+    float inv_det = 1.0f / det;
+
+    return Matrix3f(
+         det0 * inv_det,
+        -det1 * inv_det,
+         det2 * inv_det,
+
+        (-m[0][1] * m[2][2] + m[0][2] * m[2][1]) * inv_det,
+        ( m[0][0] * m[2][2] - m[0][2] * m[2][0]) * inv_det,
+        (-m[0][0] * m[2][1] + m[0][1] * m[2][0]) * inv_det,
+
+        ( m[0][1] * m[1][2] - m[0][2] * m[1][1]) * inv_det,
+        (-m[0][0] * m[1][2] + m[0][2] * m[1][0]) * inv_det,
+        ( m[0][0] * m[1][1] - m[0][1] * m[1][0]) * inv_det
+    );
+}
+
+[[nodiscard]] constexpr inline Matrix4f transpose(const Matrix4f& m) noexcept
+{
+    return Matrix4f(
+        m[0][0], m[1][0], m[2][0], m[3][0],
+        m[0][1], m[1][1], m[2][1], m[3][1],
+        m[0][2], m[1][2], m[2][2], m[3][2],
+        m[0][3], m[1][3], m[2][3], m[3][3]
+    );
+}
+
+[[nodiscard]] inline Matrix4f inverse(const Matrix4f& m) noexcept
+{
+    const float m00 = m[0][0], m01 = m[0][1], m02 = m[0][2], m03 = m[0][3];
+    const float m10 = m[1][0], m11 = m[1][1], m12 = m[1][2], m13 = m[1][3];
+    const float m20 = m[2][0], m21 = m[2][1], m22 = m[2][2], m23 = m[2][3];
+    const float m30 = m[3][0], m31 = m[3][1], m32 = m[3][2], m33 = m[3][3];
+
+    const float s0 = m00 * m11 - m10 * m01;
+    const float s1 = m00 * m12 - m10 * m02;
+    const float s2 = m00 * m13 - m10 * m03;
+    const float s3 = m01 * m12 - m11 * m02;
+    const float s4 = m01 * m13 - m11 * m03;
+    const float s5 = m02 * m13 - m12 * m03;
+    
+    const float c5 = m22 * m33 - m32 * m23;
+    const float c4 = m21 * m33 - m31 * m23;
+    const float c3 = m21 * m32 - m31 * m22;
+    const float c2 = m20 * m33 - m30 * m23;
+    const float c1 = m20 * m32 - m30 * m22;
+    const float c0 = m20 * m31 - m30 * m21;
+
+    const float det = s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0;
+    
+    if (std::abs(det) < std::numeric_limits<float>::epsilon() * 100.0f)
+    {
+        return Matrix4f{
+            NAN, NAN, NAN, NAN,
+            NAN, NAN, NAN, NAN,
+            NAN, NAN, NAN, NAN,
+            NAN, NAN, NAN, NAN
+        };
+    }
+
+    const float invDet = 1.0f / det;
+
+    const float t00 = (m11 * c5 - m12 * c4 + m13 * c3) * invDet;
+    const float t10 = (-m10 * c5 + m12 * c2 - m13 * c1) * invDet;
+    const float t20 = (m10 * c4 - m11 * c2 + m13 * c0) * invDet;
+    const float t30 = (-m10 * c3 + m11 * c1 - m12 * c0) * invDet;
+    
+    const float t01 = (-m01 * c5 + m02 * c4 - m03 * c3) * invDet;
+    const float t11 = (m00 * c5 - m02 * c2 + m03 * c1) * invDet;
+    const float t21 = (-m00 * c4 + m01 * c2 - m03 * c0) * invDet;
+    const float t31 = (m00 * c3 - m01 * c1 + m02 * c0) * invDet;
+    
+    const float t02 = (m31 * s5 - m32 * s4 + m33 * s3) * invDet;
+    const float t12 = (-m30 * s5 + m32 * s2 - m33 * s1) * invDet;
+    const float t22 = (m30 * s4 - m31 * s2 + m33 * s0) * invDet;
+    const float t32 = (-m30 * s3 + m31 * s1 - m32 * s0) * invDet;
+    
+    const float t03 = (-m21 * s5 + m22 * s4 - m23 * s3) * invDet;
+    const float t13 = (m20 * s5 - m22 * s2 + m23 * s1) * invDet;
+    const float t23 = (-m20 * s4 + m21 * s2 - m23 * s0) * invDet;
+    const float t33 = (m20 * s3 - m21 * s1 + m22 * s0) * invDet;
+
+    return Matrix4f{
+        t00, t01, t02, t03,
+        t10, t11, t12, t13,
+        t20, t21, t22, t23,
+        t30, t31, t32, t33
+    };
+}
+
+[[nodiscard]] constexpr inline Matrix4f translate(const Matrix4f& m, const Vector3f& v) noexcept
+{
+    Matrix4f t(
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        v.x,  v.y,  v.z,  1.0f
+    );
+
+    return m * t;
+}
+
+[[nodiscard]] inline Matrix4f rotate(const Matrix4f& m, float angle, const Vector3f& v) noexcept
+{
+    float a = angle;
+    float c = std::cos(a);
+    float s = std::sin(a);
+
+    Vector3f axis = normalize(v);
+    Vector3f temp((1.0f - c) * axis);
+
+    Matrix4f rot;
+    rot[0][0] = c + temp.x * axis.x;
+    rot[0][1] = temp.x * axis.y + s * axis.z;
+    rot[0][2] = temp.x * axis.z - s * axis.y;
+    rot[0][3] = 0.0f;
+
+    rot[1][0] = temp.y * axis.x - s * axis.z;
+    rot[1][1] = c + temp.y * axis.y;
+    rot[1][2] = temp.y * axis.z + s * axis.x;
+    rot[1][3] = 0.0f;
+
+    rot[2][0] = temp.z * axis.x + s * axis.y;
+    rot[2][1] = temp.z * axis.y - s * axis.x;
+    rot[2][2] = c + temp.z * axis.z;
+    rot[2][3] = 0.0f;
+
+    rot[3][0] = 0.0f;
+    rot[3][1] = 0.0f;
+    rot[3][2] = 0.0f;
+    rot[3][3] = 1.0f;
+
+    Matrix4f res;
+
+    res[0][0] = m[0][0] * rot[0][0] + m[1][0] * rot[0][1] + m[2][0] * rot[0][2];
+    res[1][0] = m[0][0] * rot[1][0] + m[1][0] * rot[1][1] + m[2][0] * rot[1][2];
+    res[2][0] = m[0][0] * rot[2][0] + m[1][0] * rot[2][1] + m[2][0] * rot[2][2];
+    res[3][0] = m[3][0];
+
+    res[0][1] = m[0][1] * rot[0][0] + m[1][1] * rot[0][1] + m[2][1] * rot[0][2];
+    res[1][1] = m[0][1] * rot[1][0] + m[1][1] * rot[1][1] + m[2][1] * rot[1][2];
+    res[2][1] = m[0][1] * rot[2][0] + m[1][1] * rot[2][1] + m[2][1] * rot[2][2];
+    res[3][1] = m[3][1];
+
+    res[0][2] = m[0][2] * rot[0][0] + m[1][2] * rot[0][1] + m[2][2] * rot[0][2];
+    res[1][2] = m[0][2] * rot[1][0] + m[1][2] * rot[1][1] + m[2][2] * rot[1][2];
+    res[2][2] = m[0][2] * rot[2][0] + m[1][2] * rot[2][1] + m[2][2] * rot[2][2];
+    res[3][2] = m[3][2];
+
+    res[0][3] = m[0][3];
+    res[1][3] = m[1][3];
+    res[2][3] = m[2][3];
+    res[3][3] = m[3][3];
+
+    return res;
+}
+
+[[nodiscard]] constexpr inline Matrix4f scale(const Matrix4f& m, const Vector3f& v) noexcept
+{
+    Matrix4f s(
+        v.x,  0.0f, 0.0f, 0.0f,
+        0.0f, v.y,  0.0f, 0.0f,
+        0.0f, 0.0f, v.z,  0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    );
+
+    return m * s;
+}
 
 }
 

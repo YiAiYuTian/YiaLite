@@ -536,7 +536,7 @@ float YiaLite_Vector2fLength(YiaLite_Vector2f v)
 void YiaLite_Vector2fNormalize(YiaLite_Vector2f* v)
 {
     auto& cpp_vec2 = *reinterpret_cast<yialite::Vector2f*>(v);
-    cpp_vec2.normalize();
+    cpp_vec2 = yialite::normalize(cpp_vec2);
 }
 
 YiaLite_Vector2f YiaLite_Vector2fNormalized(YiaLite_Vector2f v)
@@ -613,7 +613,7 @@ float YiaLite_Vector3fLength(YiaLite_Vector3f v)
 void YiaLite_Vector3fNormalize(YiaLite_Vector3f* v)
 {
     auto& cpp_vec3 = *reinterpret_cast<yialite::Vector3f*>(v);
-    cpp_vec3.normalize();
+    cpp_vec3 = yialite::normalize(cpp_vec3);
 }
 
 YiaLite_Vector3f YiaLite_Vector3fNormalized(YiaLite_Vector3f v)
@@ -690,7 +690,7 @@ float YiaLite_Vector4fLength(YiaLite_Vector4f v)
 void YiaLite_Vector4fNormalize(YiaLite_Vector4f* v)
 {
     auto& cpp_vec4 = *reinterpret_cast<yialite::Vector4f*>(v);
-    cpp_vec4.normalize();
+    cpp_vec4 = yialite::normalize(cpp_vec4);
 }
 
 YiaLite_Vector4f YiaLite_Vector4fNormalized(YiaLite_Vector4f v)
