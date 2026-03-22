@@ -654,6 +654,25 @@ struct Matrix3Base
         );
     }
 
+    [[nodiscard]] constexpr Derived operator*(const Derived& other) const noexcept
+    {
+        const auto& self = static_cast<const Derived&>(*this);
+
+        return Derived(
+            self[0][0] * other[0][0] + self[1][0] * other[0][1] + self[2][0] * other[0][2],
+            self[0][1] * other[0][0] + self[1][1] * other[0][1] + self[2][1] * other[0][2],
+            self[0][2] * other[0][0] + self[1][2] * other[0][1] + self[2][2] * other[0][2],
+
+            self[0][0] * other[1][0] + self[1][0] * other[1][1] + self[2][0] * other[1][2],
+            self[0][1] * other[1][0] + self[1][1] * other[1][1] + self[2][1] * other[1][2],
+            self[0][2] * other[1][0] + self[1][2] * other[1][1] + self[2][2] * other[1][2],
+
+            self[0][0] * other[2][0] + self[1][0] * other[2][1] + self[2][0] * other[2][2],
+            self[0][1] * other[2][0] + self[1][1] * other[2][1] + self[2][1] * other[2][2],
+            self[0][2] * other[2][0] + self[1][2] * other[2][1] + self[2][2] * other[2][2]
+        );
+    }
+
     constexpr Derived& operator+=(const Derived& other) noexcept
     {
         auto& self = static_cast<Derived&>(*this);
@@ -704,29 +723,10 @@ template<typename T, typename Derived>
     return static_cast<const Derived&>(mat3) * scalar;
 }
 
-template<typename T, typename Derived>
-[[nodiscard]] constexpr Derived operator*(const Matrix3Base<T, Derived>& lhs, const Matrix3Base<T, Derived>& rhs) noexcept
-{
-    const auto& a = static_cast<const Derived&>(lhs);
-    const auto& b = static_cast<const Derived&>(rhs);
-
-    return Derived(
-        a[0][0] * b[0][0] + a[1][0] * b[0][1] + a[2][0] * b[0][2],
-        a[0][1] * b[0][0] + a[1][1] * b[0][1] + a[2][1] * b[0][2],
-        a[0][2] * b[0][0] + a[1][2] * b[0][1] + a[2][2] * b[0][2],
-
-        a[0][0] * b[1][0] + a[1][0] * b[1][1] + a[2][0] * b[1][2],
-        a[0][1] * b[1][0] + a[1][1] * b[1][1] + a[2][1] * b[1][2],
-        a[0][2] * b[1][0] + a[1][2] * b[1][1] + a[2][2] * b[1][2],
-
-        a[0][0] * b[2][0] + a[1][0] * b[2][1] + a[2][0] * b[2][2],
-        a[0][1] * b[2][0] + a[1][1] * b[2][1] + a[2][1] * b[2][2],
-        a[0][2] * b[2][0] + a[1][2] * b[2][1] + a[2][2] * b[2][2]
-    );
-}
-
 struct alignas(16) Matrix3f : public Matrix3Base<float, Matrix3f>
 {
+    using Matrix3Base::operator*;
+
     float data[3][3];
 
     constexpr Matrix3f() : data{} {}
@@ -817,6 +817,33 @@ struct Matrix4Base
         );
     }
 
+    [[nodiscard]] constexpr Derived operator*(const Derived& other) const noexcept
+    {
+        const auto& self = static_cast<const Derived&>(*this);
+        
+        return Derived(
+            self[0][0] * other[0][0] + self[1][0] * other[0][1] + self[2][0] * other[0][2] + self[3][0] * other[0][3],
+            self[0][1] * other[0][0] + self[1][1] * other[0][1] + self[2][1] * other[0][2] + self[3][1] * other[0][3],
+            self[0][2] * other[0][0] + self[1][2] * other[0][1] + self[2][2] * other[0][2] + self[3][2] * other[0][3],
+            self[0][3] * other[0][0] + self[1][3] * other[0][1] + self[2][3] * other[0][2] + self[3][3] * other[0][3],
+            
+            self[0][0] * other[1][0] + self[1][0] * other[1][1] + self[2][0] * other[1][2] + self[3][0] * other[1][3],
+            self[0][1] * other[1][0] + self[1][1] * other[1][1] + self[2][1] * other[1][2] + self[3][1] * other[1][3],
+            self[0][2] * other[1][0] + self[1][2] * other[1][1] + self[2][2] * other[1][2] + self[3][2] * other[1][3],
+            self[0][3] * other[1][0] + self[1][3] * other[1][1] + self[2][3] * other[1][2] + self[3][3] * other[1][3],
+            
+            self[0][0] * other[2][0] + self[1][0] * other[2][1] + self[2][0] * other[2][2] + self[3][0] * other[2][3],
+            self[0][1] * other[2][0] + self[1][1] * other[2][1] + self[2][1] * other[2][2] + self[3][1] * other[2][3],
+            self[0][2] * other[2][0] + self[1][2] * other[2][1] + self[2][2] * other[2][2] + self[3][2] * other[2][3],
+            self[0][3] * other[2][0] + self[1][3] * other[2][1] + self[2][3] * other[2][2] + self[3][3] * other[2][3],
+            
+            self[0][0] * other[3][0] + self[1][0] * other[3][1] + self[2][0] * other[3][2] + self[3][0] * other[3][3],
+            self[0][1] * other[3][0] + self[1][1] * other[3][1] + self[2][1] * other[3][2] + self[3][1] * other[3][3],
+            self[0][2] * other[3][0] + self[1][2] * other[3][1] + self[2][2] * other[3][2] + self[3][2] * other[3][3],
+            self[0][3] * other[3][0] + self[1][3] * other[3][1] + self[2][3] * other[3][2] + self[3][3] * other[3][3]
+        );
+    }
+
     constexpr Derived& operator+=(const Derived& other) noexcept
     {
         auto& self = static_cast<Derived&>(*this);
@@ -870,37 +897,10 @@ template<typename T, typename Derived>
     return static_cast<const Derived&>(mat4) * scalar;
 }
 
-template<typename T, typename Derived>
-[[nodiscard]] constexpr Derived operator*(const Matrix4Base<T, Derived>& lhs, const Matrix4Base<T, Derived>& rhs) noexcept
-{
-    const auto& a = static_cast<const Derived&>(lhs);
-    const auto& b = static_cast<const Derived&>(rhs);
-
-    return Derived(
-        a[0][0] * b[0][0] + a[1][0] * b[0][1] + a[2][0] * b[0][2] + a[3][0] * b[0][3],
-        a[0][1] * b[0][0] + a[1][1] * b[0][1] + a[2][1] * b[0][2] + a[3][1] * b[0][3],
-        a[0][2] * b[0][0] + a[1][2] * b[0][1] + a[2][2] * b[0][2] + a[3][2] * b[0][3],
-        a[0][3] * b[0][0] + a[1][3] * b[0][1] + a[2][3] * b[0][2] + a[3][3] * b[0][3],
-
-        a[0][0] * b[1][0] + a[1][0] * b[1][1] + a[2][0] * b[1][2] + a[3][0] * b[1][3],
-        a[0][1] * b[1][0] + a[1][1] * b[1][1] + a[2][1] * b[1][2] + a[3][1] * b[1][3],
-        a[0][2] * b[1][0] + a[1][2] * b[1][1] + a[2][2] * b[1][2] + a[3][2] * b[1][3],
-        a[0][3] * b[1][0] + a[1][3] * b[1][1] + a[2][3] * b[1][2] + a[3][3] * b[1][3],
-
-        a[0][0] * b[2][0] + a[1][0] * b[2][1] + a[2][0] * b[2][2] + a[3][0] * b[2][3],
-        a[0][1] * b[2][0] + a[1][1] * b[2][1] + a[2][1] * b[2][2] + a[3][1] * b[2][3],
-        a[0][2] * b[2][0] + a[1][2] * b[2][1] + a[2][2] * b[2][2] + a[3][2] * b[2][3],
-        a[0][3] * b[2][0] + a[1][3] * b[2][1] + a[2][3] * b[2][2] + a[3][3] * b[2][3],
-
-        a[0][0] * b[3][0] + a[1][0] * b[3][1] + a[2][0] * b[3][2] + a[3][0] * b[3][3],
-        a[0][1] * b[3][0] + a[1][1] * b[3][1] + a[2][1] * b[3][2] + a[3][1] * b[3][3],
-        a[0][2] * b[3][0] + a[1][2] * b[3][1] + a[2][2] * b[3][2] + a[3][2] * b[3][3],
-        a[0][3] * b[3][0] + a[1][3] * b[3][1] + a[2][3] * b[3][2] + a[3][3] * b[3][3]
-    );
-}
-
 struct alignas(16) Matrix4f : public Matrix4Base<float, Matrix4f>
 {
+    using Matrix4Base::operator*;
+
     float data[4][4];
 
     constexpr Matrix4f() : data{} {}
@@ -1042,11 +1042,15 @@ template<typename T>
 
 [[nodiscard]] inline Matrix3f inverse(const Matrix3f& m) noexcept
 {
-    float det0 = m[1][1] * m[2][2] - m[1][2] * m[2][1];
-    float det1 = m[1][0] * m[2][2] - m[1][2] * m[2][0];
-    float det2 = m[1][0] * m[2][1] - m[1][1] * m[2][0];
+    const float m00 = m[0][0], m01 = m[0][1], m02 = m[0][2];
+    const float m10 = m[1][0], m11 = m[1][1], m12 = m[1][2];
+    const float m20 = m[2][0], m21 = m[2][1], m22 = m[2][2];
 
-    float det = m[0][0] * det0 - m[0][1] * det1 + m[0][2] * det2;
+    const float c00 = m11 * m22 - m12 * m21;
+    const float c01 = m10 * m22 - m12 * m20;
+    const float c02 = m10 * m21 - m11 * m20;
+
+    const float det = m00 * c00 - m01 * c01 + m02 * c02;
     if(std::abs(det) < std::numeric_limits<float>::epsilon() * TOLERANCE_SCALE) 
     {
         return Matrix3f(
@@ -1056,20 +1060,20 @@ template<typename T>
         );
     }
 
-    float inv_det = 1.0f / det;
+    const float inv_det = 1.0f / det;
+
+    const float c10 = m01 * m22 - m02 * m21;
+    const float c11 = m00 * m22 - m02 * m20;
+    const float c12 = m00 * m21 - m01 * m20;
+
+    const float c20 = m01 * m12 - m02 * m11;
+    const float c21 = m00 * m12 - m02 * m10;
+    const float c22 = m00 * m11 - m01 * m10;
 
     return Matrix3f(
-         det0 * inv_det,
-        -det1 * inv_det,
-         det2 * inv_det,
-
-        (-m[0][1] * m[2][2] + m[0][2] * m[2][1]) * inv_det,
-        ( m[0][0] * m[2][2] - m[0][2] * m[2][0]) * inv_det,
-        (-m[0][0] * m[2][1] + m[0][1] * m[2][0]) * inv_det,
-
-        ( m[0][1] * m[1][2] - m[0][2] * m[1][1]) * inv_det,
-        (-m[0][0] * m[1][2] + m[0][2] * m[1][0]) * inv_det,
-        ( m[0][0] * m[1][1] - m[0][1] * m[1][0]) * inv_det
+         c00 * inv_det, -c01 * inv_det,  c02 * inv_det,
+        -c10 * inv_det,  c11 * inv_det, -c12 * inv_det,
+         c20 * inv_det, -c21 * inv_det,  c22 * inv_det
     );
 }
 
@@ -1090,23 +1094,20 @@ template<typename T>
     const float m20 = m[2][0], m21 = m[2][1], m22 = m[2][2], m23 = m[2][3];
     const float m30 = m[3][0], m31 = m[3][1], m32 = m[3][2], m33 = m[3][3];
 
-    const float s0 = m00 * m11 - m10 * m01;
-    const float s1 = m00 * m12 - m10 * m02;
-    const float s2 = m00 * m13 - m10 * m03;
-    const float s3 = m01 * m12 - m11 * m02;
-    const float s4 = m01 * m13 - m11 * m03;
-    const float s5 = m02 * m13 - m12 * m03;
-    
-    const float c5 = m22 * m33 - m32 * m23;
-    const float c4 = m21 * m33 - m31 * m23;
-    const float c3 = m21 * m32 - m31 * m22;
-    const float c2 = m20 * m33 - m30 * m23;
-    const float c1 = m20 * m32 - m30 * m22;
-    const float c0 = m20 * m31 - m30 * m21;
+    const float v0 = m20 * m31 - m21 * m30;
+    const float v1 = m20 * m32 - m22 * m30;
+    const float v2 = m20 * m33 - m23 * m30;
+    const float v3 = m21 * m32 - m22 * m31;
+    const float v4 = m21 * m33 - m23 * m31;
+    const float v5 = m22 * m33 - m23 * m32;
 
-    const float det = s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0;
-    
-    if (std::abs(det) < std::numeric_limits<float>::epsilon() * 100.0f)
+    const float t00 = + (v5 * m11 - v4 * m12 + v3 * m13);
+    const float t10 = - (v5 * m10 - v2 * m12 + v1 * m13);
+    const float t20 = + (v4 * m10 - v2 * m11 + v0 * m13);
+    const float t30 = - (v3 * m10 - v1 * m11 + v0 * m12);
+
+    const float det = m00 * t00 + m01 * t10 + m02 * t20 + m03 * t30;
+    if (std::abs(det) < std::numeric_limits<float>::epsilon() * TOLERANCE_SCALE)
     {
         return Matrix4f{
             NAN, NAN, NAN, NAN,
@@ -1116,43 +1117,57 @@ template<typename T>
         };
     }
 
-    const float invDet = 1.0f / det;
+    const float inv_det = 1.0f / det;
 
-    const float t00 = (m11 * c5 - m12 * c4 + m13 * c3) * invDet;
-    const float t10 = (-m10 * c5 + m12 * c2 - m13 * c1) * invDet;
-    const float t20 = (m10 * c4 - m11 * c2 + m13 * c0) * invDet;
-    const float t30 = (-m10 * c3 + m11 * c1 - m12 * c0) * invDet;
-    
-    const float t01 = (-m01 * c5 + m02 * c4 - m03 * c3) * invDet;
-    const float t11 = (m00 * c5 - m02 * c2 + m03 * c1) * invDet;
-    const float t21 = (-m00 * c4 + m01 * c2 - m03 * c0) * invDet;
-    const float t31 = (m00 * c3 - m01 * c1 + m02 * c0) * invDet;
-    
-    const float t02 = (m31 * s5 - m32 * s4 + m33 * s3) * invDet;
-    const float t12 = (-m30 * s5 + m32 * s2 - m33 * s1) * invDet;
-    const float t22 = (m30 * s4 - m31 * s2 + m33 * s0) * invDet;
-    const float t32 = (-m30 * s3 + m31 * s1 - m32 * s0) * invDet;
-    
-    const float t03 = (-m21 * s5 + m22 * s4 - m23 * s3) * invDet;
-    const float t13 = (m20 * s5 - m22 * s2 + m23 * s1) * invDet;
-    const float t23 = (-m20 * s4 + m21 * s2 - m23 * s0) * invDet;
-    const float t33 = (m20 * s3 - m21 * s1 + m22 * s0) * invDet;
+    const float d00 = t00 * inv_det;
+    const float d01 = t10 * inv_det;
+    const float d02 = t20 * inv_det;
+    const float d03 = t30 * inv_det;
 
-    return Matrix4f{
-        t00, t01, t02, t03,
-        t10, t11, t12, t13,
-        t20, t21, t22, t23,
-        t30, t31, t32, t33
-    };
+    const float d10 = - (v5 * m01 - v4 * m02 + v3 * m03) * inv_det;
+    const float d11 = + (v5 * m00 - v2 * m02 + v1 * m03) * inv_det;
+    const float d12 = - (v4 * m00 - v2 * m01 + v0 * m03) * inv_det;
+    const float d13 = + (v3 * m00 - v1 * m01 + v0 * m02) * inv_det;
+
+    const float v6 = m10 * m31 - m11 * m30;
+    const float v7 = m10 * m32 - m12 * m30;
+    const float v8 = m10 * m33 - m13 * m30;
+    const float v9 = m11 * m32 - m12 * m31;
+    const float v10 = m11 * m33 - m13 * m31;
+    const float v11 = m12 * m33 - m13 * m32;
+
+    const float d20 = + (v11 * m01 - v10 * m02 + v9 * m03) * inv_det;
+    const float d21 = - (v11 * m00 - v8 * m02 + v7 * m03) * inv_det;
+    const float d22 = + (v10 * m00 - v8 * m01 + v6 * m03) * inv_det;
+    const float d23 = - (v9 * m00 - v7 * m01 + v6 * m02) * inv_det;
+
+    const float v12 = m10 * m21 - m11 * m20;
+    const float v13 = m10 * m22 - m12 * m20;
+    const float v14 = m10 * m23 - m13 * m20;
+    const float v15 = m11 * m22 - m12 * m21;
+    const float v16 = m11 * m23 - m13 * m21;
+    const float v17 = m12 * m23 - m13 * m22;
+
+    const float d30 = - (v17 * m01 - v16 * m02 + v15 * m03) * inv_det;
+    const float d31 = + (v17 * m00 - v14 * m02 + v13 * m03) * inv_det;
+    const float d32 = - (v16 * m00 - v14 * m01 + v12 * m03) * inv_det;
+    const float d33 = + (v15 * m00 - v13 * m01 + v12 * m02) * inv_det;
+
+    return Matrix4f(
+        d00, d10, d20, d30,
+        d01, d11, d21, d31,
+        d02, d12, d22, d32,
+        d03, d13, d23, d33
+    );
 }
 
 [[nodiscard]] constexpr inline Matrix4f translate(const Matrix4f& m, const Vector3f& v) noexcept
 {
     Matrix4f t(
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        v.x,  v.y,  v.z,  1.0f
+        1.0f, 0.0f, 0.0f, v.x,
+        0.0f, 1.0f, 0.0f, v.y,
+        0.0f, 0.0f, 1.0f, v.z,
+        0.0f, 0.0f, 0.0f, 1.0f
     );
 
     return m * t;
