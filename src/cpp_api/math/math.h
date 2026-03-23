@@ -18,6 +18,14 @@
 #include <cmath>
 #include <limits>
 
+#if defined(YIALITE_MATH_OPENGL)
+    #define YIALITE_CLIP_RH
+    #define YIALITE_CLIP_ZO
+#elif defined(YIALITE_MATH_VULKAN) || defined(YIALITE_MATH_DIRECTX)
+    #define YIALITE_CLIP_LH
+    #define YIALITE_CLIP_ZO
+#endif
+
 namespace yialite
 {
 
@@ -126,6 +134,9 @@ struct Vector2Base
         return self;
     }
 
+    constexpr T* getData() noexcept { return &static_cast<Derived&>(*this)[0]; }
+    constexpr const T* getData() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
+    
     constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0]; }
     constexpr const T* begin() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
     constexpr T* end() noexcept { return begin() + 2; }
@@ -140,7 +151,11 @@ template <typename T, typename Derived>
 
 struct Vector2f : public Vector2Base<float, Vector2f>
 {
-    float x, y;
+    union
+    {
+        float data[2];
+        struct{ float x, y; };
+    };
 
     constexpr Vector2f() : x(0.0f), y(0.0f) {}
     constexpr explicit Vector2f(float v) : x(v), y(v) {}
@@ -149,18 +164,22 @@ struct Vector2f : public Vector2Base<float, Vector2f>
     constexpr float& operator[](int i) noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 2 && "Vector2f index out of bounds!");
-        return (&x)[i];
+        return data[i];
     }
     constexpr const float& operator[](int i) const noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 2 && "Vector2f index out of bounds!");
-        return (&x)[i];
+        return data[i];
     }
 };
 
 struct Vector2i : public Vector2Base<int, Vector2i>
 {
-    int x, y;
+    union
+    {
+        int data[2];
+        struct{ int x, y; };
+    };
 
     constexpr Vector2i() : x(0), y(0) {}
     constexpr explicit Vector2i(int v) : x(v), y(v) {}
@@ -169,12 +188,12 @@ struct Vector2i : public Vector2Base<int, Vector2i>
     constexpr int& operator[](int i) noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 2 && "Vector2i index out of bounds!");
-        return (&x)[i]; 
+        return data[i]; 
     }
     constexpr const int& operator[](int i) const noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 2 && "Vector2i index out of bounds!");
-        return (&x)[i];
+        return data[i];
     }
 };
 
@@ -289,6 +308,9 @@ struct Vector3Base
         return self;
     }
 
+    constexpr T* getData() noexcept { return &static_cast<Derived&>(*this)[0]; }
+    constexpr const T* getData() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
+    
     constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0]; }
     constexpr const T* begin() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
     constexpr T* end() noexcept { return begin() + 3; }
@@ -301,29 +323,39 @@ template <typename T, typename Derived>
     return static_cast<const Derived&>(vec) * scalar;
 }
 
-struct alignas(16) Vector3f : public Vector3Base<float, Vector3f>
+struct Vector3f : public Vector3Base<float, Vector3f>
 {
-    float x, y, z;
+    union
+    {
+        float data[3];
+        struct{ float x, y, z; };
+    };
 
     constexpr Vector3f() : x(0.0f), y(0.0f), z(0.0f) {}
     constexpr explicit Vector3f(float v) : x(v), y(v), z(v) {}
     constexpr Vector3f(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {}
 
-    constexpr float& operator[](int i) noexcept 
+    constexpr Vector2f toVec2f() const noexcept { return Vector2f(x, y); }
+
+    constexpr float& operator[](int i) noexcept
     {
         YIALITE_ASSERT(i >= 0 && i < 3 && "Vector3f index out of bounds!");
-        return (&x)[i];
+        return data[i];
     }
     constexpr const float& operator[](int i) const noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 3 && "Vector3f index out of bounds!");
-        return (&x)[i];
+        return data[i];
     }
 };
 
-struct alignas(16) Vector3i : public Vector3Base<int, Vector3i>
+struct Vector3i : public Vector3Base<int, Vector3i>
 {
-    int x, y, z;
+    union
+    {
+        int data[3];
+        struct{ int x, y, z; };
+    };
 
     constexpr Vector3i() : x(0), y(0), z(0) {}
     constexpr explicit Vector3i(int v) : x(v), y(v), z(v) {}
@@ -332,12 +364,12 @@ struct alignas(16) Vector3i : public Vector3Base<int, Vector3i>
     constexpr int& operator[](int i) noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 3 && "Vector3i index out of bounds!");
-        return (&x)[i];
+        return data[i];
     }
     constexpr const int& operator[](int i) const noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 3 && "Vector3i index out of bounds!");
-        return (&x)[i];
+        return data[i];
     }
 };
 
@@ -474,6 +506,9 @@ struct Vector4Base
         return self;
     }
 
+    constexpr T* getData() noexcept { return &static_cast<Derived&>(*this)[0]; }
+    constexpr const T* getData() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
+    
     constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0]; }
     constexpr const T* begin() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
     constexpr T* end() noexcept { return begin() + 4; }
@@ -488,27 +523,37 @@ template <typename T, typename Derived, typename Tag = Vector4Tag>
 
 struct alignas(16) Vector4f : public Vector4Base<float, Vector4f>
 {
-    float x, y, z, w;
+    union
+    {
+        float data[4];
+        struct{ float x, y, z, w; };
+    };
 
     constexpr Vector4f() : x(0.0f), y(0.0f), z(0.0f), w(0.0f) {}
     constexpr explicit Vector4f(float v) : x(v), y(v), z(v), w(v) {}
     constexpr Vector4f(float x_, float y_, float z_, float w_) : x(x_), y(y_), z(z_), w(w_) {}
 
+    constexpr Vector3f toVec3f() const noexcept { return Vector3f(x, y, z); }
+
     constexpr float& operator[](int i) noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 4 && "Vector4f index out of bounds!");
-        return (&x)[i];
+        return data[i];
     }
     constexpr const float& operator[](int i) const noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 4 && "Vector4f index out of bounds!");
-        return (&x)[i];
+        return data[i];
     }
 };
 
 struct alignas(16) Vector4i : public Vector4Base<int, Vector4i>
 {
-    int x, y, z, w;
+    union
+    {
+        int data[4];
+        struct{ int x, y, z, w; };
+    };
 
     constexpr Vector4i() : x(0), y(0), z(0), w(0) {}
     constexpr explicit Vector4i(int v) : x(v), y(v), z(v), w(v) {}
@@ -517,18 +562,22 @@ struct alignas(16) Vector4i : public Vector4Base<int, Vector4i>
     constexpr int& operator[](int i) noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 4 && "Vector4i index out of bounds!");
-        return (&x)[i];
+        return data[i];
     }
     constexpr const int& operator[](int i) const noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 4 && "Vector4i index out of bounds!");
-        return (&x)[i];
+        return data[i];
     }
 };
 
 struct alignas(16) Rect : public Vector4Base<int, Rect, RectTag>
 {
-    int x, y, w, h;
+    union
+    {
+        int data[4];
+        struct{ int x, y, w, h; };
+    };
 
     constexpr Rect() : x(0), y(0), w(0), h(0) {}
     constexpr explicit Rect(int v) : x(v), y(v), w(v), h(v) {}
@@ -537,18 +586,22 @@ struct alignas(16) Rect : public Vector4Base<int, Rect, RectTag>
     constexpr int& operator[](int i) noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 4 && "Rect index out of bounds!");
-        return (&x)[i];
+        return data[i];
     }
     constexpr const int& operator[](int i) const noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 4 && "Rect index out of bounds!");
-        return (&x)[i];
+        return data[i];
     }
 };
 
 struct alignas(16) FRect : public Vector4Base<float, FRect, RectTag>
 {
-    float x, y, w, h;
+    union
+    {
+        float data[4];
+        struct{ float x, y, w, h; };
+    };
 
     constexpr FRect() : x(0.0f), y(0.0f), w(0.0f), h(0.0f) {}
     constexpr explicit FRect(float v) : x(v), y(v), w(v), h(v) {}
@@ -557,18 +610,22 @@ struct alignas(16) FRect : public Vector4Base<float, FRect, RectTag>
     constexpr float& operator[](int i) noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 4 && "FRect index out of bounds!");
-        return (&x)[i];
+        return data[i];
     }
     constexpr const float& operator[](int i) const noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 4 && "FRect index out of bounds!");
-        return (&x)[i];
+        return data[i];
     }
 };
 
 struct Color : public Vector4Base<unsigned char, Color, ColorTag>
 {
-    unsigned char r, g, b, a;
+    union
+    {
+        unsigned char data[4];
+        struct{ unsigned char r, g, b, a; };
+    };
 
     constexpr Color() : r(0), g(0), b(0), a(0) {}
     constexpr explicit Color(unsigned char v) : r(v), g(v), b(v), a(v) {}
@@ -577,18 +634,22 @@ struct Color : public Vector4Base<unsigned char, Color, ColorTag>
     constexpr unsigned char& operator[](int i) noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 4 && "Color index out of bounds!");
-        return (&r)[i];
+        return data[i];
     }
     constexpr const unsigned char& operator[](int i) const noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 4 && "Color index out of bounds!");
-        return (&r)[i];
+        return data[i];
     }
 };
 
 struct alignas(16) FColor : public Vector4Base<float, FColor, ColorTag>
 {
-    float r, g, b, a;
+    union
+    {
+        float data[4];
+        struct{ float r, g, b, a; };
+    };
 
     constexpr FColor() : r(0.0f), g(0.0f), b(0.0f), a(0.0f) {}
     constexpr explicit FColor(float v) : r(v), g(v), b(v), a(v) {}
@@ -597,12 +658,12 @@ struct alignas(16) FColor : public Vector4Base<float, FColor, ColorTag>
     constexpr float& operator[](int i) noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 4 && "FColor index out of bounds!");
-        return (&r)[i];
+        return data[i];
     }
     constexpr const float& operator[](int i) const noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 4 && "FColor index out of bounds!");
-        return (&r)[i];
+        return data[i];
     }
 };
 
@@ -711,6 +772,9 @@ struct Matrix3Base
         return self;
     }
 
+    constexpr T* getData() noexcept { return &static_cast<Derived&>(*this)[0][0]; }
+    constexpr const T* getData() const noexcept { return &static_cast<const Derived&>(*this)[0][0]; }
+    
     constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0][0]; }
     constexpr const T* begin() const noexcept { return &static_cast<const Derived&>(*this)[0][0]; }
     constexpr T* end() noexcept { return begin() + 9; }
@@ -723,11 +787,15 @@ template<typename T, typename Derived>
     return static_cast<const Derived&>(mat3) * scalar;
 }
 
-struct alignas(16) Matrix3f : public Matrix3Base<float, Matrix3f>
+struct Matrix3f : public Matrix3Base<float, Matrix3f>
 {
     using Matrix3Base::operator*;
 
-    float data[3][3];
+    union
+    {
+        float data[3][3];
+        Vector3f vec3[3];
+    };
 
     constexpr Matrix3f() : data{} {}
     constexpr explicit Matrix3f(float v)
@@ -753,15 +821,15 @@ struct alignas(16) Matrix3f : public Matrix3Base<float, Matrix3f>
         );
     }
 
-    constexpr float* operator[](int i) noexcept
+    constexpr Vector3f& operator[](int i) noexcept
     {
         YIALITE_ASSERT(i >= 0 && i < 3 && "Matrix3f index out of bounds!");
-        return data[i];
+        return vec3[i];
     }
-    constexpr const float* operator[](int i) const noexcept 
+    constexpr const Vector3f& operator[](int i) const noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 3 && "Matrix3f index out of bounds!");
-        return data[i];
+        return vec3[i];
     }
 };
 
@@ -885,6 +953,9 @@ struct Matrix4Base
         return self;
     }
 
+    constexpr T* getData() noexcept { return &static_cast<Derived&>(*this)[0][0]; }
+    constexpr const T* getData() const noexcept { return &static_cast<const Derived&>(*this)[0][0]; }
+    
     constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0][0]; }
     constexpr const T* begin() const noexcept { return &static_cast<const Derived&>(*this)[0][0]; }
     constexpr T* end() noexcept { return begin() + 16; }
@@ -901,7 +972,11 @@ struct alignas(16) Matrix4f : public Matrix4Base<float, Matrix4f>
 {
     using Matrix4Base::operator*;
 
-    float data[4][4];
+    union
+    {
+        float data[4][4];
+        Vector4f vec4[4];
+    };
 
     constexpr Matrix4f() : data{} {}
     constexpr explicit Matrix4f(float v)
@@ -931,15 +1006,15 @@ struct alignas(16) Matrix4f : public Matrix4Base<float, Matrix4f>
         );
     }
 
-    constexpr float* operator[](int i) noexcept
+    constexpr Vector4f& operator[](int i) noexcept
     {
         YIALITE_ASSERT(i >= 0 && i < 4 && "Matrix4f index out of bounds!");
-        return data[i];
+        return vec4[i];
     }
-    constexpr const float* operator[](int i) const noexcept 
+    constexpr const Vector4f& operator[](int i) const noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 4 && "Matrix4f index out of bounds!");
-        return data[i];
+        return vec4[i];
     }
 };
 
@@ -1028,6 +1103,19 @@ template<typename T>
 [[nodiscard]] constexpr float distance(const T& a, const T& b) noexcept
 {
     return length(b - a);
+}
+
+template<typename T>
+[[nodiscard]] constexpr T radians(T degrees) noexcept
+requires(std::numeric_limits<T>::is_iec559)
+{
+    return degrees * static_cast<T>(0.01745329251994329576923690768489);
+}
+
+template<typename T>
+[[nodiscard]] constexpr inline T lerp(const T& a, const T& b, float t) noexcept
+{
+    return a + (b - a) * t;
 }
 
 //matrix
@@ -1163,81 +1251,210 @@ template<typename T>
 
 [[nodiscard]] constexpr inline Matrix4f translate(const Matrix4f& m, const Vector3f& v) noexcept
 {
-    Matrix4f t(
-        1.0f, 0.0f, 0.0f, v.x,
-        0.0f, 1.0f, 0.0f, v.y,
-        0.0f, 0.0f, 1.0f, v.z,
-        0.0f, 0.0f, 0.0f, 1.0f
-    );
-
-    return m * t;
+    Matrix4f result(m);
+    result[3] = m[0] * v.x + m[1] * v.y + m[2] * v.z + m[3];
+    return result;
 }
 
 [[nodiscard]] inline Matrix4f rotate(const Matrix4f& m, float angle, const Vector3f& v) noexcept
 {
-    float a = angle;
-    float c = std::cos(a);
-    float s = std::sin(a);
+    const float a = angle;
+    const float c = std::cos(a);
+    const float s = std::sin(a);
 
-    Vector3f axis = normalize(v);
+    Vector3f axis(normalize(v));
     Vector3f temp((1.0f - c) * axis);
 
-    Matrix4f rot;
-    rot[0][0] = c + temp.x * axis.x;
-    rot[0][1] = temp.x * axis.y + s * axis.z;
-    rot[0][2] = temp.x * axis.z - s * axis.y;
-    rot[0][3] = 0.0f;
+    Matrix4f rotate;
+    rotate[0][0] = c + temp[0] * axis[0];
+    rotate[0][1] = temp[0] * axis[1] + s * axis[2];
+    rotate[0][2] = temp[0] * axis[2] - s * axis[1];
 
-    rot[1][0] = temp.y * axis.x - s * axis.z;
-    rot[1][1] = c + temp.y * axis.y;
-    rot[1][2] = temp.y * axis.z + s * axis.x;
-    rot[1][3] = 0.0f;
+    rotate[1][0] = temp[1] * axis[0] - s * axis[2];
+    rotate[1][1] = c + temp[1] * axis[1];
+    rotate[1][2] = temp[1] * axis[2] + s * axis[0];
 
-    rot[2][0] = temp.z * axis.x + s * axis.y;
-    rot[2][1] = temp.z * axis.y - s * axis.x;
-    rot[2][2] = c + temp.z * axis.z;
-    rot[2][3] = 0.0f;
+    rotate[2][0] = temp[2] * axis[0] + s * axis[1];
+    rotate[2][1] = temp[2] * axis[1] - s * axis[0];
+    rotate[2][2] = c + temp[2] * axis[2];
 
-    rot[3][0] = 0.0f;
-    rot[3][1] = 0.0f;
-    rot[3][2] = 0.0f;
-    rot[3][3] = 1.0f;
+    Matrix4f result;
+    result[0] = m[0] * rotate[0][0] + m[1] * rotate[0][1] + m[2] * rotate[0][2];
+    result[1] = m[0] * rotate[1][0] + m[1] * rotate[1][1] + m[2] * rotate[1][2];
+    result[2] = m[0] * rotate[2][0] + m[1] * rotate[2][1] + m[2] * rotate[2][2];
+    result[3] = m[3];
 
-    Matrix4f res;
-
-    res[0][0] = m[0][0] * rot[0][0] + m[1][0] * rot[0][1] + m[2][0] * rot[0][2];
-    res[1][0] = m[0][0] * rot[1][0] + m[1][0] * rot[1][1] + m[2][0] * rot[1][2];
-    res[2][0] = m[0][0] * rot[2][0] + m[1][0] * rot[2][1] + m[2][0] * rot[2][2];
-    res[3][0] = m[3][0];
-
-    res[0][1] = m[0][1] * rot[0][0] + m[1][1] * rot[0][1] + m[2][1] * rot[0][2];
-    res[1][1] = m[0][1] * rot[1][0] + m[1][1] * rot[1][1] + m[2][1] * rot[1][2];
-    res[2][1] = m[0][1] * rot[2][0] + m[1][1] * rot[2][1] + m[2][1] * rot[2][2];
-    res[3][1] = m[3][1];
-
-    res[0][2] = m[0][2] * rot[0][0] + m[1][2] * rot[0][1] + m[2][2] * rot[0][2];
-    res[1][2] = m[0][2] * rot[1][0] + m[1][2] * rot[1][1] + m[2][2] * rot[1][2];
-    res[2][2] = m[0][2] * rot[2][0] + m[1][2] * rot[2][1] + m[2][2] * rot[2][2];
-    res[3][2] = m[3][2];
-
-    res[0][3] = m[0][3];
-    res[1][3] = m[1][3];
-    res[2][3] = m[2][3];
-    res[3][3] = m[3][3];
-
-    return res;
+    return result;
 }
 
 [[nodiscard]] constexpr inline Matrix4f scale(const Matrix4f& m, const Vector3f& v) noexcept
 {
-    Matrix4f s(
-        v.x,  0.0f, 0.0f, 0.0f,
-        0.0f, v.y,  0.0f, 0.0f,
-        0.0f, 0.0f, v.z,  0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f
-    );
+    Matrix4f result;
+    result[0] = m[0] * v[0];
+    result[1] = m[1] * v[1];
+    result[2] = m[2] * v[2];
+    result[3] = m[3];
+    return result;
+}
 
-    return m * s;
+[[nodiscard]] constexpr inline Matrix4f lookAtRH(const Vector3f& eye, const Vector3f& center, const Vector3f& up) noexcept
+{
+    const Vector3f f(normalize(center - eye));
+    const Vector3f s(normalize(cross(f, up)));
+    const Vector3f u(cross(s, f));
+
+    Matrix4f result(1.0f);
+    result[0][0] = s.x;
+    result[1][0] = s.y;
+    result[2][0] = s.z;
+    result[0][1] = u.x;
+    result[1][1] = u.y;
+    result[2][1] = u.z;
+    result[0][2] =-f.x;
+    result[1][2] =-f.y;
+    result[2][2] =-f.z;
+    result[3][0] =-dot(s, eye);
+    result[3][1] =-dot(u, eye);
+    result[3][2] = dot(f, eye);
+    return result;
+}
+
+[[nodiscard]] constexpr inline Matrix4f lookAtLH(const Vector3f& eye, const Vector3f& center, const Vector3f& up) noexcept
+{
+    const Vector3f f(normalize(center - eye));
+    const Vector3f s(normalize(cross(up, f)));
+    const Vector3f u(cross(f, s));
+
+    Matrix4f result(1.0f);
+    result[0][0] = s.x;
+    result[1][0] = s.y;
+    result[2][0] = s.z;
+    result[0][1] = u.x;
+    result[1][1] = u.y;
+    result[2][1] = u.z;
+    result[0][2] = f.x;
+    result[1][2] = f.y;
+    result[2][2] = f.z;
+    result[3][0] = -dot(s, eye);
+    result[3][1] = -dot(u, eye);
+    result[3][2] = -dot(f, eye);
+    return result;
+}
+
+[[nodiscard]] constexpr inline Matrix4f lookAt(const Vector3f& eye, const Vector3f& center, const Vector3f& up) noexcept
+{
+    #if defined(YIALITE_CLIP_RH)
+        return lookAtRH(eye, center, up);
+    #else
+        return lookAtLH(eye, center, up);
+    #endif
+}
+
+[[nodiscard]] constexpr inline Matrix4f orthoRH_NO(float left, float right, float bottom, float top, float z_near, float z_far) noexcept
+{
+    Matrix4f result(1.0f);
+    result[0][0] =  2.0f / (right - left);
+    result[1][1] =  2.0f / (top - bottom);
+    result[2][2] = -2.0f / (z_far - z_near);
+    result[3][0] = -(right + left) / (right - left);
+    result[3][1] = -(top + bottom) / (top - bottom);
+    result[3][2] = -(z_far + z_near) / (z_far - z_near);
+    return result;
+}
+
+[[nodiscard]] constexpr inline Matrix4f orthoRH_ZO(float left, float right, float bottom, float top, float z_near, float z_far) noexcept
+{
+    Matrix4f result(1.0f);
+    result[0][0] =  2.0f / (right - left);
+    result[1][1] =  2.0f / (top - bottom);
+    result[2][2] = -1.0f / (z_far - z_near);
+    result[3][0] = -(right + left) / (right - left);
+    result[3][1] = -(top + bottom) / (top - bottom);
+    result[3][2] = -z_near / (z_far - z_near);
+    return result;
+}
+
+[[nodiscard]] constexpr inline Matrix4f orthoLH_ZO(float left, float right, float bottom, float top, float z_near, float z_far) noexcept
+{    
+    Matrix4f result(1.0f);
+    result[0][0] =  2.0f / (right - left);
+    result[1][1] =  2.0f / (top - bottom);
+    result[2][2] =  1.0f / (z_far - z_near);
+    result[3][0] = -(right + left) / (right - left);
+    result[3][1] = -(top + bottom) / (top - bottom);
+    result[3][2] = -z_near / (z_far - z_near);
+    return result;
+}
+
+[[nodiscard]] constexpr inline Matrix4f ortho(float left, float right, float bottom, float top, float z_near, float z_far) noexcept
+{
+    #if defined(YIALITE_CLIP_RH) && defined(YIALITE_CLIP_NO)
+        return orthoRH_NO(left, right, bottom, top, z_near, z_far);
+    #elif defined(YIALITE_CLIP_RH) && defined(YIALITE_CLIP_ZO)
+        return orthoRH_ZO(left, right, bottom, top, z_near, z_far);
+    #elif defined(YIALITE_CLIP_LH) && defined(YIALITE_CLIP_ZO)
+        return orthoLH_ZO(left, right, bottom, top, z_near, z_far);
+    #else
+        return orthoLH_ZO(left, right, bottom, top, z_near, z_far);
+    #endif
+}
+
+[[nodiscard]] inline Matrix4f perspectiveRH_NO(float fovy, float aspect, float z_near, float z_far) noexcept
+{
+    YIALITE_ASSERT(aspect > std::numeric_limits<float>::epsilon() * TOLERANCE_SCALE && "aspect must be greater than 0");
+
+    const float tan_half_fovy = std::tan(fovy / 2.0f);
+
+    Matrix4f result(0.0f);
+    result[0][0] =  1.0f / (aspect * tan_half_fovy);
+    result[1][1] =  1.0f / (tan_half_fovy);
+    result[2][2] = -(z_far + z_near) / (z_far - z_near);
+    result[2][3] = -1.0f;
+    result[3][2] = -(2.0f * z_far * z_near) / (z_far - z_near);
+    return result;
+}
+
+[[nodiscard]] inline Matrix4f perspectiveRH_ZO(float fovy, float aspect, float z_near, float z_far) noexcept
+{
+    YIALITE_ASSERT(aspect > std::numeric_limits<float>::epsilon() * TOLERANCE_SCALE && "aspect must be greater than 0");
+
+    const float tan_half_fovy = std::tan(fovy / 2.0f);
+
+    Matrix4f result(0.0f);
+    result[0][0] =  1.0f / (aspect * tan_half_fovy);
+    result[1][1] =  1.0f / (tan_half_fovy);
+    result[2][2] =  z_far / (z_near - z_far);
+    result[2][3] = -1.0f;
+    result[3][2] = -(z_far * z_near) / (z_far - z_near);
+    return result;
+}
+
+[[nodiscard]] inline Matrix4f perspectiveLH_ZO(float fovy, float aspect, float z_near, float z_far) noexcept
+{
+    YIALITE_ASSERT(aspect > std::numeric_limits<float>::epsilon() * TOLERANCE_SCALE && "aspect must be greater than 0");
+
+    const float tan_half_fovy = std::tan(fovy / 2.0f);
+
+    Matrix4f result(0.0f);
+    result[0][0] = 1.0f / (aspect * tan_half_fovy);
+    result[1][1] = 1.0f / (tan_half_fovy);
+    result[2][2] = z_far / (z_far - z_near);
+    result[2][3] = 1.0f;
+    result[3][2] = -(z_far * z_near) / (z_far - z_near);
+    return result;
+}
+
+[[nodiscard]] inline Matrix4f perspective(float fovy, float aspect, float z_near, float z_far) noexcept
+{
+    #if defined(YIALITE_CLIP_RH) && defined(YIALITE_CLIP_NO)
+        return perspectiveRH_NO(fovy, aspect, z_near, z_far);
+    #elif defined(YIALITE_CLIP_RH) && defined(YIALITE_CLIP_ZO)
+        return perspectiveRH_ZO(fovy, aspect, z_near, z_far);
+    #elif defined(YIALITE_CLIP_LH) && defined(YIALITE_CLIP_ZO)
+        return perspectiveLH_ZO(fovy, aspect, z_near, z_far);
+    #else
+        return perspectiveLH_ZO(fovy, aspect, z_near, z_far);
+    #endif
 }
 
 }
