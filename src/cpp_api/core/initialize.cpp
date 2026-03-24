@@ -2,7 +2,6 @@
 #include "logger.h"
 
 #include <SDL3/SDL.h>
-#include <SDL3_ttf/SDL_ttf.h>
 
 namespace yialite
 {
@@ -16,16 +15,9 @@ bool init()
         Logger::fatal("Failed to initialize SDL: {}", SDL_GetError());
         is_initialized = false;
     }
-    
-    if(!TTF_Init())
-    {
-        Logger::fatal("Failed to initialize SDL_ttf: {}", SDL_GetError());
-        is_initialized = false;
-    }
 
     if(!is_initialized)
     {
-        TTF_Quit();
         SDL_Quit();
     }
 
@@ -34,7 +26,6 @@ bool init()
 
 void quit()
 {
-    TTF_Quit();
     SDL_Quit();
 }
 

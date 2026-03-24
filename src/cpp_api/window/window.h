@@ -9,8 +9,6 @@ namespace yialite
 
 class YIALITE_API Window
 {
-    friend class Renderer2D;
-    friend class DevUI;
 public:
     Window(const WindowConfig& config);
     ~Window();
@@ -22,6 +20,10 @@ public:
     WindowConfig getConfig() const { return m_config; }
     void setWidth(int width);
     void setHeight(int height);
+
+    //For internal use only
+    void* getNativeHandle();
+    const void* getNativeHandle() const;
 private:
     struct Impl;
     Impl* m_impl = nullptr;

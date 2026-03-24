@@ -19,12 +19,13 @@
 
 //renderer
 #include "renderer/renderer2d.h"
+#include "renderer/texture/texture2d.h"
 
 //window
 #include "window/window.h"
 
 //devui
 #include "devui/devui.h"
-#include "devui/imgui/imgui.h"
+#include "thirdparty/imgui/imgui.h"
 
 #endif

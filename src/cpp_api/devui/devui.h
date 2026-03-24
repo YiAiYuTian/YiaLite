@@ -11,7 +11,6 @@ class Renderer2D;
 
 class YIALITE_API DevUI
 {
-    friend class Event;
 public:
     DevUI(Window* window, Renderer2D* renderer);
     ~DevUI();

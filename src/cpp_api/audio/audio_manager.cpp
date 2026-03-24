@@ -2,8 +2,8 @@
 #include "../core/yialite_exception.h"
 #include "../core/logger.h"
 
-#include <miniaudio.h>
-#include "miniaudio/libvorbis/miniaudio_libvorbis.h"
+#include "../thirdparty/miniaudio/miniaudio.h"
+#include "../thirdparty/miniaudio/libvorbis/miniaudio_libvorbis.h"
 #include <unordered_map>
 #include <string>
 
