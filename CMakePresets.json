@@ -10,43 +10,108 @@
             "architecture": "x64",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}install",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
                 "CMAKE_C_COMPILER": "cl.exe",
                 "CMAKE_CXX_COMPILER": "cl.exe",
-                "CMAKE_TOOLCHAIN_FILE": "D:/VSproject/ThirdParty/vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake",
-                "VCPKG_TARGET_TRIPLET": "x64-windows-static-md"
+                "CMAKE_TOOLCHAIN_FILE": "D:/VSproject/ThirdParty/vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake"
             }
         },
         {
-            "name": "MSVC-debug",
+            "name": "msvc-debug",
             "displayName": "Visual Studio 2022 (x64) - Debug",
             "inherits": "MSVC",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_CXX_FLAGS_DEBUG": "/MDd /Od /Zi /EHsc"
+                "CMAKE_CXX_FLAGS_DEBUG": "/MDd /Od /Zi /EHsc",
+                "VCPKG_TARGET_TRIPLET": "x64-windows"
             }
         },
         {
-            "name": "MSVC-release",
+            "name": "msvc-release",
             "displayName": "Visual Studio 2022 (x64) - Release",
             "inherits": "MSVC",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_CXX_FLAGS_RELEASE": "/MD /O2 /EHsc"
+                "CMAKE_CXX_FLAGS_RELEASE": "/MD /O2 /EHsc",
+                "VCPKG_TARGET_TRIPLET": "x64-windows"
+            }
+        },
+        {
+            "name": "msvc-debug-static",
+            "displayName": "Visual Studio 2022 (x64) - Debug-Static",
+            "inherits": "MSVC",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_FLAGS_DEBUG": "/MTd /Od /Zi /EHsc",
+                "VCPKG_TARGET_TRIPLET": "x64-windows-static"
+            }
+        },
+        {
+            "name": "msvc-release-static",
+            "displayName": "Visual Studio 2022 (x64) - Release-Static",
+            "inherits": "MSVC",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CXX_FLAGS_RELEASE": "/MT /O2 /EHsc",
+                "VCPKG_TARGET_TRIPLET": "x64-windows-static"
+            }
+        },
+        {
+            "name": "msvc-debug-static-md",
+            "displayName": "Visual Studio 2022 (x64) - Debug-Static-Md",
+            "inherits": "MSVC",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_FLAGS_DEBUG": "/MDd /Od /Zi /EHsc",
+                "VCPKG_TARGET_TRIPLET": "x64-windows-static-md"
+            }
+        },
+        {
+            "name": "msvc-release-static-md",
+            "displayName": "Visual Studio 2022 (x64) - Release-Static-Md",
+            "inherits": "MSVC",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CXX_FLAGS_RELEASE": "/MD /O2 /EHsc",
+                "VCPKG_TARGET_TRIPLET": "x64-windows-static-md"
             }
         }
     ],
     "buildPresets": [
         {
-            "name": "MSVC-debug",
-            "displayName": "Visual Studio Community 2022 Release - amd64 - Debug",
-            "configurePreset": "MSVC-debug",
+            "name": "msvc-debug",
+            "displayName": "Visual Studio 2022 (x64) - Debug",
+            "configurePreset": "msvc-debug",
             "configuration": "Debug"
         },
         {
-            "name": "MSVC-release",
+            "name": "msvc-release",
             "displayName": "Visual Studio 2022 (x64) - Release",
-            "configurePreset": "MSVC-release",
+            "configurePreset": "msvc-release",
+            "configuration": "Release"
+        },
+        {
+            "name": "msvc-debug-static",
+            "displayName": "Visual Studio 2022 (x64) - Debug-Static",
+            "configurePreset": "msvc-debug-static",
+            "configuration": "Debug"
+        },
+        {
+            "name": "msvc-release-static",
+            "displayName": "Visual Studio 2022 (x64) - Release-Static",
+            "configurePreset": "msvc-release-static",
+            "configuration": "Release"
+        },
+        {
+            "name": "msvc-debug-static-md",
+            "displayName": "Visual Studio 2022 (x64) - Debug-Static-Md",
+            "configurePreset": "msvc-debug-static-md",
+            "configuration": "Debug"
+        },
+        {
+            "name": "msvc-release-static-md",
+            "displayName": "Visual Studio 2022 (x64) - Release-Static-Md",
+            "configurePreset": "msvc-release-static-md",
             "configuration": "Release"
         }
     ]
