@@ -1,6 +1,7 @@
 ﻿#ifndef YIALITE_LOGGER_H
 #define YIALITE_LOGGER_H
 
+#include "../core/core.h"
 #include "../utils/singleton.h"
 
 #include <spdlog/spdlog.h>
@@ -10,9 +11,12 @@
 namespace yialite
 {
 
+enum class LogLevel;
+
 class Logger final : public Singleton<Logger>
 {
     YIALITE_SINGLETON(Logger);
+    friend YIALITE_API void log(LogLevel, const char*, ...);
 public:
     static void setLoggerEnabled(bool enabled)
     {

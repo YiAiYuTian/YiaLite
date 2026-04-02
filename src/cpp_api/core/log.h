@@ -18,6 +18,8 @@ enum class LogLevel
 YIALITE_API void setLogLevel(LogLevel level);
 YIALITE_API void setLoggerEnabled(bool enabled);
 
+YIALITE_API void log(LogLevel level, const char* format, ...);
+
 }
 
 #endif
