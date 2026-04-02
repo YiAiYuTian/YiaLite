@@ -24,10 +24,14 @@
 // - Windows DLL users: heaps and globals are not shared across DLL boundaries! You will need to call SetCurrentContext() + SetAllocatorFunctions()
 //   for each static/DLL boundary you are calling from. Read "Context and Memory Allocators" section of imgui.cpp for more details.
 #ifdef _WIN32
-    #ifdef YIALITE_EXPORTS
-        #define IMGUI_API __declspec(dllexport)                   // MSVC Windows: DLL export
+    #ifdef YIALITE_STATIC
+        #define IMGUI_API
     #else
-        #define IMGUI_API __declspec(dllimport)                   // MSVC Windows: DLL import
+        #ifdef YIALITE_EXPORTS
+            #define IMGUI_API __declspec(dllexport)                   // MSVC Windows: DLL export
+        #else
+            #define IMGUI_API __declspec(dllimport)                   // MSVC Windows: DLL import
+        #endif
     #endif
 #endif
 //#define IMGUI_API __attribute__((visibility("default")))  // GCC/Clang: override visibility when set is hidden

@@ -4,10 +4,14 @@
 #include <cassert>
 
 #ifdef _WIN32
-    #ifdef YIALITE_EXPORTS
-        #define YIALITE_API __declspec(dllexport)
+    #ifdef YIALITE_STATIC
+        #define YIALITE_API
     #else
-        #define YIALITE_API __declspec(dllimport)
+        #ifdef YIALITE_EXPORTS
+            #define YIALITE_API __declspec(dllexport)
+        #else
+            #define YIALITE_API __declspec(dllimport)
+        #endif
     #endif
 #endif
 
