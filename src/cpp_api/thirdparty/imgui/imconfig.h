@@ -26,12 +26,14 @@
 #ifdef _WIN32
     #ifdef YIALITE_STATIC
         #define IMGUI_API
-    #else
+    #elif defined(YIALITE_SHARED)
         #ifdef YIALITE_EXPORTS
             #define IMGUI_API __declspec(dllexport)                   // MSVC Windows: DLL export
         #else
             #define IMGUI_API __declspec(dllimport)                   // MSVC Windows: DLL import
         #endif
+    #else
+        #define IMGUI_API
     #endif
 #endif
 //#define IMGUI_API __attribute__((visibility("default")))  // GCC/Clang: override visibility when set is hidden

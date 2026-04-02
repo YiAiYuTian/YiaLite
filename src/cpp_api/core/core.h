@@ -6,12 +6,14 @@
 #ifdef _WIN32
     #ifdef YIALITE_STATIC
         #define YIALITE_API
-    #else
+    #elif defined(YIALITE_SHARED)
         #ifdef YIALITE_EXPORTS
             #define YIALITE_API __declspec(dllexport)
         #else
             #define YIALITE_API __declspec(dllimport)
         #endif
+    #else
+        #define YIALITE_API
     #endif
 #endif
 

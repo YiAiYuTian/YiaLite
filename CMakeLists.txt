@@ -47,3 +47,4 @@ target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3
 target_compile_definitions(${PROJECT_NAME} PRIVATE YIALITE_EXPORTS)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE YIALITE_STATIC)
+#target_compile_definitions(${PROJECT_NAME} PRIVATE YIALITE_SHARED)
