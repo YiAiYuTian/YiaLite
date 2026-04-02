@@ -1118,7 +1118,8 @@ template<typename T>
     return a + (b - a) * t;
 }
 
-[[nodiscard]] constexpr inline float clamp(float v, float min, float max) noexcept
+template<typename T>
+[[nodiscard]] constexpr inline T clamp(T v, T min, T max) noexcept
 {
     return std::max(min, std::min(v, max));
 }

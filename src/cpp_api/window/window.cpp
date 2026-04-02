@@ -54,14 +54,14 @@ Window::~Window()
     delete m_impl;
 }
 
-void Window::showOpenFileDialog(DialogFileCallback callback, void* userdata, const DialogFileFilter* filters, int nfilters, std::string_view default_location, bool allow_many)
+void Window::showOpenFileDialog(DialogFileCallback callback, void* userdata, const DialogFileFilter* filters, int nfilters, const char* default_location, bool allow_many)
 {
     SDL_ShowOpenFileDialog(callback, 
         userdata, 
         m_impl->window, 
         reinterpret_cast<const SDL_DialogFileFilter*>(filters),
         nfilters,
-        default_location.data(),
+        default_location,
         allow_many
     );
 }

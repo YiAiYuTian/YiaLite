@@ -4,8 +4,6 @@
 #include "../core/core.h"
 #include "../core/config.h"
 
-#include <string_view>
-
 namespace yialite
 {
 
@@ -28,7 +26,7 @@ public:
     Window& operator=(Window&&) = delete;
 
     //tools
-    void showOpenFileDialog(DialogFileCallback callback, void* userdata, const DialogFileFilter* filters, int nfilters, std::string_view default_location, bool allow_many = false);
+    void showOpenFileDialog(DialogFileCallback callback, void* userdata, const DialogFileFilter* filters, int nfilters, const char* default_location = nullptr, bool allow_many = false);
     WindowConfig getConfig() const { return m_config; }
     void setWidth(int width);
     void setHeight(int height);
