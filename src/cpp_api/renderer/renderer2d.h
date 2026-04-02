@@ -23,6 +23,8 @@ public:
 
     void beginDraw(const Color& background_color = COLOR_BLACK);
     void beginDrawF(const FColor& background_color = FCOLOR_BLACK);
+    void renderClear(const Color& background_color = COLOR_BLACK);
+    void renderClearF(const FColor& background_color = FCOLOR_BLACK);
     void endDraw();
 
     //tools
@@ -44,6 +46,9 @@ public:
     void drawFillRectF(const FRect& rect, const FColor& color = FCOLOR_DEFAULT);
     void drawTextureF(Texture2D& texture, const FRect* src_rect, const FRect& dst_rect, float alpha = 1.0f);
     
+    void setRenderScale(const Vector2f& size);
+    void setRenderTarget(Texture2D* texture = nullptr);
+
     //For internal use only
     void* getNativeHandle();
     const void* getNativeHandle() const;

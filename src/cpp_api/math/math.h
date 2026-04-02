@@ -1118,6 +1118,11 @@ template<typename T>
     return a + (b - a) * t;
 }
 
+[[nodiscard]] constexpr inline float clamp(float v, float min, float max) noexcept
+{
+    return std::max(min, std::min(v, max));
+}
+
 //matrix
 [[nodiscard]] constexpr inline Matrix3f transpose(const Matrix3f& m) noexcept
 {

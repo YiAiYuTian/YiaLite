@@ -43,6 +43,22 @@ Texture2D::Texture2D(std::string_view path, Renderer2D* renderer)
     stbi_image_free(data);
 }
 
+Texture2D::Texture2D(int width, int height, Renderer2D *renderer, bool is_target)
+{
+    m_impl = new Texture2D::Impl();
+
+    if(m_impl->texture = SDL_CreateTexture(
+        reinterpret_cast<SDL_Renderer*>(renderer->getNativeHandle()), 
+        SDL_PIXELFORMAT_RGBA32, is_target ? SDL_TEXTUREACCESS_TARGET : SDL_TEXTUREACCESS_STATIC, width, height
+        ); !m_impl->texture)
+    {
+        throw YiaLite_Exception("Failed to create texture: " + std::string(SDL_GetError()));
+    }
+
+    m_impl->width = width;
+    m_impl->height = height;
+}
+
 Texture2D::~Texture2D()
 {
     SDL_DestroyTexture(m_impl->texture);

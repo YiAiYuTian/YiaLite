@@ -44,6 +44,18 @@ void Renderer2D::beginDrawF(const FColor& background_color)
     SDL_RenderClear(m_impl->renderer);
 }
 
+void Renderer2D::renderClear(const Color &background_color)
+{
+    SDL_SetRenderDrawColor(m_impl->renderer, background_color.r, background_color.g, background_color.b, background_color.a);
+    SDL_RenderClear(m_impl->renderer);
+}
+
+void Renderer2D::renderClearF(const FColor &background_color)
+{
+    SDL_SetRenderDrawColorFloat(m_impl->renderer, background_color.r, background_color.g, background_color.b, background_color.a);
+    SDL_RenderClear(m_impl->renderer);
+}
+
 void Renderer2D::endDraw()
 {
     SDL_RenderPresent(m_impl->renderer);
@@ -159,6 +171,16 @@ void Renderer2D::drawTextureF(Texture2D& texture, const FRect* src_rect, const F
         reinterpret_cast<const SDL_FRect*>(src_rect),
         reinterpret_cast<const SDL_FRect*>(&dst_rect)
     );
+}
+
+void Renderer2D::setRenderScale(const Vector2f &size)
+{
+    SDL_SetRenderScale(m_impl->renderer, size.x, size.y);
+}
+
+void Renderer2D::setRenderTarget(Texture2D* texture)
+{
+    SDL_SetRenderTarget(m_impl->renderer, texture ? reinterpret_cast<SDL_Texture*>(texture->getNativeHandle()) : nullptr);
 }
 
 void *Renderer2D::getNativeHandle()

@@ -4,8 +4,18 @@
 #include "../core/core.h"
 #include "../core/config.h"
 
+#include <string_view>
+
 namespace yialite
 {
+
+typedef void (*DialogFileCallback)(void *userdata, const char * const *filelist, int filter);
+
+struct DialogFileFilter
+{
+    const char* name;
+    const char* pattern;
+};
 
 class YIALITE_API Window
 {
@@ -17,6 +27,8 @@ public:
     Window(Window&&) = delete;
     Window& operator=(Window&&) = delete;
 
+    //tools
+    void showOpenFileDialog(DialogFileCallback callback, void* userdata, const DialogFileFilter* filters, int nfilters, std::string_view default_location, bool allow_many = false);
     WindowConfig getConfig() const { return m_config; }
     void setWidth(int width);
     void setHeight(int height);

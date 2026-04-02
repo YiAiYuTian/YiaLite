@@ -54,6 +54,18 @@ Window::~Window()
     delete m_impl;
 }
 
+void Window::showOpenFileDialog(DialogFileCallback callback, void* userdata, const DialogFileFilter* filters, int nfilters, std::string_view default_location, bool allow_many)
+{
+    SDL_ShowOpenFileDialog(callback, 
+        userdata, 
+        m_impl->window, 
+        reinterpret_cast<const SDL_DialogFileFilter*>(filters),
+        nfilters,
+        default_location.data(),
+        allow_many
+    );
+}
+
 void Window::setWidth(int width)
 {
     m_config.width = width;

@@ -8,7 +8,7 @@ find_package(SDL3 CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(Vorbis CONFIG REQUIRED)
 
-add_library(${PROJECT_NAME} SHARED)
+add_library(${PROJECT_NAME} STATIC)
 
 set(C_SRC "src/c_api(discard)/yialite.cpp")
 
