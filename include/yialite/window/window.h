@@ -2,36 +2,21 @@
 #define YIALITE_WINDOW_H
 
 #include "../core/core.h"
-
-#include <string>
-#include <memory>
+#include "../core/config.h"
 
 namespace yialite
 {
 
-enum WindowFlags : uint64_t
-{
-    WindowFlags_None                = 0,
-    WindowFlags_Fullscreen          = 1ULL << 0,
-    WindowFlags_Borderless          = 1ULL << 1,
-    WindowFlags_Resizable           = 1ULL << 2,
-    WindowFlags_MouseGrabbed        = 1ULL << 3,
-    WindowFlags_MouseCapture        = 1ULL << 4,
-    WindowFlags_KeyboardGrabbed     = 1ULL << 5
-};
+typedef void (*DialogFileCallback)(void *userdata, const char * const *filelist, int filter);
 
-struct WindowConfig
+struct DialogFileFilter
 {
-    std::string title = "YiaLite Window";
-    int width = 1280;
-    int height = 720;
-    WindowFlags flags = WindowFlags_None;
+    const char* name;
+    const char* pattern;
 };
 
 class YIALITE_API Window
 {
-    friend class Renderer;
-    friend class DevUI;
 public:
     Window(const WindowConfig& config);
     ~Window();
@@ -40,9 +25,15 @@ public:
     Window(Window&&) = delete;
     Window& operator=(Window&&) = delete;
 
+    //tools
+    void showOpenFileDialog(DialogFileCallback callback, void* userdata, const DialogFileFilter* filters, int nfilters, const char* default_location = nullptr, bool allow_many = false);
     WindowConfig getConfig() const { return m_config; }
     void setWidth(int width);
     void setHeight(int height);
+
+    //For internal use only
+    void* getNativeHandle();
+    const void* getNativeHandle() const;
 private:
     struct Impl;
     Impl* m_impl = nullptr;

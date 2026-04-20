@@ -1,28 +1,27 @@
 ﻿#ifndef YIALITE_CONTEXT_H
 #define YIALITE_CONTEXT_H
 
-#include "../core/core.h"
+#include "core.h"
+#include "config.h"
 
 namespace yialite
 {
 
 class Window;
-class Renderer;
+class Renderer2D;
 class Event;
 class DevUI;
 
-struct WindowConfig;
-
 struct YIALITE_API Context
 {
-    Context(const WindowConfig& config, bool enable_devui = false);
+    Context(const ContextConfig& config);
     ~Context();
     struct Initializer;
     Initializer* initializer = nullptr;
     Window* window = nullptr;
-    Renderer* renderer = nullptr;
-    DevUI* devui = nullptr;
+    Renderer2D* renderer2d = nullptr;
     Event* event = nullptr;
+    DevUI* devui = nullptr;
 };
 
 }

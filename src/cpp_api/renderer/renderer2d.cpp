@@ -94,12 +94,14 @@ void Renderer2D::drawRect(const FRect &rect, const Color& color)
 
 void Renderer2D::drawFillRect(const Vector2f &pos, const Vector2f &size, const Color& color)
 {
+    SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_FRect rect = { pos.x, pos.y, size.x, size.y};
     SDL_RenderFillRect(m_impl->renderer, &rect);
 }
 
 void Renderer2D::drawFillRect(const FRect &rect, const Color& color)
 {
+    SDL_SetRenderDrawColor(m_impl->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(m_impl->renderer, reinterpret_cast<const SDL_FRect*>(&rect));
 }
 

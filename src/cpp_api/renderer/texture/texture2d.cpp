@@ -22,21 +22,24 @@ Texture2D::Texture2D(std::string_view path, Renderer2D* renderer)
     uint8_t* data = stbi_load(path.data(), &m_impl->width, &m_impl->height, nullptr, 4);
     if(!data)
     {
-        throw YiaLite_Exception("Failed to load texture: " + std::string(path));
+        delete m_impl;
+        throw YiaLite_Exception("Failed to load texture(" + std::string(path) + ")" + ": " + stbi_failure_reason());
     }
 
     SDL_Surface* surface = SDL_CreateSurfaceFrom(m_impl->width, m_impl->height, SDL_PIXELFORMAT_RGBA32, data, m_impl->width * 4);
     if(!surface)
     {
         stbi_image_free(data);
-        throw YiaLite_Exception("Failed to load texture: " + std::string(SDL_GetError()));
+        delete m_impl;
+        throw YiaLite_Exception("Failed to load texture(" + std::string(path) + ")" + ": " + std::string(SDL_GetError()));
     }
 
     if(m_impl->texture = SDL_CreateTextureFromSurface(reinterpret_cast<SDL_Renderer*>(renderer->getNativeHandle()), surface); !m_impl->texture)
     {
         SDL_DestroySurface(surface);
         stbi_image_free(data);
-        throw YiaLite_Exception("Failed to load texture: " + std::string(SDL_GetError()));
+        delete m_impl;
+        throw YiaLite_Exception("Failed to load texture(" + std::string(path) + ")" + ": " + std::string(SDL_GetError()));
     }
 
     SDL_DestroySurface(surface);

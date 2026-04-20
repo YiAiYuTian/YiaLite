@@ -8,7 +8,7 @@ find_package(SDL3 CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(Vorbis CONFIG REQUIRED)
 
-add_library(${PROJECT_NAME} STATIC)
+add_library(${PROJECT_NAME} SHARED)
 
 set(C_SRC "src/c_api(discard)/yialite.cpp")
 
@@ -44,7 +44,4 @@ target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3
                                               spdlog::spdlog_header_only
                                               Vorbis::vorbisfile)
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE YIALITE_EXPORTS)
-
-target_compile_definitions(${PROJECT_NAME} PRIVATE YIALITE_STATIC)
-#target_compile_definitions(${PROJECT_NAME} PRIVATE YIALITE_SHARED)
+target_compile_definitions(${PROJECT_NAME} PRIVATE YIALITE_EXPORTS YIALITE_SHARED)

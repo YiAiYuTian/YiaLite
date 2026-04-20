@@ -27,7 +27,6 @@ public:
     ~Event();
 
     void onUpdate();
-
     
     void setGlobalData(void* data);
     void registerDevUIEvent(DevUI* devui);

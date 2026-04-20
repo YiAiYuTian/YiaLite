@@ -7,14 +7,12 @@ namespace yialite
 {
 
 class Window;
-class Renderer;
-class Event;
+class Renderer2D;
 
 class YIALITE_API DevUI
 {
-    friend class Event;
 public:
-    DevUI(Window* window, Renderer* renderer);
+    DevUI(Window* window, Renderer2D* renderer);
     ~DevUI();
     DevUI(const DevUI&) = delete;
     DevUI& operator=(const DevUI&) = delete;
@@ -23,13 +21,12 @@ public:
 
     void onUpdate();
     void onRender();
-
-    void Text(const char *fmt, ...);
 private:
     struct Impl;
     Impl* m_impl = nullptr;
 };
-    
+
 }
+
 
 #endif

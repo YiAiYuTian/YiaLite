@@ -73,15 +73,7 @@ bool AudioManager::addSound(std::string_view name, std::string_view path)
     std::string sound_name(name);
     ma_sound* sound = nullptr;
 
-    try
-    {
-        sound = new ma_sound();
-    }
-    catch(const std::exception& e)
-    {
-        Logger::error("{}", e.what());
-        return false;
-    }
+    sound = new ma_sound();
 
     result = ma_sound_init_from_file(m_impl->engine, path.data(), 0, NULL, NULL, sound);
     if (result != MA_SUCCESS)
@@ -163,7 +155,7 @@ bool AudioManager::playSoundFromName(std::string_view name, bool loop, float vol
     {
         ma_result result;
         if(loop) ma_sound_set_looping(it->second, MA_TRUE);
-        volume = std::clamp(volume, 0.0f, 50.0f);
+        volume = std::clamp(volume, 0.0f, 1.0f);
         ma_sound_set_volume(it->second, volume);
 
         result = ma_sound_start(it->second);
