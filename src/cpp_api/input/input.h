@@ -5,8 +5,6 @@
 #include "../event/mouse_button.h"
 #include "scancode.h"
 
-#include <stdint.h>
-
 namespace yialite
 {
 

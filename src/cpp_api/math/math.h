@@ -5,7 +5,10 @@
 
 #ifdef YIALITE_MATH_STANDALONE
     #include <cassert>
+    #include <cstdint>
     
+    typedef std::uint8_t Uint8;
+
     #ifdef _DEBUG
         #define YIALITE_ASSERT(expression) assert(expression)
     #else
@@ -13,6 +16,7 @@
     #endif
 #else
     #include "../core/core.h"
+    #include "../utils/base_types.h"
 #endif
 
 #include <cmath>
@@ -619,24 +623,24 @@ struct alignas(16) FRect : public Vector4Base<float, FRect, RectTag>
     }
 };
 
-struct Color : public Vector4Base<unsigned char, Color, ColorTag>
+struct Color : public Vector4Base<Uint8, Color, ColorTag>
 {
     union
     {
-        unsigned char data[4];
-        struct{ unsigned char r, g, b, a; };
+        Uint8 data[4];
+        struct{ Uint8 r, g, b, a; };
     };
 
     constexpr Color() : r(0), g(0), b(0), a(0) {}
-    constexpr explicit Color(unsigned char v) : r(v), g(v), b(v), a(v) {}
-    constexpr Color(unsigned char r_, unsigned char g_, unsigned char b_, unsigned char a_) : r(r_), g(g_), b(b_), a(a_) {}
+    constexpr explicit Color(Uint8 v) : r(v), g(v), b(v), a(v) {}
+    constexpr Color(Uint8 r_, Uint8 g_, Uint8 b_, Uint8 a_) : r(r_), g(g_), b(b_), a(a_) {}
 
-    constexpr unsigned char& operator[](int i) noexcept 
+    constexpr Uint8& operator[](int i) noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 4 && "Color index out of bounds!");
         return data[i];
     }
-    constexpr const unsigned char& operator[](int i) const noexcept 
+    constexpr const Uint8& operator[](int i) const noexcept 
     {
         YIALITE_ASSERT(i >= 0 && i < 4 && "Color index out of bounds!");
         return data[i];

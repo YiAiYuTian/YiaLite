@@ -7,12 +7,12 @@
 #ifndef YIALITE_KEYCODE_H
 #define YIALITE_KEYCODE_H
 
-#include <stdint.h>
+#include "../utils/base_types.h"
 
 namespace yialite
 {
-    typedef uint32_t Keycode;
-    typedef uint16_t Keymod;
+    typedef Uint32 Keycode;
+    typedef Uint16 Keymod;
 }
 
 //keycode

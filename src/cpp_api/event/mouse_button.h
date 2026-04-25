@@ -7,13 +7,14 @@
 #ifndef YIALITE_MOUSE_BUTTON_H
 #define YIALITE_MOUSE_BUTTON_H
 
-#include <stdint.h>
+#include "../utils/base_types.h"
 
 namespace yialite
 {
-    typedef uint8_t MouseButton;
+    typedef Uint8 MouseButton;
 }
 
+//MouseButton
 #define YIALITE_MOUSE_BUTTON_LEFT     1
 #define YIALITE_MOUSE_BUTTON_MIDDLE   2
 #define YIALITE_MOUSE_BUTTON_RIGHT    3
@@ -24,8 +25,8 @@ namespace yialite
 
 namespace yialite
 {
-    typedef uint32_t MouseButtonFlags;
-    enum MouseButtonFlags_ : uint32_t
+    typedef Uint32 MouseButtonFlags;
+    enum MouseButtonFlags_ : Uint32
     {
         MOUSE_BUTTON_LMASK =  YIALITE_MOUSE_BUTTON_MASK(YIALITE_MOUSE_BUTTON_LEFT),
         MOUSE_BUTTON_MMASK =  YIALITE_MOUSE_BUTTON_MASK(YIALITE_MOUSE_BUTTON_MIDDLE),
