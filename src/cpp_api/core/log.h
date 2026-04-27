@@ -25,7 +25,7 @@ YIALITE_API void logImpl(LogLevel level, const char* msg);
 template<typename... Args>
 void log(LogLevel level, std::format_string<Args...> format, Args&&... args)
 {
-    logImpl(level, std::format(format, std::forward<Args>(args)...));
+    logImpl(level, std::format(format, std::forward<Args>(args)...).c_str());
 }
 
 }
