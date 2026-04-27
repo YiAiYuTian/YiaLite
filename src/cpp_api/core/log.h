@@ -4,7 +4,6 @@
 #include "core.h"
 
 #include <format>
-#include <string>
 
 namespace yialite
 {
@@ -21,7 +20,7 @@ enum class LogLevel
 YIALITE_API void setLogLevel(LogLevel level);
 YIALITE_API void setLoggerEnabled(bool enabled);
 
-YIALITE_API void logImpl(LogLevel level, const std::string& msg);
+YIALITE_API void logImpl(LogLevel level, const char* msg);
 
 template<typename... Args>
 void log(LogLevel level, std::format_string<Args...> format, Args&&... args)

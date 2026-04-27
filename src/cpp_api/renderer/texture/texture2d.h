@@ -3,8 +3,6 @@
 
 #include "../../core/core.h"
 
-#include <string_view>
-
 namespace yialite
 {
 
@@ -14,7 +12,7 @@ class YIALITE_API Texture2D
 {
     friend class Renderer2D;
 public:
-    Texture2D(std::string_view path, Renderer2D* renderer);
+    Texture2D(const char* path, Renderer2D* renderer);
     Texture2D(int width, int height, Renderer2D* renderer, bool is_target = false);
     ~Texture2D();
 

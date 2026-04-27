@@ -15,11 +15,11 @@ struct Texture2D::Impl
     SDL_Texture* texture = nullptr;
 };
 
-Texture2D::Texture2D(std::string_view path, Renderer2D* renderer)
+Texture2D::Texture2D(const char* path, Renderer2D* renderer)
 {
     m_impl = new Texture2D::Impl();
 
-    uint8_t* data = stbi_load(path.data(), &m_impl->width, &m_impl->height, nullptr, 4);
+    uint8_t* data = stbi_load(path, &m_impl->width, &m_impl->height, nullptr, 4);
     if(!data)
     {
         delete m_impl;

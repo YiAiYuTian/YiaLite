@@ -16,7 +16,7 @@ enum class LogLevel;
 class Logger final : public Singleton<Logger>
 {
     YIALITE_SINGLETON(Logger);
-    friend YIALITE_API void logImpl(LogLevel, const std::string&);
+    friend YIALITE_API void logImpl(LogLevel, const char*);
 public:
     static void setLoggerEnabled(bool enabled)
     {

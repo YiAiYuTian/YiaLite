@@ -33,7 +33,7 @@ void setLoggerEnabled(bool enabled)
     Logger::setLoggerEnabled(enabled);
 }
 
-void logImpl(LogLevel level, const std::string& msg)
+void logImpl(LogLevel level, const char* msg)
 {
     if (Logger::instance().m_is_logger_enabled)
         Logger::instance().m_logger->log(toSpdlogLevel(level), msg);

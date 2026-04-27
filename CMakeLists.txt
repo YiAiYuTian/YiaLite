@@ -10,7 +10,7 @@ find_package(Vorbis CONFIG REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED)
 
-set(C_SRC "src/c_api(discard)/yialite.cpp")
+#set(C_SRC "src/c_api(discard)/yialite.cpp")
 
 set(CXX_SRC "src/cpp_api/core/logger.cpp"
             "src/cpp_api/core/context.cpp"
@@ -35,7 +35,7 @@ set(THIRD_PARTY_SRC "src/cpp_api/thirdparty/imgui/imgui.cpp"
                     "src/cpp_api/thirdparty/miniaudio/libvorbis/miniaudio_libvorbis.c"
                     "src/cpp_api/thirdparty/stb_image/stb_image.cpp")
 
-target_sources(${PROJECT_NAME} PRIVATE ${CXX_SRC} ${C_SRC} ${THIRD_PARTY_SRC})
+target_sources(${PROJECT_NAME} PRIVATE ${CXX_SRC} ${THIRD_PARTY_SRC})
 
 target_include_directories(${PROJECT_NAME} PRIVATE "src/cpp_api/thirdparty/imgui"
                                                    "src/cpp_api/thirdparty/imgui/backends")

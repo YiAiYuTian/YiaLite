@@ -14,14 +14,14 @@ public:
     AudioManager();
     ~AudioManager();
 
-    bool addSound(std::string_view name, std::string_view path);
-    bool replaceSound(std::string_view name, std::string_view path);
-    bool hasSound(std::string_view name) const;
-    void removeSound(std::string_view name);
+    bool addSound(const char* name, const char* path);
+    bool replaceSound(const char* name, const char* path);
+    bool hasSound(const char* name) const;
+    void removeSound(const char* name);
     void removeAllSounds();
 
-    bool playSound(std::string_view path);
-    bool playSoundFromName(std::string_view name, bool loop = false, float volume = 1.0f);
+    bool playSound(const char* path);
+    bool playSoundFromName(const char* name, bool loop = false, float volume = 1.0f);
 
     size_t getSoundCount() const;
 private:

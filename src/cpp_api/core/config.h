@@ -1,14 +1,13 @@
 #ifndef YIALITE_CONFIG_H
 #define YIALITE_CONFIG_H
 
-#include <string>
+#include "../utils/base_types.h"
 
 namespace yialite
 {
 
-typedef uint64_t WindowFlags;
-
-enum WindowFlags_ : uint64_t
+typedef Uint64 WindowFlags;
+enum WindowFlags_ : Uint64
 {
     WindowFlags_None                = 0,
     WindowFlags_Fullscreen          = 1ULL << 0,
@@ -21,7 +20,7 @@ enum WindowFlags_ : uint64_t
 
 struct WindowConfig
 {
-    std::string title = "YiaLite Window";
+    const char* title = "YiaLite Window";
     int width = 1280;
     int height = 720;
     WindowFlags flags = WindowFlags_None;

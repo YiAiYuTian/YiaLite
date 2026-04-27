@@ -67,7 +67,7 @@ AudioManager::~AudioManager()
     delete m_impl;
 }
 
-bool AudioManager::addSound(std::string_view name, std::string_view path)
+bool AudioManager::addSound(const char* name, const char* path)
 {
     ma_result result;
     std::string sound_name(name);
@@ -75,7 +75,7 @@ bool AudioManager::addSound(std::string_view name, std::string_view path)
 
     sound = new ma_sound();
 
-    result = ma_sound_init_from_file(m_impl->engine, path.data(), 0, NULL, NULL, sound);
+    result = ma_sound_init_from_file(m_impl->engine, path, 0, NULL, NULL, sound);
     if (result != MA_SUCCESS)
     {
         delete sound;
@@ -95,7 +95,7 @@ bool AudioManager::addSound(std::string_view name, std::string_view path)
     return true;
 }
 
-bool AudioManager::replaceSound(std::string_view name, std::string_view path)
+bool AudioManager::replaceSound(const char* name, const char* path)
 {
     if(auto it = m_impl->sounds.find(std::string(name)); it != m_impl->sounds.end())
     {
@@ -104,11 +104,11 @@ bool AudioManager::replaceSound(std::string_view name, std::string_view path)
         m_impl->sounds.erase(it);
         return addSound(name, path);
     }
-    Logger::warn("Sound '{}' not found, replace failed", name.data());
+    Logger::warn("Sound '{}' not found, replace failed", name);
     return false;
 }
 
-void AudioManager::removeSound(std::string_view name)
+void AudioManager::removeSound(const char* name)
 {
     std::string sound_name(name);
     if(auto it = m_impl->sounds.find(sound_name); it != m_impl->sounds.end())
@@ -132,24 +132,24 @@ void AudioManager::removeAllSounds()
     m_impl->sounds.clear();
 }
 
-bool AudioManager::hasSound(std::string_view name) const
+bool AudioManager::hasSound(const char* name) const
 {
     return m_impl->sounds.find(std::string(name)) != m_impl->sounds.end();
 }
 
-bool AudioManager::playSound(std::string_view path)
+bool AudioManager::playSound(const char* path)
 {
     ma_result result;
-    result = ma_engine_play_sound(m_impl->engine, path.data(), nullptr);
+    result = ma_engine_play_sound(m_impl->engine, path, nullptr);
     if(result != MA_SUCCESS)
     {
-        Logger::error("Failed to play sound '{}': {}", path.data(), ma_result_description(result));
+        Logger::error("Failed to play sound '{}': {}", path, ma_result_description(result));
         return false;
     }
     return true;
 }
 
-bool AudioManager::playSoundFromName(std::string_view name, bool loop, float volume)
+bool AudioManager::playSoundFromName(const char* name, bool loop, float volume)
 {
     if(auto it = m_impl->sounds.find(std::string(name)); it != m_impl->sounds.end())
     {
@@ -161,13 +161,13 @@ bool AudioManager::playSoundFromName(std::string_view name, bool loop, float vol
         result = ma_sound_start(it->second);
         if(result != MA_SUCCESS)
         {
-            Logger::error("Failed to play sound '{}': {}", name.data(), ma_result_description(result));
+            Logger::error("Failed to play sound '{}': {}", name, ma_result_description(result));
             return false;
         }
         return true;
     }
 
-    Logger::warn("Sound '{}' not found", name.data());
+    Logger::warn("Sound '{}' not found", name);
     return false;
 }
 

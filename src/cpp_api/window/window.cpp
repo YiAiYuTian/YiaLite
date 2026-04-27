@@ -38,7 +38,7 @@ Window::Window(const WindowConfig& config)
     m_config = config;
     m_impl = new Window::Impl();
 
-    m_impl->window = SDL_CreateWindow(config.title.c_str(), config.width, config.height, convertToSDLWindowFlags(config.flags));
+    m_impl->window = SDL_CreateWindow(config.title, config.width, config.height, convertToSDLWindowFlags(config.flags));
     if(!m_impl->window)
     {
         delete m_impl;
