@@ -1,6 +1,7 @@
 #include "window.h"
 #include "../core/yialite_exception.h"
 #include "../core/logger.h"
+#include "../utils/memory/allocator.h"
 
 #include <SDL3/SDL.h>
 
@@ -36,7 +37,7 @@ struct Window::Impl
 Window::Window(const WindowConfig& config)
 {
     m_config = config;
-    m_impl = new Window::Impl();
+    m_impl = ALLOCATE(Window::Impl);
 
     m_impl->window = SDL_CreateWindow(config.title, config.width, config.height, convertToSDLWindowFlags(config.flags));
     if(!m_impl->window)
@@ -51,7 +52,7 @@ Window::Window(const WindowConfig& config)
 Window::~Window()
 {
     if(m_impl) SDL_DestroyWindow(m_impl->window);
-    delete m_impl;
+    DEALLOCATE(m_impl);
 }
 
 void Window::showOpenFileDialog(DialogFileCallback callback, void* userdata, const DialogFileFilter* filters, int nfilters, const char* default_location, bool allow_many)

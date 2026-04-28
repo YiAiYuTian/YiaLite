@@ -28,4 +28,8 @@
 #include "devui/devui.h"
 #include "thirdparty/imgui/imgui.h"
 
+//utils
+#include "utils/singleton.h"
+#include "utils/memory/allocator.h"
+
 #endif

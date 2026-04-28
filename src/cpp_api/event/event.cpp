@@ -1,4 +1,5 @@
 #include "event.h"
+#include "../utils/memory/allocator.h"
 
 #include "../thirdparty/imgui/backends/imgui_impl_sdl3.h"
 #include <SDL3/SDL.h>
@@ -27,12 +28,12 @@ struct Event::Impl
 
 Event::Event()
 {
-    m_impl = new Event::Impl();
+    m_impl = ALLOCATE(Event::Impl);
 }
 
 Event::~Event()
 {
-    delete m_impl;
+    DEALLOCATE(m_impl);
 }
 
 void Event::onUpdate()

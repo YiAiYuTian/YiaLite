@@ -1,6 +1,7 @@
 #include "audio_manager.h"
 #include "../core/yialite_exception.h"
 #include "../core/logger.h"
+#include "../utils/memory/allocator.h"
 
 #include "../thirdparty/miniaudio/miniaudio.h"
 #include "../thirdparty/miniaudio/libvorbis/miniaudio_libvorbis.h"
@@ -19,9 +20,9 @@ struct AudioManager::Impl
 
 AudioManager::AudioManager()
 {
-    m_impl = new Impl();
-    m_impl->engine = new ma_engine();
-    m_impl->resource_manager = new ma_resource_manager();
+    m_impl = ALLOCATE(AudioManager::Impl);
+    m_impl->engine = ALLOCATE(ma_engine);
+    m_impl->resource_manager  = ALLOCATE(ma_resource_manager);
 
     ma_result result;
     ma_resource_manager_config resourceManagerConfig;
@@ -56,15 +57,15 @@ AudioManager::~AudioManager()
     for(auto& pair : m_impl->sounds)
     {
         ma_sound_uninit(pair.second);
-        delete pair.second;
+        DEALLOCATE(pair.second);
     }
     m_impl->sounds.clear();
     
     ma_engine_uninit(m_impl->engine);
     ma_resource_manager_uninit(m_impl->resource_manager);
-    delete m_impl->engine;
-    delete m_impl->resource_manager;
-    delete m_impl;
+    DEALLOCATE(m_impl->engine);
+    DEALLOCATE(m_impl->resource_manager);
+    DEALLOCATE(m_impl);
 }
 
 bool AudioManager::addSound(const char* name, const char* path)
@@ -73,7 +74,7 @@ bool AudioManager::addSound(const char* name, const char* path)
     std::string sound_name(name);
     ma_sound* sound = nullptr;
 
-    sound = new ma_sound();
+    sound = ALLOCATE(ma_sound);
 
     result = ma_sound_init_from_file(m_impl->engine, path, 0, NULL, NULL, sound);
     if (result != MA_SUCCESS)

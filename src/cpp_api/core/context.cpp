@@ -6,6 +6,7 @@
 #include "../renderer/renderer2d.h"
 #include "../event/event.h"
 #include "../devui/devui.h"
+#include "../utils/memory/allocator.h"
 
 namespace yialite
 {
@@ -25,26 +26,26 @@ struct Context::Initializer
 
 Context::Context(const ContextConfig &config)
 {
-    initializer = new Initializer();
-    window = new Window(config.window_config);
-    renderer2d = new Renderer2D(window);
-    event = new Event();
-    devui = nullptr;
+    initializer =   ALLOCATE_OBJECT(Initializer);
+    window =        ALLOCATE_OBJECT(Window, config.window_config);
+    renderer2d =    ALLOCATE_OBJECT(Renderer2D, window);
+    event =         ALLOCATE_OBJECT(Event);
+    devui =         nullptr;
     
     if(config.enable_devui)
     {
-        devui = new DevUI(window, renderer2d);
+        devui = ALLOCATE_OBJECT(DevUI, window, renderer2d);
         event->registerDevUIEvent(devui);
     }
 }
 
 Context::~Context()
 {
-    delete devui;
-    delete event;
-    delete renderer2d;
-    delete window;
-    delete initializer;
+    DEALLOCATE_OBJECT(DevUI, devui);
+    DEALLOCATE_OBJECT(Event, event);
+    DEALLOCATE_OBJECT(Renderer2D, renderer2d);
+    DEALLOCATE_OBJECT(Window, window);
+    DEALLOCATE_OBJECT(Initializer, initializer);
 }
 
 }

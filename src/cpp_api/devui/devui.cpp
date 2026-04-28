@@ -1,6 +1,7 @@
 #include "devui.h"
 #include "../renderer/renderer2d.h"
 #include "../window/window.h"
+#include "../utils/memory/allocator.h"
 
 #include "../thirdparty/imgui/imgui.h"
 #include "../thirdparty/imgui/backends/imgui_impl_sdl3.h"
@@ -17,7 +18,7 @@ struct DevUI::Impl
 
 DevUI::DevUI(Window* window, Renderer2D* renderer)
 {
-    m_impl = new DevUI::Impl();
+    m_impl = ALLOCATE(DevUI::Impl);
     m_impl->sdl_renderer = reinterpret_cast<SDL_Renderer*>(renderer->getNativeHandle());
 
     IMGUI_CHECKVERSION();
@@ -38,7 +39,7 @@ DevUI::~DevUI()
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
 
-    delete m_impl;
+    DEALLOCATE(m_impl);
 }
 
 void DevUI::onUpdate()

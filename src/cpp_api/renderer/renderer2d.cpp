@@ -2,6 +2,7 @@
 #include "../core/yialite_exception.h"
 #include "../window/window.h"
 #include "../renderer/texture/texture2d.h"
+#include "../utils/memory/allocator.h"
 
 #include <SDL3/SDL.h>
 
@@ -15,12 +16,12 @@ struct Renderer2D::Impl
 
 Renderer2D::Renderer2D(Window* window)
 {
-    m_impl = new Renderer2D::Impl();
+    m_impl = ALLOCATE(Renderer2D::Impl);
 
     m_impl->renderer = SDL_CreateRenderer(reinterpret_cast<SDL_Window*>(window->getNativeHandle()), nullptr);
     if(!m_impl->renderer)
     {
-        delete m_impl;
+        DEALLOCATE(m_impl);
         throw YiaLite_Exception("Failed to initialize renderer: " + std::string(SDL_GetError()));
     }
     SDL_SetRenderDrawBlendMode(m_impl->renderer, SDL_BLENDMODE_BLEND);
@@ -29,7 +30,7 @@ Renderer2D::Renderer2D(Window* window)
 Renderer2D::~Renderer2D()
 {
     if(m_impl) SDL_DestroyRenderer(m_impl->renderer);
-    delete m_impl;
+    DEALLOCATE(m_impl);
 }
 
 void Renderer2D::beginDraw(const Color& background_color)

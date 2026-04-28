@@ -1,6 +1,7 @@
 #include "texture2d.h"
 #include "../../core/yialite_exception.h"
 #include "../../renderer/renderer2d.h"
+#include "../../utils/memory/allocator.h"
 
 #include "../../thirdparty/stb_image/stb_image.h"
 #include <SDL3/SDL.h>
@@ -17,12 +18,12 @@ struct Texture2D::Impl
 
 Texture2D::Texture2D(const char* path, Renderer2D* renderer)
 {
-    m_impl = new Texture2D::Impl();
+    m_impl = ALLOCATE(Texture2D::Impl);
 
     uint8_t* data = stbi_load(path, &m_impl->width, &m_impl->height, nullptr, 4);
     if(!data)
     {
-        delete m_impl;
+        DEALLOCATE(m_impl);
         throw YiaLite_Exception("Failed to load texture(" + std::string(path) + ")" + ": " + stbi_failure_reason());
     }
 
@@ -30,7 +31,7 @@ Texture2D::Texture2D(const char* path, Renderer2D* renderer)
     if(!surface)
     {
         stbi_image_free(data);
-        delete m_impl;
+        DEALLOCATE(m_impl);
         throw YiaLite_Exception("Failed to load texture(" + std::string(path) + ")" + ": " + std::string(SDL_GetError()));
     }
 
@@ -38,7 +39,7 @@ Texture2D::Texture2D(const char* path, Renderer2D* renderer)
     {
         SDL_DestroySurface(surface);
         stbi_image_free(data);
-        delete m_impl;
+        DEALLOCATE(m_impl);
         throw YiaLite_Exception("Failed to load texture(" + std::string(path) + ")" + ": " + std::string(SDL_GetError()));
     }
 
@@ -48,7 +49,7 @@ Texture2D::Texture2D(const char* path, Renderer2D* renderer)
 
 Texture2D::Texture2D(int width, int height, Renderer2D *renderer, bool is_target)
 {
-    m_impl = new Texture2D::Impl();
+    m_impl = ALLOCATE(Texture2D::Impl);
 
     if(m_impl->texture = SDL_CreateTexture(
         reinterpret_cast<SDL_Renderer*>(renderer->getNativeHandle()), 
@@ -65,7 +66,7 @@ Texture2D::Texture2D(int width, int height, Renderer2D *renderer, bool is_target
 Texture2D::~Texture2D()
 {
     SDL_DestroyTexture(m_impl->texture);
-    delete m_impl;
+    DEALLOCATE(m_impl);
 }
 
 int Texture2D::getWidth() const

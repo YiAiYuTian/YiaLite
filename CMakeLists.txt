@@ -22,7 +22,8 @@ set(CXX_SRC "src/cpp_api/core/logger.cpp"
             "src/cpp_api/renderer/renderer2d.cpp"
             "src/cpp_api/renderer/texture/texture2d.cpp"
             "src/cpp_api/event/event.cpp"
-            "src/cpp_api/devui/devui.cpp")
+            "src/cpp_api/devui/devui.cpp"
+            "src/cpp_api/utils/memory/allocator.cpp")
 
 set(THIRD_PARTY_SRC "src/cpp_api/thirdparty/imgui/imgui.cpp"
                     "src/cpp_api/thirdparty/imgui/imgui_demo.cpp"
