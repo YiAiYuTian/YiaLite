@@ -20,15 +20,15 @@ class YIALITE_API Allocator
 public:
     static void*        allocate(size_t size, const char* file = nullptr, int line = 0);
     static void         deallocate(void* ptr);
-    static void*        reallocate(void* ptr, size_t size);
+    static void*        reallocate(void* ptr, size_t size, const char* file = nullptr, int line = 0);
     
     static MemoryInfo   findMemoryInfo(void* ptr);
     static void         printAllMemoryInfo();
     static size_t       getAllocSize();
 };
 
-#define ALLOCATE(type)                  static_cast<type*>(Allocator::allocate(sizeof(type), __FILE__, __LINE__))
-#define ALLOCATE_SIZED(size)            Allocator::allocate(size, __FILE__, __LINE__)
+#define ALLOCATE(type)                  static_cast<type*>(yialite::Allocator::allocate(sizeof(type), __FILE__, __LINE__))
+#define ALLOCATE_SIZED(size)            yialite::Allocator::allocate(size, __FILE__, __LINE__)
 #define ALLOCATE_OBJECT(type, ...)\
     []<typename ...Args>(Args&& ...args)\
     {\
@@ -37,20 +37,21 @@ public:
         return ptr;\
     }(__VA_ARGS__)
 
-#define DEALLOCATE(ptr)                 do{ Allocator::deallocate(ptr); ptr = nullptr; } while(0)
+#define DEALLOCATE(ptr)                 do{ yialite::Allocator::deallocate(ptr); ptr = nullptr; } while(0)
 #define DEALLOCATE_OBJECT(type, ptr)\
     do{\
         if(ptr){\
-            ptr->~type();\
-            DEALLOCATE(ptr);\
+            using T = type;\
+            ptr->~T();\
+            yialite::Allocator::deallocate(ptr);\
             ptr = nullptr;\
         }\
     } while(0)
 
-#define REALLOCATE(type, ptr, size)     static_cast<type*>(Allocator::reallocate(ptr, size))
-#define REALLOCATE_SIZED(ptr, size)     Allocator::reallocate(ptr, size)
+#define REALLOCATE(type, ptr, size)     static_cast<type*>(yialite::Allocator::reallocate(ptr, size, __FILE__, __LINE__))
+#define REALLOCATE_SIZED(ptr, size)     yialite::Allocator::reallocate(ptr, size, __FILE__, __LINE__)
 
-#define FIND_MEMORY_INFO(ptr)           Allocator::findMemoryInfo(ptr)
+#define FIND_MEMORY_INFO(ptr)           yialite::Allocator::findMemoryInfo(ptr)
 
 }
 

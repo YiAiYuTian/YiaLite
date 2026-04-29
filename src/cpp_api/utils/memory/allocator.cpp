@@ -35,9 +35,9 @@ public:
         }
     }
 
-    static void* reallocate(void* ptr, size_t size)
+    static void* reallocate(void* ptr, size_t size, const char* file = nullptr, int line = 0)
     {
-        if(!ptr) return allocate(size);
+        if(!ptr) return allocate(size, file, line);
 
         void* new_ptr = nullptr;
         
@@ -45,17 +45,23 @@ public:
         if(it == s_tracker_map.end())
         {
             new_ptr = malloc(size);
-            s_tracker_map.emplace(new_ptr, MemoryInfo{ nullptr, 0, size });
+            s_tracker_map.emplace(new_ptr, MemoryInfo{ file, line, size });
             s_alloc_size += size;
+            Logger::warn("Trying to reallocate memory that was not allocated by this allocator");
             return new_ptr;
         }
 
         new_ptr = realloc(ptr, size);
         size_t old_size = it->second.size;
-        if(new_ptr == ptr) it->second.size = size;
+        if(new_ptr == ptr)
+        {
+            it->second.size = size;
+            it->second.file = file;
+            it->second.line = line;
+        }
         else
         {
-            s_tracker_map.emplace(new_ptr, MemoryInfo{ it->second.file, it->second.line, size });
+            s_tracker_map.emplace(new_ptr, MemoryInfo{ file, line, size });
             s_tracker_map.erase(it);
         }
         s_alloc_size += size - old_size;
@@ -103,9 +109,9 @@ void Allocator::deallocate(void *ptr)
     MemoryTracker::deallocate(ptr);
 }
 
-void *Allocator::reallocate(void *ptr, size_t size)
+void *Allocator::reallocate(void *ptr, size_t size, const char* file, int line)
 {
-    return MemoryTracker::reallocate(ptr, size);
+    return MemoryTracker::reallocate(ptr, size, file, line);
 }
 
 MemoryInfo Allocator::findMemoryInfo(void *ptr)

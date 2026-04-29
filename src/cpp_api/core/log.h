@@ -2,6 +2,7 @@
 #define YIALITE_LOG_H
 
 #include "core.h"
+#include "../utils/string/yia_string.h"
 
 #include <format>
 
@@ -29,5 +30,21 @@ void log(LogLevel level, std::format_string<Args...> format, Args&&... args)
 }
 
 }
+
+template <>
+struct std::formatter<yialite::String>
+{
+    template <class ParseContext>
+    constexpr auto parse(ParseContext& ctx) const
+    {
+        return ctx.begin();
+    }
+
+    template <class FormatContext>
+    auto format(const yialite::String& str, FormatContext& ctx) const
+    {
+        return std::format_to(ctx.out(), "{}", str.cStr());
+    }
+};
 
 #endif
