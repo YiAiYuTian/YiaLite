@@ -72,6 +72,11 @@ char *String::data() noexcept
     return m_data;
 }
 
+const char *String::data() const noexcept
+{
+    return m_data;
+}
+
 size_t String::length() const noexcept
 {
     return m_length;

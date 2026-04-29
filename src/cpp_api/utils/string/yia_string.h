@@ -20,6 +20,7 @@ public:
 
     [[nodiscard]] const char* cStr() const noexcept;
     [[nodiscard]] char* data() noexcept;
+    [[nodiscard]] const char* data() const noexcept;
 
     [[nodiscard]] size_t length() const noexcept;
     [[nodiscard]] size_t capacity() const noexcept;
