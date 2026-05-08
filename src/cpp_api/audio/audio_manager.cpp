@@ -13,16 +13,14 @@ namespace yialite
 
 struct AudioManager::Impl
 {
-    ma_engine* engine = nullptr;
-    ma_resource_manager* resource_manager = nullptr;
+    ma_engine engine;
+    ma_resource_manager resource_manager;
     std::unordered_map<std::string, ma_sound*> sounds;
 };
 
 AudioManager::AudioManager()
 {
-    m_impl = ALLOCATE(AudioManager::Impl);
-    m_impl->engine = ALLOCATE(ma_engine);
-    m_impl->resource_manager  = ALLOCATE(ma_resource_manager);
+    m_impl = ALLOCATE_OBJECT(AudioManager::Impl);
 
     ma_result result;
     ma_resource_manager_config resourceManagerConfig;
@@ -38,14 +36,14 @@ AudioManager::AudioManager()
     resourceManagerConfig.customDecodingBackendCount     = sizeof(pCustomBackendVTables) / sizeof(pCustomBackendVTables[0]);
     resourceManagerConfig.pCustomDecodingBackendUserData = nullptr;
 
-    result = ma_resource_manager_init(&resourceManagerConfig, m_impl->resource_manager);
+    result = ma_resource_manager_init(&resourceManagerConfig, &m_impl->resource_manager);
     if (result != MA_SUCCESS)
         throw YiaLite_Exception("Failed to initialize ma resource manager: " + std::string(ma_result_description(result)));
 
     engineConfig = ma_engine_config_init();
-    engineConfig.pResourceManager = m_impl->resource_manager;
+    engineConfig.pResourceManager = &m_impl->resource_manager;
 
-    result = ma_engine_init(&engineConfig, m_impl->engine);
+    result = ma_engine_init(&engineConfig, &m_impl->engine);
     if (result != MA_SUCCESS)
         throw YiaLite_Exception("Failed to initialize engine: " + std::string(ma_result_description(result)));
 
@@ -61,11 +59,9 @@ AudioManager::~AudioManager()
     }
     m_impl->sounds.clear();
     
-    ma_engine_uninit(m_impl->engine);
-    ma_resource_manager_uninit(m_impl->resource_manager);
-    DEALLOCATE(m_impl->engine);
-    DEALLOCATE(m_impl->resource_manager);
-    DEALLOCATE(m_impl);
+    ma_engine_uninit(&m_impl->engine);
+    ma_resource_manager_uninit(&m_impl->resource_manager);
+    DEALLOCATE_OBJECT(AudioManager::Impl, m_impl);
 }
 
 bool AudioManager::addSound(const char* name, const char* path)
@@ -76,10 +72,10 @@ bool AudioManager::addSound(const char* name, const char* path)
 
     sound = ALLOCATE(ma_sound);
 
-    result = ma_sound_init_from_file(m_impl->engine, path, 0, NULL, NULL, sound);
+    result = ma_sound_init_from_file(&m_impl->engine, path, 0, NULL, NULL, sound);
     if (result != MA_SUCCESS)
     {
-        delete sound;
+        DEALLOCATE(sound);
         return false;
     }
 
@@ -87,7 +83,7 @@ bool AudioManager::addSound(const char* name, const char* path)
     if (!inserted) 
     {
         ma_sound_uninit(sound);
-        delete sound;
+        DEALLOCATE(sound);
         Logger::warn("Sound '{}' already exists, insert failed", sound_name);
         return false;
     }
@@ -101,7 +97,7 @@ bool AudioManager::replaceSound(const char* name, const char* path)
     if(auto it = m_impl->sounds.find(std::string(name)); it != m_impl->sounds.end())
     {
         ma_sound_uninit(it->second);
-        delete it->second;
+        DEALLOCATE(it->second);
         m_impl->sounds.erase(it);
         return addSound(name, path);
     }
@@ -115,7 +111,7 @@ void AudioManager::removeSound(const char* name)
     if(auto it = m_impl->sounds.find(sound_name); it != m_impl->sounds.end())
     {
         ma_sound_uninit(it->second);
-        delete it->second;
+        DEALLOCATE(it->second);
         m_impl->sounds.erase(it);
         Logger::info("Sound '{}' removed from system", sound_name);
         return;
@@ -128,7 +124,7 @@ void AudioManager::removeAllSounds()
     for(auto& pair : m_impl->sounds)
     {
         ma_sound_uninit(pair.second);
-        delete pair.second;
+        DEALLOCATE(pair.second);
     }
     m_impl->sounds.clear();
 }
@@ -141,7 +137,7 @@ bool AudioManager::hasSound(const char* name) const
 bool AudioManager::playSound(const char* path)
 {
     ma_result result;
-    result = ma_engine_play_sound(m_impl->engine, path, nullptr);
+    result = ma_engine_play_sound(&m_impl->engine, path, nullptr);
     if(result != MA_SUCCESS)
     {
         Logger::error("Failed to play sound '{}': {}", path, ma_result_description(result));

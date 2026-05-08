@@ -32,6 +32,6 @@
 #include "utils/singleton.h"
 #include "utils/memory/allocator.h"
 #include "utils/string/yia_string.h"
-#include "utils/container/yia_list.h"
+#include "utils/containers/yia_list.h"
 
 #endif

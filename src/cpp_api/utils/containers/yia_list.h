@@ -11,7 +11,7 @@ class List
 {
 public:
     List() noexcept = default;
-    explicit List(size_t size);
+    explicit List(size_t capacity);
     List(size_t size, const T& value);
     List(List&& other) noexcept;
     ~List() noexcept;
@@ -60,18 +60,13 @@ private:
 };
 
 template<typename T>
-List<T>::List(size_t size)
+List<T>::List(size_t capacity)
 {
-    if(size == 0) return;
+    if(capacity == 0) return;
 
-    m_capacity = calculateCapacity(size);
+    m_capacity = capacity;
     m_data = static_cast<T*>(ALLOCATE_SIZED(m_capacity * sizeof(T)));
-    m_size = size;
-
-    for(size_t i = 0; i < size; ++i)
-    {
-        new (m_data + i) T();
-    }
+    m_size = 0;
 }
 
 template <typename T>
