@@ -2,6 +2,8 @@
 #include "../core/yialite_exception.h"
 #include "../core/logger.h"
 #include "../utils/memory/allocator.h"
+#include "../utils/containers/yia_hashmap.h"
+#include "../utils/string/yia_string.h"
 
 #include "../thirdparty/miniaudio/miniaudio.h"
 #include "../thirdparty/miniaudio/libvorbis/miniaudio_libvorbis.h"
@@ -15,7 +17,7 @@ struct AudioManager::Impl
 {
     ma_engine engine;
     ma_resource_manager resource_manager;
-    std::unordered_map<std::string, ma_sound*> sounds;
+    HashMap<String, ma_sound*> sounds;
 };
 
 AudioManager::AudioManager()
@@ -38,21 +40,21 @@ AudioManager::AudioManager()
 
     result = ma_resource_manager_init(&resourceManagerConfig, &m_impl->resource_manager);
     if (result != MA_SUCCESS)
-        throw YiaLite_Exception("Failed to initialize ma resource manager: " + std::string(ma_result_description(result)));
+        throw YiaLite_Exception("Failed to initialize ma resource manager: " + String(ma_result_description(result)));
 
     engineConfig = ma_engine_config_init();
     engineConfig.pResourceManager = &m_impl->resource_manager;
 
     result = ma_engine_init(&engineConfig, &m_impl->engine);
     if (result != MA_SUCCESS)
-        throw YiaLite_Exception("Failed to initialize engine: " + std::string(ma_result_description(result)));
+        throw YiaLite_Exception("Failed to initialize engine: " + String(ma_result_description(result)));
 
     Logger::info("AudioManager initialized successfully");
 }
 
 AudioManager::~AudioManager()
 {
-    for(auto& pair : m_impl->sounds)
+    for(auto pair : m_impl->sounds)
     {
         ma_sound_uninit(pair.second);
         DEALLOCATE(pair.second);
@@ -67,7 +69,7 @@ AudioManager::~AudioManager()
 bool AudioManager::addSound(const char* name, const char* path)
 {
     ma_result result;
-    std::string sound_name(name);
+    String sound_name(name);
     ma_sound* sound = nullptr;
 
     sound = ALLOCATE(ma_sound);
@@ -79,26 +81,19 @@ bool AudioManager::addSound(const char* name, const char* path)
         return false;
     }
 
-    auto [it, inserted] = m_impl->sounds.emplace(sound_name, sound);
-    if (!inserted) 
-    {
-        ma_sound_uninit(sound);
-        DEALLOCATE(sound);
-        Logger::warn("Sound '{}' already exists, insert failed", sound_name);
-        return false;
-    }
-
-    Logger::info("Sound '{}' added to system", sound_name);
+    m_impl->sounds.emplace(yialite::move(sound_name), yialite::move(sound));
+    Logger::info("Sound '{}' added to system", name);
     return true;
 }
 
 bool AudioManager::replaceSound(const char* name, const char* path)
 {
-    if(auto it = m_impl->sounds.find(std::string(name)); it != m_impl->sounds.end())
+    String key(name);
+    if(auto value = m_impl->sounds.find(key); value)
     {
-        ma_sound_uninit(it->second);
-        DEALLOCATE(it->second);
-        m_impl->sounds.erase(it);
+        ma_sound_uninit(*value);
+        DEALLOCATE(*value);
+        m_impl->sounds.remove(key);
         return addSound(name, path);
     }
     Logger::warn("Sound '{}' not found, replace failed", name);
@@ -107,21 +102,21 @@ bool AudioManager::replaceSound(const char* name, const char* path)
 
 void AudioManager::removeSound(const char* name)
 {
-    std::string sound_name(name);
-    if(auto it = m_impl->sounds.find(sound_name); it != m_impl->sounds.end())
+    String key(name);
+    if(auto value = m_impl->sounds.find(key); value)
     {
-        ma_sound_uninit(it->second);
-        DEALLOCATE(it->second);
-        m_impl->sounds.erase(it);
-        Logger::info("Sound '{}' removed from system", sound_name);
+        ma_sound_uninit(*value);
+        DEALLOCATE(*value);
+        m_impl->sounds.remove(key);
+        Logger::info("Sound '{}' removed from system", key);
         return;
     }
-    Logger::warn("Sound '{}' not found, remove failed", sound_name);
+    Logger::warn("Sound '{}' not found, remove failed", key);
 }
 
 void AudioManager::removeAllSounds()
 {
-    for(auto& pair : m_impl->sounds)
+    for(auto pair : m_impl->sounds)
     {
         ma_sound_uninit(pair.second);
         DEALLOCATE(pair.second);
@@ -131,7 +126,7 @@ void AudioManager::removeAllSounds()
 
 bool AudioManager::hasSound(const char* name) const
 {
-    return m_impl->sounds.find(std::string(name)) != m_impl->sounds.end();
+    return m_impl->sounds.find(String(name), nullptr);
 }
 
 bool AudioManager::playSound(const char* path)
@@ -148,14 +143,15 @@ bool AudioManager::playSound(const char* path)
 
 bool AudioManager::playSoundFromName(const char* name, bool loop, float volume)
 {
-    if(auto it = m_impl->sounds.find(std::string(name)); it != m_impl->sounds.end())
+    String key(name);
+    if(auto value = m_impl->sounds.find(key); value)
     {
         ma_result result;
-        if(loop) ma_sound_set_looping(it->second, MA_TRUE);
+        if(loop) ma_sound_set_looping(*value, MA_TRUE);
         volume = std::clamp(volume, 0.0f, 1.0f);
-        ma_sound_set_volume(it->second, volume);
+        ma_sound_set_volume(*value, volume);
 
-        result = ma_sound_start(it->second);
+        result = ma_sound_start(*value);
         if(result != MA_SUCCESS)
         {
             Logger::error("Failed to play sound '{}': {}", name, ma_result_description(result));

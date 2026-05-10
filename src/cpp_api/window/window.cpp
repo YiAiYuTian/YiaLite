@@ -2,6 +2,8 @@
 #include "../core/yialite_exception.h"
 #include "../core/logger.h"
 #include "../utils/memory/allocator.h"
+#include "../utils/string/yia_string.h"
+#include "../utils/containers/yia_pair.h"
 
 #include <SDL3/SDL.h>
 
@@ -10,7 +12,7 @@ namespace yialite
 
 static SDL_WindowFlags convertToSDLWindowFlags(const WindowFlags flags)
 {
-    constexpr static std::pair<WindowFlags, SDL_WindowFlags> flag_map[] = {
+    constexpr static Pair<WindowFlags, SDL_WindowFlags> flag_map[] = {
         {WindowFlags_Fullscreen,      SDL_WINDOW_FULLSCREEN},
         {WindowFlags_Borderless,      SDL_WINDOW_BORDERLESS},
         {WindowFlags_Resizable,       SDL_WINDOW_RESIZABLE},
@@ -43,7 +45,7 @@ Window::Window(const WindowConfig& config)
     if(!m_impl->window)
     {
         delete m_impl;
-        throw YiaLite_Exception("Failed to initialize window: " + std::string(SDL_GetError()));
+        throw YiaLite_Exception("Failed to initialize window: " + String(SDL_GetError()));
     }
 
     Logger::info("Window initialized successfully: {}({}, {})", config.title, config.width, config.height);

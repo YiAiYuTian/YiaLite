@@ -1,22 +1,23 @@
 ﻿#ifndef YIALITE_EXCEPTION_H
 #define YIALITE_EXCEPTION_H
 
+#include "../utils/string/yia_string.h"
+#include "../utils/utility.h"
+
 #include <stdexcept>
-#include <string>
 
 namespace yialite
 {
 
 class YiaLite_Exception final : public std::exception
 {
-
 public:
-    explicit YiaLite_Exception(std::string msg) : m_msg(std::move(msg)) {}
+    explicit YiaLite_Exception(String msg) : m_msg(yialite::move(msg)) {}
     ~YiaLite_Exception() noexcept override = default;
 
-    const char* what() const noexcept override { return m_msg.c_str(); }
+    const char* what() const noexcept override { return m_msg.cStr(); }
 private:
-    std::string m_msg;
+    String m_msg;
 };
 
 }

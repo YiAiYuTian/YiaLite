@@ -2,6 +2,7 @@
 #define YIALITE_LIST_H
 
 #include "../memory/allocator.h"
+#include "../utility.h"
 
 namespace yialite
 {
@@ -117,7 +118,7 @@ void List<T>::erase(size_t index)
     m_data[index].~T();
     for(size_t i = index; i < m_size - 1; ++i)
     {
-        new (m_data + i) T(std::move(m_data[i + 1]));
+        new (m_data + i) T(yialite::move(m_data[i + 1]));
         m_data[i + 1].~T();
     }
     --m_size;
@@ -136,7 +137,7 @@ void List<T>::erase(size_t first, size_t last)
     size_t move_count = m_size - last;
     for(size_t i = 0; i < move_count; ++i)
     {
-        new (m_data + first + i) T(std::move(m_data[i + last]));
+        new (m_data + first + i) T(yialite::move(m_data[i + last]));
         m_data[i + last].~T();
     }
     m_size -= last - first;
@@ -158,7 +159,7 @@ void List<T>::shrinkToFit()
     T* new_data = static_cast<T*>(ALLOCATE_SIZED(m_size * sizeof(T)));
     for(size_t i = 0; i < m_size; ++i)
     {
-        new (new_data + i) T(std::move(m_data[i]));
+        new (new_data + i) T(yialite::move(m_data[i]));
         m_data[i].~T();
     }
     DEALLOCATE(m_data);
@@ -278,7 +279,7 @@ void List<T>::reserve(size_t capacity)
     T* new_data = static_cast<T*>(ALLOCATE_SIZED(capacity * sizeof(T)));
     for(size_t i = 0; i < m_size; ++i)
     {
-        new (new_data + i) T(std::move(m_data[i]));
+        new (new_data + i) T(yialite::move(m_data[i]));
         m_data[i].~T();
     }
     DEALLOCATE(m_data);
@@ -357,7 +358,7 @@ void List<T>::pushBack(T &&value)
         reserve(calculateCapacity(m_size + 1));
     }
 
-    new (m_data + m_size) T(std::move(value));
+    new (m_data + m_size) T(yialite::move(value));
     ++m_size;
 }
 
@@ -386,11 +387,11 @@ void List<T>::emplace(size_t index, Args &&...args)
 
     for (size_t i = m_size; i > index; --i)
     {
-        new (m_data + i) T(std::move(m_data[i - 1]));
+        new (m_data + i) T(yialite::move(m_data[i - 1]));
         m_data[i - 1].~T();
     }
 
-    new (m_data + index) T(std::forward<Args>(args)...);
+    new (m_data + index) T(yialite::forward<Args>(args)...);
     ++m_size;
 }
 
@@ -403,7 +404,7 @@ void List<T>::emplaceBack(Args &&...args)
         reserve(calculateCapacity(m_size + 1));
     }
 
-    new (m_data + m_size) T(std::forward<Args>(args)...);
+    new (m_data + m_size) T(yialite::forward<Args>(args)...);
     ++m_size;
 }
 

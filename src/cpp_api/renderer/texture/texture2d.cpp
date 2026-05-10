@@ -2,6 +2,7 @@
 #include "../../core/yialite_exception.h"
 #include "../../renderer/renderer2d.h"
 #include "../../utils/memory/allocator.h"
+#include "../../utils/string/yia_string.h"
 
 #include "../../thirdparty/stb_image/stb_image.h"
 #include <SDL3/SDL.h>
@@ -24,7 +25,7 @@ Texture2D::Texture2D(const char* path, Renderer2D* renderer)
     if(!data)
     {
         DEALLOCATE(m_impl);
-        throw YiaLite_Exception("Failed to load texture(" + std::string(path) + ")" + ": " + stbi_failure_reason());
+        throw YiaLite_Exception("Failed to load texture(" + String(path) + ")" + ": " + stbi_failure_reason());
     }
 
     SDL_Surface* surface = SDL_CreateSurfaceFrom(m_impl->width, m_impl->height, SDL_PIXELFORMAT_RGBA32, data, m_impl->width * 4);
@@ -32,7 +33,7 @@ Texture2D::Texture2D(const char* path, Renderer2D* renderer)
     {
         stbi_image_free(data);
         DEALLOCATE(m_impl);
-        throw YiaLite_Exception("Failed to load texture(" + std::string(path) + ")" + ": " + std::string(SDL_GetError()));
+        throw YiaLite_Exception("Failed to load texture(" + String(path) + ")" + ": " + String(SDL_GetError()));
     }
 
     if(m_impl->texture = SDL_CreateTextureFromSurface(reinterpret_cast<SDL_Renderer*>(renderer->getNativeHandle()), surface); !m_impl->texture)
@@ -40,7 +41,7 @@ Texture2D::Texture2D(const char* path, Renderer2D* renderer)
         SDL_DestroySurface(surface);
         stbi_image_free(data);
         DEALLOCATE(m_impl);
-        throw YiaLite_Exception("Failed to load texture(" + std::string(path) + ")" + ": " + std::string(SDL_GetError()));
+        throw YiaLite_Exception("Failed to load texture(" + String(path) + ")" + ": " + String(SDL_GetError()));
     }
 
     SDL_DestroySurface(surface);
@@ -56,7 +57,7 @@ Texture2D::Texture2D(int width, int height, Renderer2D *renderer, bool is_target
         SDL_PIXELFORMAT_RGBA32, is_target ? SDL_TEXTUREACCESS_TARGET : SDL_TEXTUREACCESS_STATIC, width, height
         ); !m_impl->texture)
     {
-        throw YiaLite_Exception("Failed to create texture: " + std::string(SDL_GetError()));
+        throw YiaLite_Exception("Failed to create texture: " + String(SDL_GetError()));
     }
 
     m_impl->width = width;

@@ -21,6 +21,7 @@
 
 #include <cmath>
 #include <limits>
+#include <type_traits>
 
 #if defined(YIALITE_MATH_OPENGL)
     #define YIALITE_CLIP_RH
@@ -803,7 +804,8 @@ struct Matrix3f : public Matrix3Base<float, Matrix3f>
 
     constexpr Matrix3f() : data{} {}
     constexpr explicit Matrix3f(float v)
-    { 
+        : data{}
+    {
         data[0][0] = data[1][1] = data[2][2] = v;
         data[0][1] = data[0][2] = 0.0f;
         data[1][0] = data[1][2] = 0.0f;
@@ -984,7 +986,8 @@ struct alignas(16) Matrix4f : public Matrix4Base<float, Matrix4f>
 
     constexpr Matrix4f() : data{} {}
     constexpr explicit Matrix4f(float v)
-    { 
+        : data{}
+    {
         data[0][0] = data[1][1] = data[2][2] = data[3][3] = v;
         data[0][1] = data[0][2] = data[0][3] = 0.0f;
         data[1][0] = data[1][2] = data[1][3] = 0.0f;

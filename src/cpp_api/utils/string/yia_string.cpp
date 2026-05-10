@@ -7,8 +7,21 @@ namespace yialite
 {
 
 String::String(const char* str)
-    : String(str, strlen(str))
 {
+    if (!str)
+    {
+        m_length = 0;
+        m_capacity = 15;
+        m_data = static_cast<char*>(ALLOCATE_SIZED(m_capacity + 1));
+        m_data[0] = '\0';
+        return;
+    }
+
+    m_length = strlen(str);
+    m_capacity = calculateCapacity(m_length);
+    m_data = static_cast<char*>(ALLOCATE_SIZED(m_capacity + 1));
+    memcpy(m_data, str, m_length);
+    m_data[m_length] = '\0';
 }
 
 String::String(size_t capacity)
@@ -64,7 +77,7 @@ String::~String() noexcept
 
 const char* String::cStr() const noexcept
 {
-    return m_data;
+    return m_data ? m_data : "";
 }
 
 char *String::data() noexcept

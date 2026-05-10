@@ -3,6 +3,7 @@
 #include "../window/window.h"
 #include "../renderer/texture/texture2d.h"
 #include "../utils/memory/allocator.h"
+#include "../utils/string/yia_string.h"
 
 #include <SDL3/SDL.h>
 
@@ -22,7 +23,7 @@ Renderer2D::Renderer2D(Window* window)
     if(!m_impl->renderer)
     {
         DEALLOCATE(m_impl);
-        throw YiaLite_Exception("Failed to initialize renderer: " + std::string(SDL_GetError()));
+        throw YiaLite_Exception("Failed to initialize renderer: " + String(SDL_GetError()));
     }
     SDL_SetRenderDrawBlendMode(m_impl->renderer, SDL_BLENDMODE_BLEND);
 }

@@ -33,5 +33,6 @@
 #include "utils/memory/allocator.h"
 #include "utils/string/yia_string.h"
 #include "utils/containers/yia_list.h"
+#include "utils/containers/yia_hashmap.h"
 
 #endif

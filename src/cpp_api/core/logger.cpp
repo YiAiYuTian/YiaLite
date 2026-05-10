@@ -1,5 +1,4 @@
 #include "logger.h"
-#include "../utils/string/yia_string.h"
 
 #include <iostream>
 
@@ -25,18 +24,3 @@ Logger::Logger()
 }
 
 }
-
-template<>
-struct fmt::formatter<yialite::String>
-{
-    constexpr auto parse(format_parse_context& ctx)
-    {
-        return ctx.begin();
-    }
-
-    template<typename FormatContext>
-    auto format(const yialite::String& str, FormatContext& ctx) const
-    {
-        return fmt::format_to(ctx.out(), "{}", str.cStr());
-    }
-};

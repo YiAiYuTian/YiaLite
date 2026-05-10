@@ -2,8 +2,7 @@
 #define YIALITE_ALLOCATOR_H
 
 #include "../../core/core.h"
-
-#include <utility>
+#include "../utility.h"
 
 namespace yialite
 {
@@ -33,7 +32,7 @@ public:
     []<typename ...Args>(Args&& ...args)\
     {\
         type* ptr = ALLOCATE(type);\
-        new (ptr) type(std::forward<Args>(args)...);\
+        new (ptr) type(yialite::forward<Args>(args)...);\
         return ptr;\
     }(__VA_ARGS__)
 
