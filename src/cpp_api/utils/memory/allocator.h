@@ -7,16 +7,28 @@
 namespace yialite
 {
 
+enum class AllocType : int
+{
+    UNKNOWN = -1,
+    
+    MALLOC = 0,
+    MEM_POOL = 1
+};
+
 struct MemoryInfo
 {
     const char* file = nullptr;
     int line = 0;
     size_t size = 0;
+    AllocType alloc_src = AllocType::UNKNOWN;
 };
 
 class YIALITE_API Allocator
 {
 public:
+    static void         initMemPool();
+    static void         resetMemPool();
+
     static void*        allocate(size_t size, const char* file = nullptr, int line = 0);
     static void         deallocate(void* ptr);
     static void*        reallocate(void* ptr, size_t size, const char* file = nullptr, int line = 0);

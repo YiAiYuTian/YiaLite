@@ -177,7 +177,7 @@ bool List<T>::empty() const noexcept
 template <typename T>
 size_t List<T>::calculateCapacity(size_t size) const
 {
-    size_t new_capacity = m_capacity < 16 ? 16 : m_capacity + m_capacity / 2;
+    size_t new_capacity = m_capacity < 16 ? 16 : m_capacity << 1;
     if (new_capacity < size) new_capacity = size;
     return new_capacity;
 }

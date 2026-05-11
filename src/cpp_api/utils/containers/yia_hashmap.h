@@ -93,7 +93,7 @@ public:
     void reserve(size_t capacity);
     Iterator emplace(Key&& key, Value&& value);
     Iterator insert(const Key& key, const Value& value);
-    bool find(const Key& key, Value* value) const;
+    bool find(const Key& key, Value** value) const;
     Value* find(const Key& key) const;
     bool remove(const Key& key);
     bool containsKey(const Key& key) const;
@@ -295,14 +295,14 @@ typename HashMap<Key, Value>::Iterator HashMap<Key, Value>::insert(const Key& ke
 }
 
 template<typename Key, typename Value>
-bool HashMap<Key, Value>::find(const Key& key, Value* value) const
+bool HashMap<Key, Value>::find(const Key& key, Value** value) const
 {
     auto [found, idx] = findBucket(key);
     YIALITE_ASSERT(idx != invalid_index && "HashMap Full");
 
-    if (found && value)
+    if (found)
     {
-        *value = m_pairs[idx].second;
+        if(value) *value = &m_pairs[idx].second;
         return true;
     }
 
