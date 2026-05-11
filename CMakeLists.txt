@@ -39,6 +39,7 @@ set(YIA_HEADERS "src/cpp_api/audio/audio_manager.h"
                 "src/cpp_api/utils/utility.h"
                 "src/cpp_api/utils/singleton.h"
                 "src/cpp_api/utils/hash_key.h"
+                "src/cpp_api/utils/delegate.h"
                 "src/cpp_api/utils/base_types.h"
                 "src/cpp_api/window/window.h")
 

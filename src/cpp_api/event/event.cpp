@@ -13,8 +13,6 @@ struct Event::Impl
 
     bool has_devui = false;
 
-    void* data = nullptr;
-
     QuitEventCallback quit_event_callback = nullptr;
     KeyEventCallback key_event_callback = nullptr;
     MouseButtonEventCallback mouse_event_callback = nullptr;
@@ -28,12 +26,12 @@ struct Event::Impl
 
 Event::Event()
 {
-    m_impl = ALLOCATE(Event::Impl);
+    m_impl = ALLOCATE_OBJECT(Event::Impl);
 }
 
 Event::~Event()
 {
-    DEALLOCATE(m_impl);
+    DEALLOCATE_OBJECT(Event::Impl, m_impl);
 }
 
 void Event::onUpdate()
@@ -48,7 +46,7 @@ void Event::onUpdate()
         {
         case SDL_EVENT_QUIT:
             if(m_impl->quit_event_callback) 
-                m_impl->quit_event_callback(m_impl->data);
+                m_impl->quit_event_callback();
             break;
         case SDL_EVENT_KEY_DOWN:
             if(m_impl->key_event_callback)
@@ -57,8 +55,7 @@ void Event::onUpdate()
                     sdl_event.key.key,
                     sdl_event.key.repeat,
                     sdl_event.key.down,
-                    sdl_event.key.mod,
-                    m_impl->data
+                    sdl_event.key.mod
                 );
             }
             break;
@@ -69,8 +66,7 @@ void Event::onUpdate()
                     sdl_event.key.key,
                     sdl_event.key.repeat,
                     sdl_event.key.down,
-                    sdl_event.key.mod,
-                    m_impl->data
+                    sdl_event.key.mod
                 );
             }
             break;
@@ -82,8 +78,7 @@ void Event::onUpdate()
                     sdl_event.button.x,
                     sdl_event.button.y,
                     sdl_event.button.down,
-                    sdl_event.button.clicks,
-                    m_impl->data
+                    sdl_event.button.clicks
                 );
             }
             break;
@@ -95,8 +90,7 @@ void Event::onUpdate()
                     sdl_event.button.x,
                     sdl_event.button.y,
                     sdl_event.button.down,
-                    sdl_event.button.clicks,
-                    m_impl->data
+                    sdl_event.button.clicks
                 );
             }
             break;
@@ -107,8 +101,7 @@ void Event::onUpdate()
                     sdl_event.wheel.x,
                     sdl_event.wheel.y,
                     sdl_event.wheel.mouse_x,
-                    sdl_event.wheel.mouse_y,
-                    m_impl->data
+                    sdl_event.wheel.mouse_y
                 );
             }
             break;
@@ -120,8 +113,7 @@ void Event::onUpdate()
                     sdl_event.motion.y,
                     sdl_event.motion.xrel,
                     sdl_event.motion.yrel,
-                    sdl_event.motion.state,
-                    m_impl->data
+                    sdl_event.motion.state
                 );
             }
             break;
@@ -130,8 +122,7 @@ void Event::onUpdate()
             {
                 m_impl->window_resized_event_callback(
                     sdl_event.window.data1,
-                    sdl_event.window.data2,
-                    m_impl->data
+                    sdl_event.window.data2
                 );
             }
             break;
@@ -140,25 +131,20 @@ void Event::onUpdate()
             {
                 m_impl->window_moved_event_callback(
                     sdl_event.window.data1,
-                    sdl_event.window.data2,
-                    m_impl->data
+                    sdl_event.window.data2
                 );
             }
             break;
         case SDL_EVENT_WINDOW_FOCUS_GAINED:
             if(m_impl->window_focus_gained_event_callback)
             {
-                m_impl->window_focus_gained_event_callback(
-                    m_impl->data
-                );
+                m_impl->window_focus_gained_event_callback();
             }
             break;
         case SDL_EVENT_WINDOW_FOCUS_LOST:
             if(m_impl->window_focus_lost_event_callback)
             {
-                m_impl->window_focus_lost_event_callback(
-                    m_impl->data
-                );
+                m_impl->window_focus_lost_event_callback();
             }
             break;
         default:
@@ -167,59 +153,54 @@ void Event::onUpdate()
     }
 }
 
-void Event::setGlobalData(void *data)
-{
-    m_impl->data = data;
-}
-
 void Event::registerDevUIEvent(DevUI* devui)
 {
     m_impl->has_devui = (devui != nullptr);
 }
 
-void Event::registerQuitEventCallback(QuitEventCallback callback)
+void Event::registerQuitEventCallback(QuitEventCallback&& callback)
 {
-    m_impl->quit_event_callback = callback;
+    m_impl->quit_event_callback = yialite::move(callback);
 }
 
-void Event::registerKeyEventCallback(KeyEventCallback callback)
+void Event::registerKeyEventCallback(KeyEventCallback&& callback)
 {
-    m_impl->key_event_callback = callback;
+    m_impl->key_event_callback = yialite::move(callback);
 }
 
-void Event::registerMouseButtonEventCallback(MouseButtonEventCallback callback)
+void Event::registerMouseButtonEventCallback(MouseButtonEventCallback&& callback)
 {
-    m_impl->mouse_event_callback = callback;
+    m_impl->mouse_event_callback = yialite::move(callback);
 }
 
-void Event::registerMouseWheelEventCallback(MouseWheelEventCallback callback)
+void Event::registerMouseWheelEventCallback(MouseWheelEventCallback&& callback)
 {
-    m_impl->mouse_wheel_event_callback = callback;
+    m_impl->mouse_wheel_event_callback = yialite::move(callback);
 }
 
-void Event::registerMouseMotionEventCallback(MouseMotionEventCallback callback)
+void Event::registerMouseMotionEventCallback(MouseMotionEventCallback&& callback)
 {
-    m_impl->mouse_motion_event_callback = callback;
+    m_impl->mouse_motion_event_callback = yialite::move(callback);
 }
 
-void Event::registerWindowResizedEventCallback(WindowResizedEventCallback callback)
+void Event::registerWindowResizedEventCallback(WindowResizedEventCallback&& callback)
 {
-    m_impl->window_resized_event_callback = callback;
+    m_impl->window_resized_event_callback = yialite::move(callback);
 }
 
-void Event::registerWindowMovedEventCallback(WindowMovedEventCallback callback)
+void Event::registerWindowMovedEventCallback(WindowMovedEventCallback&& callback)
 {
-    m_impl->window_moved_event_callback = callback;
+    m_impl->window_moved_event_callback = yialite::move(callback);
 }
 
-void Event::registerWindowFocusGainedEventCallback(WindowFocusGainedEventCallback callback)
+void Event::registerWindowFocusGainedEventCallback(WindowFocusGainedEventCallback&& callback)
 {
-    m_impl->window_focus_gained_event_callback = callback;
+    m_impl->window_focus_gained_event_callback = yialite::move(callback);
 }
 
-void Event::registerWindowFocusLostEventCallback(WindowFocusLostEventCallback callback)
+void Event::registerWindowFocusLostEventCallback(WindowFocusLostEventCallback&& callback)
 {
-    m_impl->window_focus_lost_event_callback = callback;
+    m_impl->window_focus_lost_event_callback = yialite::move(callback);
 }
 
 }

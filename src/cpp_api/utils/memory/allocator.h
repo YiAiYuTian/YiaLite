@@ -4,6 +4,8 @@
 #include "../../core/core.h"
 #include "../utility.h"
 
+#include <new>
+
 namespace yialite
 {
 
@@ -44,8 +46,7 @@ public:
     []<typename ...Args>(Args&& ...args)\
     {\
         type* ptr = ALLOCATE(type);\
-        new (ptr) type(yialite::forward<Args>(args)...);\
-        return ptr;\
+        return new (ptr) type(yialite::forward<Args>(args)...);\
     }(__VA_ARGS__)
 
 #define DEALLOCATE(ptr)                 do{ yialite::Allocator::deallocate(ptr); ptr = nullptr; } while(0)

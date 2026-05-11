@@ -4,19 +4,20 @@
 #include "../core/core.h"
 #include "keycode.h"
 #include "mouse_button.h"
+#include "../utils/delegate.h"
 
 namespace yialite
 {
 
-typedef void (*QuitEventCallback)(void* data);
-typedef void (*KeyEventCallback)(Keycode keycode, bool repeat, bool down, Keymod keymod, void* data);
-typedef void (*MouseButtonEventCallback)(MouseButton button, float x, float y, bool down, uint8_t clicks, void* data);
-typedef void (*MouseWheelEventCallback)(float x, float y, float pos_x, float pos_y, void* data);
-typedef void (*MouseMotionEventCallback)(float x, float y, float xrel, float yrel, Uint32 buttons, void* data);
-typedef void (*WindowResizedEventCallback)(int width, int height, void* data);
-typedef void (*WindowMovedEventCallback)(int x, int y, void* data);
-typedef void (*WindowFocusGainedEventCallback)(void* data);
-typedef void (*WindowFocusLostEventCallback)(void* data);
+using QuitEventCallback              = Delegate<void()>;
+using KeyEventCallback               = Delegate<void(Keycode keycode, bool repeat, bool down, Keymod keymod)>;
+using MouseButtonEventCallback       = Delegate<void(MouseButton button, float x, float y, bool down, Uint8 clicks)>;
+using MouseWheelEventCallback        = Delegate<void(float x, float y, float pos_x, float pos_y)>;
+using MouseMotionEventCallback       = Delegate<void(float x, float y, float xrel, float yrel, Uint32 buttons)>;
+using WindowResizedEventCallback     = Delegate<void(int width, int height)>;
+using WindowMovedEventCallback       = Delegate<void(int x, int y)>;
+using WindowFocusGainedEventCallback = Delegate<void()>;
+using WindowFocusLostEventCallback   = Delegate<void()>;
 
 class DevUI;
 
@@ -28,17 +29,16 @@ public:
 
     void onUpdate();
     
-    void setGlobalData(void* data);
     void registerDevUIEvent(DevUI* devui);
-    void registerQuitEventCallback(QuitEventCallback callback);
-    void registerKeyEventCallback(KeyEventCallback callback);
-    void registerMouseButtonEventCallback(MouseButtonEventCallback callback);
-    void registerMouseWheelEventCallback(MouseWheelEventCallback callback);
-    void registerMouseMotionEventCallback(MouseMotionEventCallback callback);
-    void registerWindowResizedEventCallback(WindowResizedEventCallback callback);
-    void registerWindowMovedEventCallback(WindowMovedEventCallback callback);
-    void registerWindowFocusGainedEventCallback(WindowFocusGainedEventCallback callback);
-    void registerWindowFocusLostEventCallback(WindowFocusLostEventCallback callback);
+    void registerQuitEventCallback(QuitEventCallback&& callback);
+    void registerKeyEventCallback(KeyEventCallback&& callback);
+    void registerMouseButtonEventCallback(MouseButtonEventCallback&& callback);
+    void registerMouseWheelEventCallback(MouseWheelEventCallback&& callback);
+    void registerMouseMotionEventCallback(MouseMotionEventCallback&& callback);
+    void registerWindowResizedEventCallback(WindowResizedEventCallback&& callback);
+    void registerWindowMovedEventCallback(WindowMovedEventCallback&& callback);
+    void registerWindowFocusGainedEventCallback(WindowFocusGainedEventCallback&& callback);
+    void registerWindowFocusLostEventCallback(WindowFocusLostEventCallback&& callback);
 private:
     struct Impl;
     Impl* m_impl;
