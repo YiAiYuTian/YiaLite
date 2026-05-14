@@ -46,6 +46,12 @@ Context::~Context()
     DEALLOCATE_OBJECT(Renderer2D, renderer2d);
     DEALLOCATE_OBJECT(Window, window);
     DEALLOCATE_OBJECT(Initializer, initializer);
+
+    devui = nullptr;
+    event = nullptr;
+    renderer2d = nullptr;
+    window = nullptr;
+    initializer = nullptr;
 }
 
 }

@@ -32,6 +32,7 @@ Event::Event()
 Event::~Event()
 {
     DEALLOCATE_OBJECT(Event::Impl, m_impl);
+    m_impl = nullptr;
 }
 
 void Event::onUpdate()

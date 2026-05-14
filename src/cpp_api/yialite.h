@@ -32,6 +32,7 @@
 #include "utils/singleton.h"
 #include "utils/delegate.h"
 #include "utils/memory/allocator.h"
+#include "utils/memory/memory.h"
 #include "utils/memory/memory_pool.h"
 #include "utils/string/yia_string.h"
 #include "utils/containers/yia_list.h"

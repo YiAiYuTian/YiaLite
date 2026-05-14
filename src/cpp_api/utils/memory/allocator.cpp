@@ -1,6 +1,7 @@
 #include "allocator.h"
 #include "memory_pool.h"
 #include "../../core/logger.h"
+#include "../singleton.h"
 
 #include <unordered_map>
 
@@ -17,10 +18,11 @@ static const char* allocTypeToString(AllocType type)
     }
 }
 
-class MemoryTracker
+class MemoryTracker : public Singleton<MemoryTracker>
 {
+    YIALITE_SINGLETON(MemoryTracker);
 public:
-    static void initMemPool()
+    void initMemPool()
     {
         s_pool_16.init(16, 256);
         s_pool_32.init(32, 256);
@@ -31,7 +33,7 @@ public:
         is_initialized = true;
     }
 
-    static void resetMemPool()
+    void shutdownMemPool()
     {
         s_pool_16.shutdown();
         s_pool_32.shutdown();
@@ -42,7 +44,7 @@ public:
         is_initialized = false;
     }
 
-    static void* allocate(size_t size, const char* file = nullptr, int line = 0)
+    void* allocate(size_t size, const char* file = nullptr, int line = 0)
     {
         if (size == 0)
         {
@@ -98,7 +100,7 @@ public:
         return ptr;
     }
 
-    static void deallocate(void* ptr)
+    void deallocate(void* ptr)
     {
         if(!ptr) return;
 
@@ -117,7 +119,7 @@ public:
         }
     }
 
-    static void* reallocate(void* ptr, size_t size, const char* file = nullptr, int line = 0)
+    void* reallocate(void* ptr, size_t size, const char* file = nullptr, int line = 0)
     {
         if(!ptr) return allocate(size, file, line);
 
@@ -161,7 +163,7 @@ public:
         }
     }
 
-    static MemoryInfo findMemoryInfo(void* ptr)
+    MemoryInfo findMemoryInfo(void* ptr)
     {
         if(!ptr) return MemoryInfo{ nullptr, 0, 0, AllocType::UNKNOWN};
 
@@ -172,7 +174,7 @@ public:
         return MemoryInfo{ nullptr, 0, 0 , AllocType::UNKNOWN };
     }
 
-    static void printAllMemoryInfo()
+    void printAllMemoryInfo()
     {
 #if defined(_DEBUG)
         for(auto& [ptr, info] : s_tracker_map)
@@ -188,9 +190,9 @@ public:
 #endif
     }
 
-    static size_t getAllocSize() { return s_alloc_size; }
+    size_t getAllocSize() { return s_alloc_size; }
 
-    static bool deallocInPool(std::unordered_map<void*, MemoryInfo>::iterator it)
+    bool deallocInPool(std::unordered_map<void*, MemoryInfo>::iterator it)
     {
         void* ptr = it->first;
         switch(it->second.size)
@@ -204,65 +206,49 @@ public:
         }
     }
 private:
-    static std::unordered_map<void*, MemoryInfo> s_tracker_map;
-    static size_t s_alloc_size;
-    static bool is_initialized;
-
-    static MemoryPool s_pool_16;
-    static MemoryPool s_pool_32;
-    static MemoryPool s_pool_64;
-    static MemoryPool s_pool_128;
-    static MemoryPool s_pool_256;
+    MemoryTracker() { initMemPool();}
+    ~MemoryTracker() { shutdownMemPool();}
+private:
+    std::unordered_map<void*, MemoryInfo> s_tracker_map;
+    size_t s_alloc_size = 0;
+    bool is_initialized = false;
+    
+    MemoryPool s_pool_16;
+    MemoryPool s_pool_32;
+    MemoryPool s_pool_64;
+    MemoryPool s_pool_128;
+    MemoryPool s_pool_256;
 };
-std::unordered_map<void*, MemoryInfo> MemoryTracker::s_tracker_map;
-size_t MemoryTracker::s_alloc_size = 0;
-bool MemoryTracker::is_initialized = false;
-
-MemoryPool MemoryTracker::s_pool_16;
-MemoryPool MemoryTracker::s_pool_32;
-MemoryPool MemoryTracker::s_pool_64;
-MemoryPool MemoryTracker::s_pool_128;
-MemoryPool MemoryTracker::s_pool_256;
 
 // allocator implementation
-void Allocator::initMemPool()
-{
-    MemoryTracker::initMemPool();
-}
-
-void Allocator::resetMemPool()
-{
-    MemoryTracker::resetMemPool();
-}
-
 void* Allocator::allocate(size_t size, const char *file, int line)
 {
-    return MemoryTracker::allocate(size, file, line);
+    return MemoryTracker::instance().allocate(size, file, line);
 }
 
 void Allocator::deallocate(void *ptr)
 {
-    MemoryTracker::deallocate(ptr);
+    MemoryTracker::instance().deallocate(ptr);
 }
 
 void *Allocator::reallocate(void *ptr, size_t size, const char* file, int line)
 {
-    return MemoryTracker::reallocate(ptr, size, file, line);
+    return MemoryTracker::instance().reallocate(ptr, size, file, line);
 }
 
 MemoryInfo Allocator::findMemoryInfo(void *ptr)
 {
-    return MemoryTracker::findMemoryInfo(ptr);
+    return MemoryTracker::instance().findMemoryInfo(ptr);
 }
 
 void Allocator::printAllMemoryInfo()
 {
-    MemoryTracker::printAllMemoryInfo();
+    MemoryTracker::instance().printAllMemoryInfo();
 }
 
 size_t Allocator::getAllocSize()
 {
-    return MemoryTracker::getAllocSize();
+    return MemoryTracker::instance().getAllocSize();
 }
 
 }

@@ -50,6 +50,7 @@ public:
     void popBack();
     void erase(size_t index);
     void erase(size_t first, size_t last);
+    T* erase(T* iterator);
     void shrinkToFit();
     [[nodiscard]] bool empty() const noexcept;
 private:
@@ -141,6 +142,16 @@ void List<T>::erase(size_t first, size_t last)
         m_data[i + last].~T();
     }
     m_size -= last - first;
+}
+
+template<typename T>
+T * List<T>::erase(T * iterator)
+{
+    if(!iterator || iterator < m_data || iterator >= m_data + m_size) return nullptr;
+    
+    size_t pos = static_cast<size_t>(iterator - m_data);
+    erase(pos);
+    return m_data + pos;
 }
 
 template <typename T>

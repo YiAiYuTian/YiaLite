@@ -64,6 +64,7 @@ AudioManager::~AudioManager()
     ma_engine_uninit(&m_impl->engine);
     ma_resource_manager_uninit(&m_impl->resource_manager);
     DEALLOCATE_OBJECT(AudioManager::Impl, m_impl);
+    m_impl = nullptr;
 }
 
 bool AudioManager::addSound(const char* name, const char* path)

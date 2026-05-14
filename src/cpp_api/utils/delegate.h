@@ -45,12 +45,14 @@ struct DelegateImpl<Ret(Args...)>
         void reset(Fx&& func)
         {
             DEALLOCATE_OBJECT(CallableBase, m_callable);
+            m_callable = nullptr;
             m_callable = ALLOCATE_OBJECT(Callable<Fx>, yialite::forward<Fx>(func));
         }
 
         void resetMove(Type&& other)
         {
             DEALLOCATE_OBJECT(CallableBase, m_callable);
+            m_callable = nullptr;
             m_callable = other.m_callable;
             other.m_callable = nullptr;
         }
@@ -58,6 +60,7 @@ struct DelegateImpl<Ret(Args...)>
         void tidy()
         {
             DEALLOCATE_OBJECT(CallableBase, m_callable);
+            m_callable = nullptr;
         }
 
         Ret operator()(Args... args) const

@@ -1,7 +1,7 @@
 ﻿#ifndef YIALITE_SINGLETON_H
 #define YIALITE_SINGLETON_H
 
-#define YIALITE_SINGLETON(T) friend class Singleton<T>;
+#define YIALITE_SINGLETON(T) friend class Singleton<T>
 
 namespace yialite
 {

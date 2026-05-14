@@ -28,9 +28,6 @@ struct MemoryInfo
 class YIALITE_API Allocator
 {
 public:
-    static void         initMemPool();
-    static void         resetMemPool();
-
     static void*        allocate(size_t size, const char* file = nullptr, int line = 0);
     static void         deallocate(void* ptr);
     static void*        reallocate(void* ptr, size_t size, const char* file = nullptr, int line = 0);
@@ -53,10 +50,9 @@ public:
 #define DEALLOCATE_OBJECT(type, ptr)\
     do{\
         if(ptr){\
-            using T = type;\
-            ptr->~T();\
+            using ObjectType = type;\
+            ptr->~ObjectType();\
             yialite::Allocator::deallocate(ptr);\
-            ptr = nullptr;\
         }\
     } while(0)
 
