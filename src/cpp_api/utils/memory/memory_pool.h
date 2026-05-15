@@ -7,18 +7,10 @@
 namespace yialite
 {
 
-struct MemoryChunk
-{
-    MemoryChunk* next = nullptr;
-    
-    void* free_list = nullptr;
-    void* chunk = nullptr;
-};
-
 class YIALITE_API MemoryPool
 {
 public:
-    MemoryPool() = default;
+    MemoryPool();
     ~MemoryPool();
 
     void   init(size_t block_size, size_t block_count);
@@ -41,8 +33,8 @@ private:
     size_t m_block_size = 0;
     size_t m_block_count = 0;
     size_t m_used_count = 0;
-    MemoryChunk* m_chunk_first = nullptr;
-    MemoryChunk* m_chunk_end = nullptr;
+    struct Impl;
+    Impl* m_impl = nullptr;
 };
 
 }

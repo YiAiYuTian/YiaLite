@@ -13,6 +13,21 @@
 namespace yialite
 {
 
+void* yialiteMiniAudioMalloc(size_t sz, void* pUserData)
+{
+    return ALLOCATE_SIZED(sz);
+}
+
+void* yialiteMiniAudioRealloc(void *p, size_t sz, void *pUserData)
+{
+    return REALLOCATE_SIZED(p, sz);
+}
+
+void yialiteMiniAudioFree(void *p, void *pUserData)
+{
+    DEALLOCATE(p);
+}
+
 struct AudioManager::Impl
 {
     ma_engine engine;
@@ -44,6 +59,9 @@ AudioManager::AudioManager()
 
     engineConfig = ma_engine_config_init();
     engineConfig.pResourceManager = &m_impl->resource_manager;
+    engineConfig.allocationCallbacks.onMalloc   = yialiteMiniAudioMalloc;
+    engineConfig.allocationCallbacks.onRealloc  = yialiteMiniAudioRealloc;
+    engineConfig.allocationCallbacks.onFree     = yialiteMiniAudioFree;
 
     result = ma_engine_init(&engineConfig, &m_impl->engine);
     if (result != MA_SUCCESS)

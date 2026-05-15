@@ -11,6 +11,16 @@
 namespace yialite
 {
 
+void* yialiteImGuiMalloc(size_t sz, void* user_data)
+{
+    return ALLOCATE_SIZED(sz);
+}
+
+void yialiteImGuiFree(void* ptr, void* user_data)
+{
+    DEALLOCATE(ptr);
+}
+
 struct DevUI::Impl
 {
     SDL_Renderer* sdl_renderer = nullptr;
@@ -20,6 +30,8 @@ DevUI::DevUI(Window* window, Renderer2D* renderer)
 {
     m_impl = ALLOCATE(DevUI::Impl);
     m_impl->sdl_renderer = reinterpret_cast<SDL_Renderer*>(renderer->getNativeHandle());
+
+    ImGui::SetAllocatorFunctions(yialiteImGuiMalloc, yialiteImGuiFree);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();

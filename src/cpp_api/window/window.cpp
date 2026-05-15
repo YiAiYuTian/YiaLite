@@ -44,7 +44,7 @@ Window::Window(const WindowConfig& config)
     m_impl->window = SDL_CreateWindow(config.title, config.width, config.height, convertToSDLWindowFlags(config.flags));
     if(!m_impl->window)
     {
-        delete m_impl;
+        DEALLOCATE(m_impl);
         throw YiaLite_Exception("Failed to initialize window: " + String(SDL_GetError()));
     }
 

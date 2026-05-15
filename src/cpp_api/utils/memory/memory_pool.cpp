@@ -1,12 +1,36 @@
 #include "memory_pool.h"
 #include "../../core/logger.h"
 
+#include <mutex>
+
 namespace yialite
 {
+
+struct MemoryChunk
+{
+    MemoryChunk* next = nullptr;
+    
+    void* free_list = nullptr;
+    void* chunk = nullptr;
+};
+
+struct MemoryPool::Impl
+{
+    MemoryChunk* chunk_first = nullptr;
+    MemoryChunk* chunk_end = nullptr;
+
+    std::mutex mtx;
+};
+
+MemoryPool::MemoryPool()
+{
+    m_impl = new Impl();
+}
 
 MemoryPool::~MemoryPool()
 {
     shutdown();
+    delete m_impl;
 }
 
 void MemoryPool::init(size_t block_size, size_t block_count)
@@ -29,15 +53,15 @@ void MemoryPool::init(size_t block_size, size_t block_count)
 
     chunk->free_list = chunk->chunk;
 
-    m_chunk_first = chunk;
-    m_chunk_end = chunk;
+    m_impl->chunk_first = chunk;
+    m_impl->chunk_end = chunk;
 
     is_initialized = true;
 }
 
 void MemoryPool::shutdown()
 {
-    MemoryChunk* current = m_chunk_first;
+    MemoryChunk* current = m_impl->chunk_first;
 
     while (current)
     {
@@ -49,8 +73,8 @@ void MemoryPool::shutdown()
         current = next;
     }
 
-    m_chunk_first = nullptr;
-    m_chunk_end   = nullptr;
+    m_impl->chunk_first = nullptr;
+    m_impl->chunk_end   = nullptr;
     m_used_count  = 0;
 
     is_initialized = false;
@@ -58,9 +82,11 @@ void MemoryPool::shutdown()
 
 void* MemoryPool::allocate()
 {
-    if (!m_chunk_first) return nullptr;
+    std::lock_guard<std::mutex> lock(m_impl->mtx);
 
-    MemoryChunk* target = m_chunk_end;
+    if (!m_impl->chunk_first) return nullptr;
+
+    MemoryChunk* target = m_impl->chunk_end;
 
     if (!target->free_list)
     {
@@ -79,8 +105,8 @@ void* MemoryPool::allocate()
 
         new_chunk->free_list = new_chunk->chunk;
 
-        m_chunk_end->next = new_chunk;
-        m_chunk_end = new_chunk;
+        m_impl->chunk_end->next = new_chunk;
+        m_impl->chunk_end = new_chunk;
         target = new_chunk;
     }
 
@@ -93,13 +119,15 @@ void* MemoryPool::allocate()
 
 bool MemoryPool::deallocate(void* ptr)
 {
-    if (!ptr || !m_chunk_first)
+    std::lock_guard<std::mutex> lock(m_impl->mtx);
+
+    if (!ptr || !m_impl->chunk_first)
     {
         Logger::warn("MemoryPool(size: {})::deallocate: Invalid pointer or not initialized", m_block_size);
         return false;
     }
 
-    MemoryChunk* current = m_chunk_first;
+    MemoryChunk* current = m_impl->chunk_first;
     uintptr_t addr = (uintptr_t)ptr;
 
     while (current)
