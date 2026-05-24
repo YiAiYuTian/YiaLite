@@ -40,10 +40,10 @@ public:
 #define ALLOCATE(type)                  static_cast<type*>(yialite::Allocator::allocate(sizeof(type), __FILE__, __LINE__))
 #define ALLOCATE_SIZED(size)            yialite::Allocator::allocate(size, __FILE__, __LINE__)
 #define ALLOCATE_OBJECT(type, ...)\
-    []<typename ...Args>(Args&& ...args)\
+    []<typename ...TArgs>(TArgs&& ...args)\
     {\
         type* ptr = ALLOCATE(type);\
-        return new (ptr) type(yialite::forward<Args>(args)...);\
+        return new (ptr) type(yialite::forward<TArgs>(args)...);\
     }(__VA_ARGS__)
 
 #define DEALLOCATE(ptr)                 do{ yialite::Allocator::deallocate(ptr); ptr = nullptr; } while(0)

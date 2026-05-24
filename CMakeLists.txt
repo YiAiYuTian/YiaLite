@@ -8,7 +8,18 @@ find_package(SDL3 CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(Vorbis CONFIG REQUIRED)
 
-add_library(${PROJECT_NAME} SHARED)
+if(MSVC_STATIC_MT_LIB OR MSVC_STATIC_MD_LIB OR MINGW_STATIC_MD_LIB OR CLANG_STATIC_MD_LIB)
+    add_library(${PROJECT_NAME} STATIC)
+elseif(MSVC_STATIC_MD_DLL OR MINGW_STATIC_MD_DLL OR CLANG_STATIC_MD_DLL)
+    add_library(${PROJECT_NAME} SHARED)
+elseif(
+    (NOT MSVC_STATIC_MD_DLL AND NOT MSVC_STATIC_MD_LIB AND NOT MSVC_STATIC_MT_LIB) OR 
+    (NOT MINGW_STATIC_MD_LIB AND NOT MINGW_STATIC_MD_DLL) OR 
+    (NOT CLANG_STATIC_MD_LIB AND NOT CLANG_STATIC_MD_DLL))
+    add_library(${PROJECT_NAME} SHARED)
+else()
+    message(FATAL_ERROR "Unsupported compiler")
+endif()
 
 #set(C_SRC "src/c_api(discard)/yialite.cpp")
 
@@ -80,4 +91,68 @@ target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3
                                               spdlog::spdlog_header_only
                                               Vorbis::vorbisfile)
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE YIALITE_EXPORTS YIALITE_SHARED)
+if(MSVC_STATIC_MD_DLL OR MINGW_STATIC_MD_DLL OR CLANG_STATIC_MD_DLL)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE YIALITE_EXPORTS YIALITE_SHARED)
+elseif(
+    (NOT MSVC_STATIC_MD_DLL AND NOT MSVC_STATIC_MD_LIB AND NOT MSVC_STATIC_MT_LIB) OR 
+    (NOT MINGW_STATIC_MD_LIB AND NOT MINGW_STATIC_MD_DLL) OR
+    (NOT CLANG_STATIC_MD_LIB AND NOT CLANG_STATIC_MD_DLL))
+    target_compile_definitions(${PROJECT_NAME} PRIVATE YIALITE_EXPORTS YIALITE_SHARED)
+endif()
+
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+install(
+  DIRECTORY src/cpp_api/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  FILES_MATCHING PATTERN "*.h"
+
+  PATTERN "logger.h" EXCLUDE
+)
+
+install(
+  FILES LICENSE
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/YiaLite
+)
+install(
+  DIRECTORY licenses/
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/YiaLite/licenses
+  FILES_MATCHING
+    PATTERN "LICENSE"
+    PATTERN "LICENSE.txt"
+)
+
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT YiaLiteTargets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(
+  EXPORT YiaLiteTargets
+  NAMESPACE YiaLite::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/YiaLite
+)
+
+configure_package_config_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/YiaLiteConfig.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/YiaLiteConfig.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/YiaLite
+)
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/YiaLiteConfigVersion.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/YiaLiteConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/YiaLiteConfigVersion.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/YiaLite
+)

@@ -4,14 +4,18 @@
 #include <cassert>
 
 #ifdef _WIN32
-    #ifdef YIALITE_STATIC
-        #define YIALITE_API
-    #elif defined(YIALITE_SHARED)
+    #if defined(YIALITE_SHARED)
         #ifdef YIALITE_EXPORTS
             #define YIALITE_API __declspec(dllexport)
         #else
             #define YIALITE_API __declspec(dllimport)
         #endif
+    #else
+        #define YIALITE_API
+    #endif
+#else
+    #if defined(YIALITE_SHARED) && defined(YIALITE_EXPORTS)
+        #define YIALITE_API __attribute__((visibility("default")))
     #else
         #define YIALITE_API
     #endif
