@@ -4,7 +4,7 @@
 #include "../../utils/memory/allocator.h"
 #include "../../utils/string/yia_string.h"
 
-#include "../../thirdparty/stb_image/stb_image.h"
+#include <stb_image.h>
 #include <SDL3/SDL.h>
 
 namespace yialite

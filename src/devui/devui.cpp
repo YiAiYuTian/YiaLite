@@ -3,9 +3,9 @@
 #include "../window/window.h"
 #include "../utils/memory/allocator.h"
 
-#include "../thirdparty/imgui/imgui.h"
-#include "../thirdparty/imgui/backends/imgui_impl_sdl3.h"
-#include "../thirdparty/imgui/backends/imgui_impl_sdlrenderer3.h"
+#include <imgui.h>
+#include <imgui_impl_sdl3.h>
+#include <imgui_impl_sdlrenderer3.h>
 #include <SDL3/SDL.h>
 
 namespace yialite

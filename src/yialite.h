@@ -26,7 +26,7 @@
 
 //devui
 #include "devui/devui.h"
-#include "thirdparty/imgui/imgui.h"
+#include <imgui.h>
 
 //utils
 #include "utils/singleton.h"

@@ -5,7 +5,7 @@
 #include "../utils/containers/yia_hashmap.h"
 #include "../utils/string/yia_string.h"
 
-#include "../thirdparty/miniaudio/miniaudio.h"
+#include <miniaudio.h>
 #include "../thirdparty/miniaudio/libvorbis/miniaudio_libvorbis.h"
 #include <unordered_map>
 #include <string>
