@@ -4,14 +4,6 @@ project(YiaLite VERSION 0.1.1 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(DEFINED YIA_VCPKG_LIBRARY_LINKAGE)
-  set(LIBRARY_LINKAGE ${YIA_VCPKG_LIBRARY_LINKAGE})
-endif()
-
-if(DEFINED YIA_VCPKG_CRT_LINKAGE)
-  set(CRT_LINKAGE ${YIA_VCPKG_CRT_LINKAGE})
-endif()
-
 find_package(SDL3 CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(Vorbis CONFIG REQUIRED)
@@ -20,7 +12,7 @@ find_package(Stb REQUIRED)
 
 find_path(MINIAUDIO_INCLUDE_DIRS "miniaudio.h")
 
-if(LIBRARY_LINKAGE STREQUAL "static")
+if((LIBRARY_LINKAGE STREQUAL "static") OR (NOT BUILD_SHARED_LIBS))
   add_library(${PROJECT_NAME} STATIC)
 else()
   add_library(${PROJECT_NAME} SHARED)
@@ -29,7 +21,7 @@ endif()
 
 add_library(YiaLite::YiaLite ALIAS ${PROJECT_NAME})
 
-if(MSVC)
+if(MSVC AND DEFINED CRT_LINKAGE)
   if(CRT_LINKAGE STREQUAL "static")
     set_property(TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
   else()
