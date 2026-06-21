@@ -1,10 +1,10 @@
-#include "log.h"
+﻿#include "log.h"
 #include "logger.h"
 
 namespace yialite
 {
 
-static spdlog::level::level_enum toSpdlogLevel(LogLevel level)
+static spdlog::level::level_enum to_spdlog_level(LogLevel level)
 {
     switch (level)
     {
@@ -23,20 +23,20 @@ static spdlog::level::level_enum toSpdlogLevel(LogLevel level)
     }
 }
 
-void setLogLevel(LogLevel level)
+void set_log_level(LogLevel level)
 {
-    Logger::setLogLevel(toSpdlogLevel(level));
+    Logger::set_log_level(to_spdlog_level(level));
 }
 
-void setLoggerEnabled(bool enabled)
+void set_logger_enabled(bool enabled)
 {
-    Logger::setLoggerEnabled(enabled);
+    Logger::set_logger_enabled(enabled);
 }
 
-void logImpl(LogLevel level, const char* msg)
+void log_impl(LogLevel level, const char* msg)
 {
     if (Logger::instance().m_is_logger_enabled)
-        Logger::instance().m_logger->log(toSpdlogLevel(level), msg);
+        Logger::instance().m_logger->log(to_spdlog_level(level), msg);
 }
 
 }

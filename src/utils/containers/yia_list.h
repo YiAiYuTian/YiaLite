@@ -40,21 +40,21 @@ public:
     void reserve(size_t capacity);
     void resize(size_t size);
     void resize(size_t size, const T& value);
-    void pushBack(const T& value);
-    void pushBack(T&& value);
-    void emplaceBack();
+    void push_back(const T& value);
+    void push_back(T&& value);
+    void emplace_back();
     template<typename ...Args>
     void emplace(size_t index, Args&& ...args);
     template<typename ...Args>
-    void emplaceBack(Args&& ...args);
-    void popBack();
+    void emplace_back(Args&& ...args);
+    void pop_back();
     void erase(size_t index);
     void erase(size_t first, size_t last);
     T* erase(T* iterator);
-    void shrinkToFit();
+    void shrink_to_fit();
     [[nodiscard]] bool empty() const noexcept;
 private:
-    size_t calculateCapacity(size_t length) const;
+    size_t calculate_capacity(size_t length) const;
 private:
     T* m_data = nullptr;
     size_t m_size = 0;
@@ -76,7 +76,7 @@ List<T>::List(size_t size, const T &value)
 {
     if(size == 0) return;
 
-    m_capacity = calculateCapacity(size);
+    m_capacity = calculate_capacity(size);
     m_data = static_cast<T*>(ALLOCATE_SIZED(m_capacity * sizeof(T)));
     m_size = size;
 
@@ -105,7 +105,7 @@ List<T>::~List() noexcept
 }
 
 template <typename T>
-void List<T>::popBack()
+void List<T>::pop_back()
 {
     if(m_size == 0) return;
     m_data[--m_size].~T();
@@ -155,7 +155,7 @@ T * List<T>::erase(T * iterator)
 }
 
 template <typename T>
-void List<T>::shrinkToFit()
+void List<T>::shrink_to_fit()
 {
     if(m_size == m_capacity) return;
 
@@ -186,7 +186,7 @@ bool List<T>::empty() const noexcept
 }
 
 template <typename T>
-size_t List<T>::calculateCapacity(size_t size) const
+size_t List<T>::calculate_capacity(size_t size) const
 {
     size_t new_capacity = m_capacity < 16 ? 16 : m_capacity << 1;
     if (new_capacity < size) new_capacity = size;
@@ -314,7 +314,7 @@ void List<T>::resize(size_t size)
     }
     else if(size > m_size)
     {
-        reserve(calculateCapacity(size));
+        reserve(calculate_capacity(size));
         for (size_t i = m_size; i < size; ++i)
         {
             new (m_data + i) T();
@@ -339,7 +339,7 @@ void List<T>::resize(size_t size, const T &value)
     }
     else if(size > m_size)
     {
-        reserve(calculateCapacity(size));
+        reserve(calculate_capacity(size));
         for (size_t i = m_size; i < size; ++i)
         {
             new (m_data + i) T(value);
@@ -350,11 +350,11 @@ void List<T>::resize(size_t size, const T &value)
 }
 
 template <typename T>
-void List<T>::pushBack(const T &value)
+void List<T>::push_back(const T &value)
 {
     if(m_size + 1 > m_capacity)
     {
-        reserve(calculateCapacity(m_size + 1));
+        reserve(calculate_capacity(m_size + 1));
     }
 
     new (m_data + m_size) T(value);
@@ -362,11 +362,11 @@ void List<T>::pushBack(const T &value)
 }
 
 template <typename T>
-void List<T>::pushBack(T &&value)
+void List<T>::push_back(T &&value)
 {
     if(m_size + 1 > m_capacity)
     {
-        reserve(calculateCapacity(m_size + 1));
+        reserve(calculate_capacity(m_size + 1));
     }
 
     new (m_data + m_size) T(yialite::move(value));
@@ -374,11 +374,11 @@ void List<T>::pushBack(T &&value)
 }
 
 template <typename T>
-void List<T>::emplaceBack()
+void List<T>::emplace_back()
 {
     if(m_size + 1 > m_capacity)
     {
-        reserve(calculateCapacity(m_size + 1));
+        reserve(calculate_capacity(m_size + 1));
     }
 
     new (m_data + m_size) T();
@@ -393,7 +393,7 @@ void List<T>::emplace(size_t index, Args &&...args)
 
     if (m_size + 1 > m_capacity)
     {
-        reserve(calculateCapacity(m_size + 1));
+        reserve(calculate_capacity(m_size + 1));
     }
 
     for (size_t i = m_size; i > index; --i)
@@ -408,11 +408,11 @@ void List<T>::emplace(size_t index, Args &&...args)
 
 template <typename T>
 template <typename... Args>
-void List<T>::emplaceBack(Args &&...args)
+void List<T>::emplace_back(Args &&...args)
 {
     if(m_size + 1 > m_capacity)
     {
-        reserve(calculateCapacity(m_size + 1));
+        reserve(calculate_capacity(m_size + 1));
     }
 
     new (m_data + m_size) T(yialite::forward<Args>(args)...);

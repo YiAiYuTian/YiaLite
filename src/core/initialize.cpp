@@ -1,4 +1,4 @@
-#include "initialize.h"
+﻿#include "initialize.h"
 #include "logger.h"
 #include "../utils/memory/allocator.h"
 
@@ -7,46 +7,39 @@
 namespace yialite
 {
 
-void* yialiteSDLMalloc(size_t size)
+void* yialite_sdl_malloc(size_t size)
 {
     return ALLOCATE_SIZED(size);
 }
 
-void* yialiteSDLCalloc(size_t nmemb, size_t size)
+void* yialite_sdl_calloc(size_t nmemb, size_t size)
 {
     void* ptr = ALLOCATE_SIZED(nmemb * size);
-    if(ptr){ memset(ptr, 0, nmemb * size); }
+    if(ptr){ std::memset(ptr, 0, nmemb * size); }
     return ptr;
 }
 
-void* yialiteSDLRealloc(void *mem, size_t size)
+void* yialite_sdl_realloc(void *mem, size_t size)
 {
     return REALLOCATE_SIZED(mem, size);
 }
 
-void yialiteSDLFree(void *mem)
+void yialite_sdl_free(void *mem)
 {
     DEALLOCATE(mem);
 }
 
-bool init()
+Result<void> init()
 {
-    bool is_initialized = true;
-    
-    SDL_SetMemoryFunctions(yialiteSDLMalloc, yialiteSDLCalloc, yialiteSDLRealloc, yialiteSDLFree);
-    
-    if(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
-    {
-        Logger::fatal("Failed to initialize SDL: {}", SDL_GetError());
-        is_initialized = false;
-    }
+    SDL_SetMemoryFunctions(yialite_sdl_malloc, yialite_sdl_calloc, yialite_sdl_realloc, yialite_sdl_free);
 
-    if(!is_initialized)
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
     {
         SDL_Quit();
+        return Result<void>(ErrorCode::InitFailed, "Failed to initialize SDL: " + String(SDL_GetError()));
     }
 
-    return is_initialized;
+    return ok();
 }
 
 void quit()

@@ -17,14 +17,14 @@ enum class LogLevel;
 class Logger final : public Singleton<Logger>
 {
     YIALITE_SINGLETON(Logger);
-    friend YIALITE_API void logImpl(LogLevel, const char*);
+    friend YIALITE_API void log_impl(LogLevel, const char*);
 public:
-    static void setLoggerEnabled(bool enabled)
+    static void set_logger_enabled(bool enabled)
     {
         instance().m_is_logger_enabled = enabled;
     }
 
-    static void setLogLevel(spdlog::level::level_enum level)
+    static void set_log_level(spdlog::level::level_enum level)
     {
         instance().m_logger->set_level(level);
     }
@@ -84,7 +84,7 @@ struct fmt::formatter<yialite::String>
     template<typename FormatContext>
     auto format(const yialite::String& str, FormatContext& ctx) const
     {
-        return fmt::format_to(ctx.out(), "{}", str.cStr());
+        return fmt::format_to(ctx.out(), "{}", str.c_str());
     }
 };
 

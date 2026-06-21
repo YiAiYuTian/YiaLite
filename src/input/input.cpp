@@ -5,7 +5,7 @@
 namespace yialite
 {
 
-bool isKeyPressed(Scancode key)
+bool is_key_pressed(Scancode key)
 {
     auto* keyboard = SDL_GetKeyboardState(nullptr);
     if (!keyboard) return false;
@@ -13,7 +13,7 @@ bool isKeyPressed(Scancode key)
     return keyboard[key];
 }
 
-bool isMouseButtonPressed(MouseButtonFlags button, float* x, float* y)
+bool is_mouse_button_pressed(MouseButtonFlags button, float* x, float* y)
 {
     SDL_MouseButtonFlags button_flag = SDL_GetMouseState(x, y);
 

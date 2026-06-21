@@ -22,7 +22,7 @@ public:
 
     char operator[](size_t i) const noexcept { return m_data[i]; }
 
-    StringView subStr(size_t pos, size_t len = npos) const noexcept;
+    StringView sub_str(size_t pos, size_t len = npos) const noexcept;
 public:
     static constexpr size_t npos = static_cast<size_t>(-1);
 private:

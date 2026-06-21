@@ -1,0 +1,21 @@
+[submodule "thirdparty/imgui"]
+	path = thirdparty/imgui
+	url = https://github.com/YiAiYuTian/imgui
+[submodule "thirdparty/miniaudio"]
+	path = thirdparty/miniaudio
+	url = https://github.com/YiAiYuTian/miniaudio
+[submodule "thirdparty/ogg"]
+	path = thirdparty/ogg
+	url = https://github.com/YiAiYuTian/ogg
+[submodule "thirdparty/SDL"]
+	path = thirdparty/SDL
+	url = https://github.com/YiAiYuTian/SDL
+[submodule "thirdparty/spdlog"]
+	path = thirdparty/spdlog
+	url = https://github.com/YiAiYuTian/spdlog
+[submodule "thirdparty/stb"]
+	path = thirdparty/stb
+	url = https://github.com/YiAiYuTian/stb
+[submodule "thirdparty/vorbis"]
+	path = thirdparty/vorbis
+	url = https://github.com/YiAiYuTian/vorbis

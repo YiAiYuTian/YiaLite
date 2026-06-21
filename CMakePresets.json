@@ -12,7 +12,6 @@
       "hidden": true,
       "cacheVariables": {
         "CMAKE_CXX_STANDARD": "23",
-        "CMAKE_TOOLCHAIN_FILE": "D:/VSproject/ThirdParty/vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake",
 
         "LIBRARY_LINKAGE": "dynamic",
         "CRT_LINKAGE": "dynamic"

@@ -4,6 +4,7 @@
 #include "../core/core.h"
 #include "keycode.h"
 #include "mouse_button.h"
+#include "../core/result.h"
 #include "../utils/delegate.h"
 
 namespace yialite
@@ -24,24 +25,29 @@ class DevUI;
 class YIALITE_API Event
 {
 public:
-    Event();
     ~Event();
+    Event(const Event&) = delete;
+    Event& operator=(const Event&) = delete;
 
-    void onUpdate();
-    
-    void registerDevUIEvent(DevUI* devui);
-    void registerQuitEventCallback(QuitEventCallback&& callback);
-    void registerKeyEventCallback(KeyEventCallback&& callback);
-    void registerMouseButtonEventCallback(MouseButtonEventCallback&& callback);
-    void registerMouseWheelEventCallback(MouseWheelEventCallback&& callback);
-    void registerMouseMotionEventCallback(MouseMotionEventCallback&& callback);
-    void registerWindowResizedEventCallback(WindowResizedEventCallback&& callback);
-    void registerWindowMovedEventCallback(WindowMovedEventCallback&& callback);
-    void registerWindowFocusGainedEventCallback(WindowFocusGainedEventCallback&& callback);
-    void registerWindowFocusLostEventCallback(WindowFocusLostEventCallback&& callback);
+    static Result<Event*> create();
+    static void destroy(Event* event);
+
+    void on_update();
+
+    void register_devui_event(DevUI* devui);
+    void register_quit_event_callback(QuitEventCallback&& callback);
+    void register_key_event_callback(KeyEventCallback&& callback);
+    void register_mouse_button_event_callback(MouseButtonEventCallback&& callback);
+    void register_mouse_wheel_event_callback(MouseWheelEventCallback&& callback);
+    void register_mouse_motion_event_callback(MouseMotionEventCallback&& callback);
+    void register_window_resized_event_callback(WindowResizedEventCallback&& callback);
+    void register_window_moved_event_callback(WindowMovedEventCallback&& callback);
+    void register_window_focus_gained_event_callback(WindowFocusGainedEventCallback&& callback);
+    void register_window_focus_lost_event_callback(WindowFocusLostEventCallback&& callback);
 private:
+    Event() = default;
     struct Impl;
-    Impl* m_impl;
+    Impl* m_impl = nullptr;
 };
 
 }

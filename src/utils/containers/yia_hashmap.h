@@ -20,7 +20,7 @@ public:
         Iterator() : m_map(nullptr), m_index(0) {}
 
         Iterator(HashMap* map, size_t index)
-            : m_map(map), m_index(index) { advanceToNext(); }
+            : m_map(map), m_index(index) { advance_to_next(); }
 
         struct DirectTag {};
         Iterator(HashMap* map, size_t index, DirectTag) : m_map(map), m_index(index) {}
@@ -39,7 +39,7 @@ public:
         Iterator& operator++()
         {
             ++m_index;
-            advanceToNext();
+            advance_to_next();
             return *this;
         }
 
@@ -61,7 +61,7 @@ public:
         }
 
     private:
-        void advanceToNext()
+        void advance_to_next()
         {
             while (m_index < m_map->m_capacity &&
                    m_map->m_states[m_index] != BucketState::Occupied)
@@ -96,7 +96,7 @@ public:
     bool find(const Key& key, Value** value) const;
     Value* find(const Key& key) const;
     bool remove(const Key& key);
-    bool containsKey(const Key& key) const;
+    bool contains_key(const Key& key) const;
 
     bool empty() const noexcept { return m_size == 0; }
     size_t size() const noexcept { return m_size; }
@@ -108,10 +108,10 @@ public:
 public:
     constexpr static size_t invalid_index = static_cast<size_t>(-1);
 private:
-    Pair<bool, size_t> findBucket(const Key& key) const;
+    Pair<bool, size_t> find_bucket(const Key& key) const;
     void resize();
     size_t hash(const Key& key) const;
-    void resetStates(Uint8* states, size_t capacity);
+    void reset_states(Uint8* states, size_t capacity);
 private:
     enum BucketState : Uint8
     {
@@ -206,7 +206,7 @@ HashMap<Key, Value>& HashMap<Key, Value>::operator=(const HashMap& other)
         clear();
 
         if (m_capacity < other.m_size) reserve(other.m_capacity > 0 ? other.m_capacity : 8);
-        resetStates(m_states, m_capacity);
+        reset_states(m_states, m_capacity);
         m_size = 0;
 
         for (size_t i = 0; i < other.m_capacity; ++i)
@@ -223,7 +223,7 @@ HashMap<Key, Value>& HashMap<Key, Value>::operator=(const HashMap& other)
 template<typename Key, typename Value>
 Value& HashMap<Key, Value>::operator[](const Key& key)
 {
-    auto [found, idx] = findBucket(key);
+    auto [found, idx] = find_bucket(key);
     YIALITE_ASSERT(idx != invalid_index && "HashMap Full");
 
     if (!found) return emplace(Key(key), Value{})->second;
@@ -233,7 +233,7 @@ Value& HashMap<Key, Value>::operator[](const Key& key)
 template<typename Key, typename Value>
 Value& HashMap<Key, Value>::operator[](Key&& key)
 {
-    auto [found, idx] = findBucket(key);
+    auto [found, idx] = find_bucket(key);
     YIALITE_ASSERT(idx != invalid_index && "HashMap Full");
 
     if (!found) return emplace(yialite::move(key), Value{})->second;
@@ -243,7 +243,7 @@ Value& HashMap<Key, Value>::operator[](Key&& key)
 template<typename Key, typename Value>
 const Value& HashMap<Key, Value>::operator[](const Key& key) const
 {
-    auto [found, idx] = findBucket(key);
+    auto [found, idx] = find_bucket(key);
     YIALITE_ASSERT(found && "Key not found in const HashMap");
     return m_pairs[idx].second;
 }
@@ -253,7 +253,7 @@ typename HashMap<Key, Value>::Iterator HashMap<Key, Value>::emplace(Key&& key, V
 {
     if ((m_size + 1.0f) > m_capacity * m_load_factor) resize();
 
-    auto [found, idx] = findBucket(key);
+    auto [found, idx] = find_bucket(key);
     YIALITE_ASSERT(idx != invalid_index && "HashMap Full");
 
     if (!found)
@@ -276,7 +276,7 @@ typename HashMap<Key, Value>::Iterator HashMap<Key, Value>::insert(const Key& ke
 {
     if ((m_size + 1.0f) > m_capacity * m_load_factor) resize();
 
-    auto [found, idx] = findBucket(key);
+    auto [found, idx] = find_bucket(key);
     YIALITE_ASSERT(idx != invalid_index && "HashMap Full");
 
     if (!found)
@@ -297,7 +297,7 @@ typename HashMap<Key, Value>::Iterator HashMap<Key, Value>::insert(const Key& ke
 template<typename Key, typename Value>
 bool HashMap<Key, Value>::find(const Key& key, Value** value) const
 {
-    auto [found, idx] = findBucket(key);
+    auto [found, idx] = find_bucket(key);
     YIALITE_ASSERT(idx != invalid_index && "HashMap Full");
 
     if (found)
@@ -312,7 +312,7 @@ bool HashMap<Key, Value>::find(const Key& key, Value** value) const
 template<typename Key, typename Value>
 Value* HashMap<Key, Value>::find(const Key& key) const
 {
-    auto [found, idx] = findBucket(key);
+    auto [found, idx] = find_bucket(key);
 
     if (found)
         return &m_pairs[idx].second;
@@ -323,7 +323,7 @@ Value* HashMap<Key, Value>::find(const Key& key) const
 template<typename Key, typename Value>
 bool HashMap<Key, Value>::remove(const Key& key)
 {
-    auto [found, idx] = findBucket(key);
+    auto [found, idx] = find_bucket(key);
     YIALITE_ASSERT(idx != invalid_index && "HashMap Full");
 
     if (!found) return false;
@@ -338,9 +338,9 @@ bool HashMap<Key, Value>::remove(const Key& key)
 }
 
 template<typename Key, typename Value>
-bool HashMap<Key, Value>::containsKey(const Key& key) const
+bool HashMap<Key, Value>::contains_key(const Key& key) const
 {
-    auto [found, idx] = findBucket(key);
+    auto [found, idx] = find_bucket(key);
     return found;
 }
 
@@ -356,7 +356,7 @@ void HashMap<Key, Value>::clear()
         }
     }
 
-    resetStates(m_states, m_capacity);
+    reset_states(m_states, m_capacity);
     m_size = 0;
 }
 
@@ -375,7 +375,7 @@ void HashMap<Key, Value>::reserve(size_t capacity)
     Pair<Key, Value>* new_pairs  = static_cast<Pair<Key, Value>*>(ALLOCATE_SIZED(new_capacity * sizeof(Pair<Key, Value>)));
     Uint8*            new_states = static_cast<Uint8*>(ALLOCATE_SIZED(new_capacity * sizeof(Uint8)));
 
-    resetStates(new_states, new_capacity);
+    reset_states(new_states, new_capacity);
 
     for (size_t i = 0; i < m_capacity; ++i)
     {
@@ -405,7 +405,7 @@ void HashMap<Key, Value>::reserve(size_t capacity)
 }
 
 template<typename Key, typename Value>
-Pair<bool, size_t> HashMap<Key, Value>::findBucket(const Key& key) const
+Pair<bool, size_t> HashMap<Key, Value>::find_bucket(const Key& key) const
 {
     size_t start = hash(key);
     size_t idx = start;
@@ -454,7 +454,7 @@ size_t HashMap<Key, Value>::hash(const Key& key) const
 }
 
 template <typename Key, typename Value>
-void HashMap<Key, Value>::resetStates(Uint8 *states, size_t capacity)
+void HashMap<Key, Value>::reset_states(Uint8 *states, size_t capacity)
 {
     memset(states, 0, capacity);
 }

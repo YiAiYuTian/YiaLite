@@ -18,7 +18,7 @@ String::String(const char* str)
     }
 
     m_length = strlen(str);
-    m_capacity = calculateCapacity(m_length);
+    m_capacity = calculate_capacity(m_length);
     m_data = static_cast<char*>(ALLOCATE_SIZED(m_capacity + 1));
     memcpy(m_data, str, m_length);
     m_data[m_length] = '\0';
@@ -43,7 +43,7 @@ String::String(const char *str, size_t len)
     }
 
     m_length = len;
-    m_capacity = calculateCapacity(m_length);
+    m_capacity = calculate_capacity(m_length);
     m_data = static_cast<char*>(ALLOCATE_SIZED(m_capacity + 1));
     memcpy(m_data, str, m_length);
     m_data[m_length] = '\0';
@@ -75,7 +75,7 @@ String::~String() noexcept
     DEALLOCATE(m_data);
 }
 
-const char* String::cStr() const noexcept
+const char* String::c_str() const noexcept
 {
     return m_data ? m_data : "";
 }
@@ -140,7 +140,7 @@ String &String::operator+=(const char *str)
 
     size_t str_len = strlen(str);
     size_t new_length = m_length + str_len;
-    m_capacity = calculateCapacity(new_length);
+    m_capacity = calculate_capacity(new_length);
 
     m_data = static_cast<char*>(REALLOCATE_SIZED(m_data, m_capacity + 1));
     memcpy(m_data + m_length, str, str_len + 1);
@@ -154,7 +154,7 @@ String &String::operator+=(const String &str)
     if(str.m_length == 0) return *this;
 
     size_t new_length = m_length + str.m_length;
-    m_capacity = calculateCapacity(new_length);
+    m_capacity = calculate_capacity(new_length);
 
     m_data = static_cast<char*>(REALLOCATE_SIZED(m_data, m_capacity + 1));
     memcpy(m_data + m_length, str.m_data, str.m_length + 1);
@@ -198,7 +198,7 @@ String& String::operator=(const char *str)
     if (!str) str = "";
     
     m_length = strlen(str);
-    m_capacity = calculateCapacity(m_length);
+    m_capacity = calculate_capacity(m_length);
     m_data = static_cast<char*>(REALLOCATE_SIZED(m_data, m_capacity + 1));
     memcpy(m_data, str, m_length + 1);
 
@@ -249,7 +249,7 @@ void String::append(const char *str, size_t count)
     size_t str_len = strlen(str);
     if (count > str_len) count = str_len;
     size_t new_length = m_length + count;
-    m_capacity = calculateCapacity(new_length);
+    m_capacity = calculate_capacity(new_length);
     
     m_data = static_cast<char*>(REALLOCATE_SIZED(m_data, m_capacity + 1));
     memcpy(m_data + m_length, str, count);
@@ -264,7 +264,7 @@ void String::append(const String &str)
 
 void String::append(const String &str, size_t pos, size_t count)
 {
-    String substr = str.subStr(pos, count);
+    String substr = str.sub_str(pos, count);
     append(substr.m_data, count);
 }
 
@@ -286,12 +286,12 @@ String &String::erase(size_t pos, size_t count)
     return *this;
 }
 
-String String::subStr(size_t pos, size_t count) const
+String String::sub_str(size_t pos, size_t count) const
 {
     if (pos >= m_length) return String();
     if (count > m_length - pos) count = m_length - pos;
 
-    size_t new_capacity = calculateCapacity(count);
+    size_t new_capacity = calculate_capacity(count);
     String temp(new_capacity);
 
     memcpy(temp.m_data, m_data + pos, count);
@@ -328,7 +328,7 @@ size_t String::find(const String &str, size_t pos) const
     return find(str.m_data, pos);
 }
 
-size_t String::findFirstOf(const char *str, size_t pos) const
+size_t String::find_first_of(const char *str, size_t pos) const
 {
     if(!str || pos >= m_length) return npos;
 
@@ -343,12 +343,12 @@ size_t String::findFirstOf(const char *str, size_t pos) const
     return npos;
 }
 
-size_t String::findFirstOf(const String &str, size_t pos) const
+size_t String::find_first_of(const String &str, size_t pos) const
 {
-    return findFirstOf(str.m_data, pos);
+    return find_first_of(str.m_data, pos);
 }
 
-size_t String::findFirstNotOf(const char *str, size_t pos) const
+size_t String::find_first_not_of(const char *str, size_t pos) const
 {
     if(!str || pos >= m_length) return npos;
 
@@ -365,12 +365,12 @@ size_t String::findFirstNotOf(const char *str, size_t pos) const
     return npos;
 }
 
-size_t String::findFirstNotOf(const String &str, size_t pos) const
+size_t String::find_first_not_of(const String &str, size_t pos) const
 {
-    return findFirstNotOf(str.m_data, pos);
+    return find_first_not_of(str.m_data, pos);
 }
 
-size_t String::findLastOf(const char *str, size_t pos) const
+size_t String::find_last_of(const char *str, size_t pos) const
 {
     if(!str) return npos;
     if(pos >= m_length) pos = m_length - 1;
@@ -386,12 +386,12 @@ size_t String::findLastOf(const char *str, size_t pos) const
     return npos;
 }
 
-size_t String::findLastOf(const String &str, size_t pos) const
+size_t String::find_last_of(const String &str, size_t pos) const
 {
-    return findLastOf(str.m_data, pos);
+    return find_last_of(str.m_data, pos);
 }
 
-size_t String::findLastNotOf(const char *str, size_t pos) const
+size_t String::find_last_not_of(const char *str, size_t pos) const
 {
     if(!str) return npos;
     if(pos >= m_length) pos = m_length - 1;
@@ -409,12 +409,12 @@ size_t String::findLastNotOf(const char *str, size_t pos) const
     return npos;
 }
 
-size_t String::findLastNotOf(const String &str, size_t pos) const
+size_t String::find_last_not_of(const String &str, size_t pos) const
 {
-    return findLastNotOf(str.m_data, pos);
+    return find_last_not_of(str.m_data, pos);
 }
 
-size_t String::calculateCapacity(size_t length) const
+size_t String::calculate_capacity(size_t length) const
 {
     if (length <= 15) return 15;
     return ((length + 16) & ~static_cast<size_t>(15)) - 1;
@@ -424,7 +424,7 @@ String operator+(const char* str1, const String& str2)
 {
     size_t str_len = strlen(str1);
     size_t new_length = str2.m_length + str_len;
-    size_t new_capacity = str2.calculateCapacity(new_length);
+    size_t new_capacity = str2.calculate_capacity(new_length);
     String temp(new_capacity);
 
     temp.m_length = new_length;

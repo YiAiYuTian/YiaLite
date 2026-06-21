@@ -18,15 +18,15 @@ enum class LogLevel
     Fatal
 };
 
-YIALITE_API void setLogLevel(LogLevel level);
-YIALITE_API void setLoggerEnabled(bool enabled);
+YIALITE_API void set_log_level(LogLevel level);
+YIALITE_API void set_logger_enabled(bool enabled);
 
-YIALITE_API void logImpl(LogLevel level, const char* msg);
+YIALITE_API void log_impl(LogLevel level, const char* msg);
 
 template<typename... Args>
 void log(LogLevel level, std::format_string<Args...> format, Args&&... args)
 {
-    logImpl(level, std::format(format, std::forward<Args>(args)...).c_str());
+    log_impl(level, std::format(format, std::forward<Args>(args)...).c_str());
 }
 
 }
@@ -43,7 +43,7 @@ struct std::formatter<yialite::String>
     template <class FormatContext>
     auto format(const yialite::String& str, FormatContext& ctx) const
     {
-        return std::format_to(ctx.out(), "{}", str.cStr());
+        return std::format_to(ctx.out(), "{}", str.c_str());
     }
 };
 

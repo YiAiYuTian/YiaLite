@@ -2,6 +2,7 @@
 #define YIALITE_WINDOW_H
 
 #include "../core/core.h"
+#include "../core/result.h"
 #include "../core/config.h"
 
 namespace yialite
@@ -18,23 +19,30 @@ struct DialogFileFilter
 class YIALITE_API Window
 {
 public:
-    Window(const WindowConfig& config);
     ~Window();
     Window(const Window&) = delete;
     Window& operator=(const Window&) = delete;
-    Window(Window&&) = delete;
-    Window& operator=(Window&&) = delete;
+    Window(Window&& other) noexcept;
+    Window& operator=(Window&& other) noexcept;
 
-    //tools
-    void showOpenFileDialog(DialogFileCallback callback, void* userdata, const DialogFileFilter* filters, int nfilters, const char* default_location = nullptr, bool allow_many = false);
-    WindowConfig getConfig() const { return m_config; }
-    void setWidth(int width);
-    void setHeight(int height);
+    static Result<Window*> create(const WindowConfig& config);
+    static void destroy(Window* window);
+
+    void show_open_file_dialog(DialogFileCallback callback, void* userdata,
+        const DialogFileFilter* filters, int nfilters,
+        const char* default_location = nullptr, bool allow_many = false);
+
+    WindowConfig get_config() const { return m_config; }
+    void set_width(int width);
+    void set_height(int height);
 
     //For internal use only
-    void* getNativeHandle();
-    const void* getNativeHandle() const;
+    void* get_native_handle();
+    const void* get_native_handle() const;
+
+    explicit operator bool() const noexcept { return m_impl != nullptr; }
 private:
+    Window() = default;
     struct Impl;
     Impl* m_impl = nullptr;
     WindowConfig m_config;

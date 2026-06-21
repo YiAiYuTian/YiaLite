@@ -3,8 +3,9 @@
 
 //core
 #include "core/core.h"
+#include "core/error.h"
+#include "core/result.h"
 #include "core/initialize.h"
-#include "core/yialite_exception.h"
 #include "core/context.h"
 #include "core/log.h"
 
@@ -26,14 +27,13 @@
 
 //devui
 #include "devui/devui.h"
-#include <imgui.h>
+//#include <imgui.h>
 
 //utils
 #include "utils/singleton.h"
 #include "utils/delegate.h"
 #include "utils/memory/allocator.h"
 #include "utils/memory/memory.h"
-#include "utils/memory/memory_pool.h"
 #include "utils/string/yia_string.h"
 #include "utils/containers/yia_list.h"
 #include "utils/containers/yia_hashmap.h"

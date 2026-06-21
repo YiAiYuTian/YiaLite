@@ -1,4 +1,4 @@
-#include "devui.h"
+﻿#include "devui.h"
 #include "../renderer/renderer2d.h"
 #include "../window/window.h"
 #include "../utils/memory/allocator.h"
@@ -11,12 +11,12 @@
 namespace yialite
 {
 
-void* yialiteImGuiMalloc(size_t sz, void* user_data)
+void* yialite_imgui_malloc(size_t sz, void* user_data)
 {
     return ALLOCATE_SIZED(sz);
 }
 
-void yialiteImGuiFree(void* ptr, void* user_data)
+void yialite_imgui_free(void* ptr, void* user_data)
 {
     DEALLOCATE(ptr);
 }
@@ -26,47 +26,57 @@ struct DevUI::Impl
     SDL_Renderer* sdl_renderer = nullptr;
 };
 
-DevUI::DevUI(Window* window, Renderer2D* renderer)
+Result<DevUI*> DevUI::create(Window* window, Renderer2D* renderer)
 {
-    m_impl = ALLOCATE(DevUI::Impl);
-    m_impl->sdl_renderer = reinterpret_cast<SDL_Renderer*>(renderer->getNativeHandle());
+    DevUI* devui = ALLOCATE_OBJECT(DevUI);
+    devui->m_impl = ALLOCATE(DevUI::Impl);
+    devui->m_impl->sdl_renderer = reinterpret_cast<SDL_Renderer*>(renderer->get_native_handle());
 
-    ImGui::SetAllocatorFunctions(yialiteImGuiMalloc, yialiteImGuiFree);
+    ImGui::SetAllocatorFunctions(yialite_imgui_malloc, yialite_imgui_free);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
     ImGui::StyleColorsDark();
 
-    ImGui_ImplSDL3_InitForSDLRenderer(reinterpret_cast<SDL_Window*>(window->getNativeHandle()), m_impl->sdl_renderer);
-    ImGui_ImplSDLRenderer3_Init(m_impl->sdl_renderer);
+    ImGui_ImplSDL3_InitForSDLRenderer(reinterpret_cast<SDL_Window*>(window->get_native_handle()), devui->m_impl->sdl_renderer);
+    ImGui_ImplSDLRenderer3_Init(devui->m_impl->sdl_renderer);
+
+    return devui;
+}
+
+void DevUI::destroy(DevUI* devui)
+{
+    DEALLOCATE_OBJECT(DevUI, devui);
 }
 
 DevUI::~DevUI()
 {
-    ImGui_ImplSDLRenderer3_Shutdown();
-    ImGui_ImplSDL3_Shutdown();
-    ImGui::DestroyContext();
-
-    DEALLOCATE(m_impl);
+    if (m_impl)
+    {
+        ImGui_ImplSDLRenderer3_Shutdown();
+        ImGui_ImplSDL3_Shutdown();
+        ImGui::DestroyContext();
+        DEALLOCATE(m_impl);
+    }
 }
 
-void DevUI::onUpdate()
+void DevUI::on_update()
 {
     ImGui_ImplSDLRenderer3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
 }
 
-void DevUI::onRender()
+void DevUI::on_render()
 {
     auto& renderer = m_impl->sdl_renderer;
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-    
+
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
 }

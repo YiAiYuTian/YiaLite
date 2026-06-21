@@ -1,5 +1,5 @@
-#include "window.h"
-#include "../core/yialite_exception.h"
+﻿#include "window.h"
+#include "../core/error.h"
 #include "../core/logger.h"
 #include "../utils/memory/allocator.h"
 #include "../utils/string/yia_string.h"
@@ -10,7 +10,7 @@
 namespace yialite
 {
 
-static SDL_WindowFlags convertToSDLWindowFlags(const WindowFlags flags)
+static SDL_WindowFlags convert_to_sdl_window_flags(const WindowFlags flags)
 {
     constexpr static Pair<WindowFlags, SDL_WindowFlags> flag_map[] = {
         {WindowFlags_Fullscreen,      SDL_WINDOW_FULLSCREEN},
@@ -36,32 +36,68 @@ struct Window::Impl
     SDL_Window* window = nullptr;
 };
 
-Window::Window(const WindowConfig& config)
+Window::Window(Window&& other) noexcept
+    : m_impl(other.m_impl), m_config(other.m_config)
 {
-    m_config = config;
-    m_impl = ALLOCATE(Window::Impl);
+    other.m_impl = nullptr;
+}
 
-    m_impl->window = SDL_CreateWindow(config.title, config.width, config.height, convertToSDLWindowFlags(config.flags));
-    if(!m_impl->window)
+Window& Window::operator=(Window&& other) noexcept
+{
+    if (this != &other)
     {
-        DEALLOCATE(m_impl);
-        throw YiaLite_Exception("Failed to initialize window: " + String(SDL_GetError()));
+        if (m_impl)
+        {
+            SDL_DestroyWindow(m_impl->window);
+            DEALLOCATE(m_impl);
+        }
+        m_impl = other.m_impl;
+        m_config = other.m_config;
+        other.m_impl = nullptr;
+    }
+    return *this;
+}
+
+Result<Window*> Window::create(const WindowConfig& config)
+{
+    Window* w = ALLOCATE_OBJECT(Window);
+    w->m_config = config;
+    w->m_impl = ALLOCATE(Window::Impl);
+
+    w->m_impl->window = SDL_CreateWindow(config.title, config.width, config.height,
+        convert_to_sdl_window_flags(config.flags));
+    if (!w->m_impl->window)
+    {
+        DEALLOCATE_OBJECT(Window, w);
+        return Result<Window*>(ErrorCode::WindowCreateFailed, "Failed to create window: " + String(SDL_GetError()));
     }
 
     Logger::info("Window initialized successfully: {}({}, {})", config.title, config.width, config.height);
+    return w;
 }
 
 Window::~Window()
 {
-    if(m_impl) SDL_DestroyWindow(m_impl->window);
-    DEALLOCATE(m_impl);
+    if (m_impl)
+    {
+        SDL_DestroyWindow(m_impl->window);
+        DEALLOCATE(m_impl);
+        m_impl = nullptr;
+    }
 }
 
-void Window::showOpenFileDialog(DialogFileCallback callback, void* userdata, const DialogFileFilter* filters, int nfilters, const char* default_location, bool allow_many)
+void Window::destroy(Window* window)
 {
-    SDL_ShowOpenFileDialog(callback, 
-        userdata, 
-        m_impl->window, 
+    DEALLOCATE_OBJECT(Window, window);
+}
+
+void Window::show_open_file_dialog(DialogFileCallback callback, void* userdata,
+    const DialogFileFilter* filters, int nfilters,
+    const char* default_location, bool allow_many)
+{
+    SDL_ShowOpenFileDialog(callback,
+        userdata,
+        m_impl->window,
         reinterpret_cast<const SDL_DialogFileFilter*>(filters),
         nfilters,
         default_location,
@@ -69,24 +105,24 @@ void Window::showOpenFileDialog(DialogFileCallback callback, void* userdata, con
     );
 }
 
-void Window::setWidth(int width)
+void Window::set_width(int width)
 {
     m_config.width = width;
     SDL_SetWindowSize(m_impl->window, width, m_config.height);
 }
 
-void Window::setHeight(int height)
+void Window::set_height(int height)
 {
     m_config.height = height;
     SDL_SetWindowSize(m_impl->window, m_config.width, height);
 }
 
-void *Window::getNativeHandle()
+void* Window::get_native_handle()
 {
     return reinterpret_cast<void*>(m_impl->window);
 }
 
-const void *Window::getNativeHandle() const
+const void* Window::get_native_handle() const
 {
     return reinterpret_cast<const void*>(m_impl->window);
 }

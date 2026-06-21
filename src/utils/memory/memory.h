@@ -49,26 +49,26 @@ private:
 class ControlBlock
 {
 public:
-    void addRef() { ++m_ref; }
-    void addWeak() { ++m_weak; }
+    void add_ref() { ++m_ref; }
+    void add_weak() { ++m_weak; }
 
-    void releaseRef()
+    void release_ref()
     {
         if (--m_ref == 0)
         {
-            destroyObject();
-            releaseWeak();
+            destroy_object();
+            release_weak();
         }
     }
-    void releaseWeak()
+    void release_weak()
     {
         if (--m_weak == 0) { DEALLOCATE_OBJECT(ControlBlock, this); }
     }
 
-    size_t getRefCount() const { return m_ref; }
-    size_t getWeakCount() const { return m_weak; }
+    size_t get_ref_count() const { return m_ref; }
+    size_t get_weak_count() const { return m_weak; }
 protected:
-    virtual void destroyObject() = 0;
+    virtual void destroy_object() = 0;
     virtual ~ControlBlock() = default;
 private:
     size_t m_ref = 1;
@@ -83,7 +83,7 @@ public:
 
     T* get() const { return m_obj; }
 private:
-    void destroyObject() override
+    void destroy_object() override
     {
         DEALLOCATE_OBJECT(T, m_obj);
         m_obj = nullptr;
@@ -111,12 +111,12 @@ public:
     explicit Ref(const Ref& other)
         : m_ptr(other.m_ptr), m_block(other.m_block)
     {
-        if (m_block) m_block->addRef();
+        if (m_block) m_block->add_ref();
     }
     Ref(T* ptr, ControlBlock* block)
         : m_ptr(ptr), m_block(block)
     {
-        if(m_block) m_block->addRef();
+        if(m_block) m_block->add_ref();
     }
     Ref(Ref&& other) noexcept
         : m_ptr(other.m_ptr), m_block(other.m_block)
@@ -125,14 +125,14 @@ public:
         other.m_block = nullptr;
     }
 
-    ~Ref() { if (m_block) m_block->releaseRef(); }
+    ~Ref() { if (m_block) m_block->release_ref(); }
 
     //operators
     Ref& operator=(Ref&& other) noexcept
     {
         if (this != &other)
         {
-            if (m_block) m_block->releaseRef();
+            if (m_block) m_block->release_ref();
             m_ptr = other.m_ptr;
             m_block = other.m_block;
             other.m_ptr = nullptr;
@@ -144,10 +144,10 @@ public:
     {
         if (this != &other)
         {
-            if (m_block) m_block->releaseRef();
+            if (m_block) m_block->release_ref();
             m_ptr = other.m_ptr;
             m_block = other.m_block;
-            if (m_block) m_block->addRef();
+            if (m_block) m_block->add_ref();
         }
         return *this;
     }
@@ -160,12 +160,12 @@ public:
     //tools
     [[nodiscard]] T* get() { return m_ptr; }
     [[nodiscard]] const T* get() const { return m_ptr; }
-    [[nodiscard]] bool compareOwner(const Ref& other) const noexcept { return m_block == other.m_block; }
-    [[nodiscard]] size_t getUsedCount() const { return m_block ? m_block->getRefCount() : 0; }
+    [[nodiscard]] bool compare_owner(const Ref& other) const noexcept { return m_block == other.m_block; }
+    [[nodiscard]] size_t get_used_count() const { return m_block ? m_block->get_ref_count() : 0; }
 
     void reset(T* ptr = nullptr)
     { 
-        if (m_block) m_block->releaseRef(); 
+        if (m_block) m_block->release_ref(); 
         if(!ptr)
         {
             m_ptr = nullptr;
@@ -174,7 +174,7 @@ public:
         }
         m_ptr = ptr;
         m_block = ALLOCATE_OBJECT(ControlBlockImpl<T>, m_ptr); 
-        if (m_block) m_block->addRef();
+        if (m_block) m_block->add_ref();
     }
 private:
     T* m_ptr = nullptr;
@@ -187,19 +187,19 @@ class Weak
 public:
     Weak() noexcept = default;
     Weak(yialite::nullptr_t) noexcept : Weak() {}
-    Weak(const Ref<T>& strong) noexcept : m_block(strong.m_block) { if (m_block) m_block->addWeak(); }
-    Weak(const Weak& other) noexcept : m_block(other.m_block) { if (m_block) m_block->addWeak(); }
+    Weak(const Ref<T>& strong) noexcept : m_block(strong.m_block) { if (m_block) m_block->add_weak(); }
+    Weak(const Weak& other) noexcept : m_block(other.m_block) { if (m_block) m_block->add_weak(); }
     Weak(Weak&& other) noexcept : m_block(other.m_block) { other.m_block = nullptr; }
-    ~Weak() { if (m_block) m_block->releaseWeak(); }
+    ~Weak() { if (m_block) m_block->release_weak(); }
 
     //operators
     Weak& operator=(const Weak& other) noexcept
     {
         if (this != &other)
         {
-            if (m_block) m_block->releaseWeak();
+            if (m_block) m_block->release_weak();
             m_block = other.m_block;
-            if (m_block) m_block->addWeak();
+            if (m_block) m_block->add_weak();
         }
         return *this;
     }
@@ -207,7 +207,7 @@ public:
     {
         if (this != &other)
         {
-            if (m_block) m_block->releaseWeak();
+            if (m_block) m_block->release_weak();
             m_block = other.m_block;
             other.m_block = nullptr;
         }
@@ -220,20 +220,20 @@ public:
         if (expired()) return nullptr;
         return Ref<T>(static_cast<ControlBlockImpl<T>*>(m_block)->get(), m_block);
     }
-    [[nodiscard]] bool compareOwner(const Weak& other) const noexcept { return m_block == other.m_block; }
-    [[nodiscard]] bool expired() const noexcept { return !m_block || m_block->getRefCount() == 0; }
-    [[nodiscard]] size_t getWeakCount() const { return m_block ? m_block->getWeakCount() : 0; }
+    [[nodiscard]] bool compare_owner(const Weak& other) const noexcept { return m_block == other.m_block; }
+    [[nodiscard]] bool expired() const noexcept { return !m_block || m_block->get_ref_count() == 0; }
+    [[nodiscard]] size_t get_weak_count() const { return m_block ? m_block->get_weak_count() : 0; }
 
     void reset() noexcept
     {
-        if (m_block) m_block->releaseWeak();
+        if (m_block) m_block->release_weak();
         m_block = nullptr;
     }
     void reset(const Ref<T>& strong) noexcept
     {
-        if (m_block) m_block->releaseWeak();
+        if (m_block) m_block->release_weak();
         m_block = strong.m_block;
-        if (m_block) m_block->addWeak();
+        if (m_block) m_block->add_weak();
     }
 
 private:
@@ -241,19 +241,19 @@ private:
 };
 
 template<typename T, typename ...Args>
-Scope<T> makeScope(Args&&... args)
+Scope<T> make_scope(Args&&... args)
 {
     return Scope<T>(ALLOCATE_OBJECT(T, yialite::forward<Args>(args)...));
 }
 
 template<typename T, typename ...Args>
-Ref<T> makeRef(Args&&... args)
+Ref<T> make_ref(Args&&... args)
 {
     return Ref<T>(ALLOCATE_OBJECT(T, yialite::forward<Args>(args)...));
 }
 
 template<typename T>
-Weak<T> makeWeak(const Ref<T>& ref)
+Weak<T> make_weak(const Ref<T>& ref)
 {
     return Weak<T>(ref);
 }

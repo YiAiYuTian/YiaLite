@@ -1,29 +1,27 @@
-#include "audio_manager.h"
-#include "../core/yialite_exception.h"
+﻿#include "audio_manager.h"
+#include "../core/error.h"
 #include "../core/logger.h"
 #include "../utils/memory/allocator.h"
 #include "../utils/containers/yia_hashmap.h"
 #include "../utils/string/yia_string.h"
 
-#include <miniaudio.h>
-#include "../thirdparty/miniaudio/libvorbis/miniaudio_libvorbis.h"
-#include <unordered_map>
-#include <string>
+#include <miniaudio_libvorbis.h>
+#include <algorithm>
 
 namespace yialite
 {
 
-void* yialiteMiniAudioMalloc(size_t sz, void* pUserData)
+void* yialite_miniaudio_malloc(size_t sz, void* pUserData)
 {
     return ALLOCATE_SIZED(sz);
 }
 
-void* yialiteMiniAudioRealloc(void *p, size_t sz, void *pUserData)
+void* yialite_miniaudio_realloc(void *p, size_t sz, void *pUserData)
 {
     return REALLOCATE_SIZED(p, sz);
 }
 
-void yialiteMiniAudioFree(void *p, void *pUserData)
+void yialite_miniaudio_free(void *p, void *pUserData)
 {
     DEALLOCATE(p);
 }
@@ -35,57 +33,105 @@ struct AudioManager::Impl
     HashMap<String, ma_sound*> sounds;
 };
 
-AudioManager::AudioManager()
+AudioManager::AudioManager(AudioManager&& other) noexcept
+    : m_impl(other.m_impl)
 {
-    m_impl = ALLOCATE_OBJECT(AudioManager::Impl);
+    other.m_impl = nullptr;
+}
+
+AudioManager& AudioManager::operator=(AudioManager&& other) noexcept
+{
+    if (this != &other)
+    {
+        if (m_impl)
+        {
+            for (auto pair : m_impl->sounds)
+            {
+                ma_sound_uninit(pair.second);
+                DEALLOCATE(pair.second);
+            }
+            m_impl->sounds.clear();
+            ma_engine_uninit(&m_impl->engine);
+            ma_resource_manager_uninit(&m_impl->resource_manager);
+            DEALLOCATE_OBJECT(AudioManager::Impl, m_impl);
+        }
+        m_impl = other.m_impl;
+        other.m_impl = nullptr;
+    }
+    return *this;
+}
+
+Result<AudioManager*> AudioManager::create()
+{
+    AudioManager* am = ALLOCATE_OBJECT(AudioManager);
+    am->m_impl = ALLOCATE_OBJECT(AudioManager::Impl);
 
     ma_result result;
-    ma_resource_manager_config resourceManagerConfig;
-    ma_engine_config engineConfig;
+    ma_resource_manager_config resource_manager_config;
+    ma_engine_config engine_config;
 
     ma_decoding_backend_vtable* pCustomBackendVTables[] = {
         ma_decoding_backend_libvorbis,
-        NULL
+        nullptr
     };
 
-    resourceManagerConfig = ma_resource_manager_config_init();
-    resourceManagerConfig.ppCustomDecodingBackendVTables = pCustomBackendVTables;
-    resourceManagerConfig.customDecodingBackendCount     = sizeof(pCustomBackendVTables) / sizeof(pCustomBackendVTables[0]);
-    resourceManagerConfig.pCustomDecodingBackendUserData = nullptr;
+    resource_manager_config = ma_resource_manager_config_init();
+    resource_manager_config.ppCustomDecodingBackendVTables = pCustomBackendVTables;
+    resource_manager_config.customDecodingBackendCount     = sizeof(pCustomBackendVTables) / sizeof(pCustomBackendVTables[0]);
+    resource_manager_config.pCustomDecodingBackendUserData = nullptr;
 
-    result = ma_resource_manager_init(&resourceManagerConfig, &m_impl->resource_manager);
+    result = ma_resource_manager_init(&resource_manager_config, &am->m_impl->resource_manager);
     if (result != MA_SUCCESS)
-        throw YiaLite_Exception("Failed to initialize ma resource manager: " + String(ma_result_description(result)));
+    {
+        DEALLOCATE_OBJECT(AudioManager::Impl, am->m_impl);
+        am->m_impl = nullptr;
+        DEALLOCATE_OBJECT(AudioManager, am);
+        return Result<AudioManager*>(ErrorCode::AudioEngineInitFailed, ma_result_description(result));
+    }
 
-    engineConfig = ma_engine_config_init();
-    engineConfig.pResourceManager = &m_impl->resource_manager;
-    engineConfig.allocationCallbacks.onMalloc   = yialiteMiniAudioMalloc;
-    engineConfig.allocationCallbacks.onRealloc  = yialiteMiniAudioRealloc;
-    engineConfig.allocationCallbacks.onFree     = yialiteMiniAudioFree;
+    engine_config = ma_engine_config_init();
+    engine_config.pResourceManager = &am->m_impl->resource_manager;
+    engine_config.allocationCallbacks.onMalloc   = yialite_miniaudio_malloc;
+    engine_config.allocationCallbacks.onRealloc  = yialite_miniaudio_realloc;
+    engine_config.allocationCallbacks.onFree     = yialite_miniaudio_free;
 
-    result = ma_engine_init(&engineConfig, &m_impl->engine);
+    result = ma_engine_init(&engine_config, &am->m_impl->engine);
     if (result != MA_SUCCESS)
-        throw YiaLite_Exception("Failed to initialize engine: " + String(ma_result_description(result)));
+    {
+        ma_resource_manager_uninit(&am->m_impl->resource_manager);
+        DEALLOCATE_OBJECT(AudioManager::Impl, am->m_impl);
+        am->m_impl = nullptr;
+        DEALLOCATE_OBJECT(AudioManager, am);
+        return Result<AudioManager*>(ErrorCode::AudioEngineInitFailed, ma_result_description(result));
+    }
 
     Logger::info("AudioManager initialized successfully");
+    return am;
 }
 
 AudioManager::~AudioManager()
 {
-    for(auto pair : m_impl->sounds)
+    if (!m_impl) return;
+
+    for (auto pair : m_impl->sounds)
     {
         ma_sound_uninit(pair.second);
         DEALLOCATE(pair.second);
     }
     m_impl->sounds.clear();
-    
+
     ma_engine_uninit(&m_impl->engine);
     ma_resource_manager_uninit(&m_impl->resource_manager);
     DEALLOCATE_OBJECT(AudioManager::Impl, m_impl);
     m_impl = nullptr;
 }
 
-bool AudioManager::addSound(const char* name, const char* path)
+void AudioManager::destroy(AudioManager* manager)
+{
+    DEALLOCATE_OBJECT(AudioManager, manager);
+}
+
+Result<void> AudioManager::add_sound(const char* name, const char* path)
 {
     ma_result result;
     String sound_name(name);
@@ -97,45 +143,42 @@ bool AudioManager::addSound(const char* name, const char* path)
     if (result != MA_SUCCESS)
     {
         DEALLOCATE(sound);
-        return false;
+        return Result<void>(ErrorCode::SoundLoadFailed, ma_result_description(result));
     }
 
     m_impl->sounds.emplace(yialite::move(sound_name), yialite::move(sound));
-    Logger::info("Sound '{}' added to system", name);
-    return true;
+    return ok();
 }
 
-bool AudioManager::replaceSound(const char* name, const char* path)
+Result<void> AudioManager::replace_sound(const char* name, const char* path)
 {
     String key(name);
-    if(auto value = m_impl->sounds.find(key); value)
+    if (auto value = m_impl->sounds.find(key); value)
     {
         ma_sound_uninit(*value);
         DEALLOCATE(*value);
         m_impl->sounds.remove(key);
-        return addSound(name, path);
+        return add_sound(name, path);
     }
-    Logger::warn("Sound '{}' not found, replace failed", name);
-    return false;
+    return Result<void>(ErrorCode::SoundNotFound, "Sound '" + String(name) + "' not found, replace failed");
 }
 
-void AudioManager::removeSound(const char* name)
+Result<void> AudioManager::remove_sound(const char* name)
 {
     String key(name);
-    if(auto value = m_impl->sounds.find(key); value)
+    if (auto value = m_impl->sounds.find(key); value)
     {
         ma_sound_uninit(*value);
         DEALLOCATE(*value);
         m_impl->sounds.remove(key);
-        Logger::info("Sound '{}' removed from system", key);
-        return;
+        return ok();
     }
-    Logger::warn("Sound '{}' not found, remove failed", key);
+	return Result<void>(ErrorCode::SoundNotFound, "Sound '" + String(name) + "' not found, remove failed");
 }
 
-void AudioManager::removeAllSounds()
+void AudioManager::remove_all_sounds()
 {
-    for(auto pair : m_impl->sounds)
+    for (auto pair : m_impl->sounds)
     {
         ma_sound_uninit(pair.second);
         DEALLOCATE(pair.second);
@@ -143,47 +186,44 @@ void AudioManager::removeAllSounds()
     m_impl->sounds.clear();
 }
 
-bool AudioManager::hasSound(const char* name) const
+bool AudioManager::has_sound(const char* name) const
 {
     return m_impl->sounds.find(String(name), nullptr);
 }
 
-bool AudioManager::playSound(const char* path)
+Result<void> AudioManager::play_sound(const char* path)
 {
     ma_result result;
     result = ma_engine_play_sound(&m_impl->engine, path, nullptr);
-    if(result != MA_SUCCESS)
+    if (result != MA_SUCCESS)
     {
-        Logger::error("Failed to play sound '{}': {}", path, ma_result_description(result));
-        return false;
+        return Result<void>(ErrorCode::SoundPlayFailed, "Failed to play sound '" + String(path) + "' :" + ma_result_description(result));
     }
-    return true;
+    return ok();
 }
 
-bool AudioManager::playSoundFromName(const char* name, bool loop, float volume)
+Result<void> AudioManager::play_sound_from_name(const char* name, bool loop, float volume)
 {
     String key(name);
-    if(auto value = m_impl->sounds.find(key); value)
+    if (auto value = m_impl->sounds.find(key); value)
     {
         ma_result result;
-        if(loop) ma_sound_set_looping(*value, MA_TRUE);
+        if (loop) ma_sound_set_looping(*value, MA_TRUE);
         volume = std::clamp(volume, 0.0f, 1.0f);
         ma_sound_set_volume(*value, volume);
 
         result = ma_sound_start(*value);
-        if(result != MA_SUCCESS)
+        if (result != MA_SUCCESS)
         {
-            Logger::error("Failed to play sound '{}': {}", name, ma_result_description(result));
-            return false;
+			return Result<void>(ErrorCode::SoundPlayFailed, "Failed to play sound '" + String(name) + "' :" + ma_result_description(result));
         }
-        return true;
+        return ok();
     }
 
-    Logger::warn("Sound '{}' not found", name);
-    return false;
+    return Result<void>(ErrorCode::SoundNotFound, "Sound '" + String(name) + "' not found");
 }
 
-size_t AudioManager::getSoundCount() const
+size_t AudioManager::get_sound_count() const
 {
     return m_impl->sounds.size();
 }

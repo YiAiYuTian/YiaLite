@@ -12,7 +12,7 @@ StringView::StringView(const char *str) noexcept
 }
 
 StringView::StringView(const String &str) noexcept
-    : m_data(str.cStr()), m_length(str.length())
+    : m_data(str.c_str()), m_length(str.length())
 {
 }
 
@@ -21,7 +21,7 @@ StringView::StringView(const char *str, size_t length) noexcept
 {
 }
 
-StringView StringView::subStr(size_t pos, size_t len) const noexcept
+StringView StringView::sub_str(size_t pos, size_t len) const noexcept
 {
     if (pos >= m_length) return StringView{};
     size_t new_len = (pos + len > m_length) ? m_length - pos : len;

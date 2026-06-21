@@ -157,7 +157,7 @@ struct HashKey<yialite::String>
 {
     size_t operator()(const yialite::String& str) const
     {
-        return HashKey<const char*>{}(str.cStr());
+        return HashKey<const char*>{}(str.c_str());
     }
 };
 

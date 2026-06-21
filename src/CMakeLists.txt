@@ -1,0 +1,128 @@
+﻿if((LIBRARY_LINKAGE STREQUAL "static"))
+  add_library(${PROJECT_NAME} STATIC)
+else()
+  add_library(${PROJECT_NAME} SHARED)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE YIALITE_EXPORTS YIALITE_SHARED)
+endif()
+
+add_library(YiaLite::YiaLite ALIAS ${PROJECT_NAME})
+
+if(MSVC AND DEFINED CRT_LINKAGE)
+  if(CRT_LINKAGE STREQUAL "static")
+    set_property(TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  else()
+    set_property(TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+  endif()
+endif()
+
+set(YIA_HEADERS
+  "audio/audio_manager.h"
+  "core/config.h"
+  "core/context.h"
+  "core/core.h"
+  "core/error.h"
+  "core/result.h"
+  "core/initialize.h"
+  "core/log.h"
+  "devui/devui.h"
+  "event/event.h"
+  "event/keycode.h"
+  "event/mouse_button.h"
+  "input/input.h"
+  "input/scancode.h"
+  "math/math.h"
+  "renderer/renderer2d.h"
+  "renderer/render_color.h"
+  "renderer/texture/texture2d.h"
+  "utils/containers/yia_hashmap.h"
+  "utils/containers/yia_list.h"
+  "utils/containers/yia_pair.h"
+  "utils/memory/allocator.h"
+  "utils/memory/mem_pool.h"
+  "utils/memory/memory.h"
+  "utils/string/yia_string.h"
+  "utils/string/yia_string_view.h"
+  "utils/utility.h"
+  "utils/singleton.h"
+  "utils/hash_key.h"
+  "utils/delegate.h"
+  "utils/base_types.h"
+  "window/window.h"
+ "core/result_export.h")
+
+set(YIA_SOURCES
+  "core/logger.cpp"
+  "core/context.cpp"
+  "core/initialize.cpp"
+  "core/log.cpp"
+  "audio/audio_manager.cpp"
+  "input/input.cpp"
+  "window/window.cpp"
+  "renderer/renderer2d.cpp"
+  "renderer/texture/texture2d.cpp"
+  "event/event.cpp"
+  "devui/devui.cpp"
+  "utils/memory/allocator.cpp"
+  "utils/memory/mem_pool.cpp"
+  "utils/string/yia_string.cpp"
+  "utils/string/yia_string_view.cpp"
+)
+
+set(THIRDPARTY_SOURSES
+  "thirdparty/miniaudio/miniaudio.cpp"
+  "${CMAKE_SOURCE_DIR}/thirdparty/miniaudio/extras/decoders/libvorbis/miniaudio_libvorbis.c"
+
+  "thirdparty/stb_image/stb_image.cpp"
+
+  "${CMAKE_SOURCE_DIR}/thirdparty/imgui/imgui.cpp"
+  "${CMAKE_SOURCE_DIR}/thirdparty/imgui/imgui_demo.cpp"
+  "${CMAKE_SOURCE_DIR}/thirdparty/imgui/imgui_draw.cpp"
+  "${CMAKE_SOURCE_DIR}/thirdparty/imgui/imgui_tables.cpp"
+  "${CMAKE_SOURCE_DIR}/thirdparty/imgui/imgui_widgets.cpp"
+  "${CMAKE_SOURCE_DIR}/thirdparty/imgui/backends/imgui_impl_sdl3.cpp"
+  "${CMAKE_SOURCE_DIR}/thirdparty/imgui/backends/imgui_impl_sdlrenderer3.cpp"
+)
+
+target_sources(${PROJECT_NAME} PRIVATE ${YIA_SOURCES} ${YIA_HEADERS} ${THIRDPARTY_SOURSES})
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/thirdparty/imgui>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/thirdparty/miniaudio/extras/decoders/libvorbis/>
+    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:include/yialite/imgui>
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/thirdparty/imgui/backends
+    ${CMAKE_SOURCE_DIR}/thirdparty/miniaudio
+    ${CMAKE_SOURCE_DIR}/thirdparty/stb
+)
+
+# ===========================================================================
+# Link dependencies — all PRIVATE, all wrapped in $<BUILD_INTERFACE:>
+#
+# Why BUILD_INTERFACE:
+#   - install(EXPORT) validates that referenced targets are in an export set.
+#   - SDL3-static / spdlog / vorbisfile / ogg are add_subdirectory targets,
+#     NOT exported → CMake errors out without the wrapper.
+#   - $<BUILD_INTERFACE:> tells CMake these deps only exist at build time;
+#     the installed YiaLiteTargets.cmake will be clean (no third-party refs).
+#
+# Why this works for DLL consumers:
+#   - All third-party symbols are already resolved inside YiaLite.dll at link
+#     time (static libs absorbed into the DLL).
+#   - Consumer links only YiaLite.lib (import lib) → zero unresolved symbols.
+#   - Consumer never needs to link SDL3 / spdlog / vorbis / ogg themselves.
+# ===========================================================================
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+    $<BUILD_INTERFACE:SDL3::SDL3-static>
+    $<BUILD_INTERFACE:spdlog::spdlog>
+    $<BUILD_INTERFACE:Vorbis::vorbisfile>
+    $<BUILD_INTERFACE:Ogg::ogg>
+)
+
+target_compile_definitions(${PROJECT_NAME}
+  PRIVATE
+    IMGUI_DEFINE_MATH_OPERATORS
+)

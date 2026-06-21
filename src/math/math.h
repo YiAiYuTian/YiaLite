@@ -140,8 +140,8 @@ struct Vector2Base
         return self;
     }
 
-    constexpr T* getData() noexcept { return &static_cast<Derived&>(*this)[0]; }
-    constexpr const T* getData() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
+    constexpr T* get_data() noexcept { return &static_cast<Derived&>(*this)[0]; }
+    constexpr const T* get_data() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
     
     constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0]; }
     constexpr const T* begin() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
@@ -314,8 +314,8 @@ struct Vector3Base
         return self;
     }
 
-    constexpr T* getData() noexcept { return &static_cast<Derived&>(*this)[0]; }
-    constexpr const T* getData() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
+    constexpr T* get_data() noexcept { return &static_cast<Derived&>(*this)[0]; }
+    constexpr const T* get_data() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
     
     constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0]; }
     constexpr const T* begin() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
@@ -512,8 +512,8 @@ struct Vector4Base
         return self;
     }
 
-    constexpr T* getData() noexcept { return &static_cast<Derived&>(*this)[0]; }
-    constexpr const T* getData() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
+    constexpr T* get_data() noexcept { return &static_cast<Derived&>(*this)[0]; }
+    constexpr const T* get_data() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
     
     constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0]; }
     constexpr const T* begin() const noexcept { return &static_cast<const Derived&>(*this)[0]; }
@@ -778,8 +778,8 @@ struct Matrix3Base
         return self;
     }
 
-    constexpr T* getData() noexcept { return &static_cast<Derived&>(*this)[0][0]; }
-    constexpr const T* getData() const noexcept { return &static_cast<const Derived&>(*this)[0][0]; }
+    constexpr T* get_data() noexcept { return &static_cast<Derived&>(*this)[0][0]; }
+    constexpr const T* get_data() const noexcept { return &static_cast<const Derived&>(*this)[0][0]; }
     
     constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0][0]; }
     constexpr const T* begin() const noexcept { return &static_cast<const Derived&>(*this)[0][0]; }
@@ -960,8 +960,8 @@ struct Matrix4Base
         return self;
     }
 
-    constexpr T* getData() noexcept { return &static_cast<Derived&>(*this)[0][0]; }
-    constexpr const T* getData() const noexcept { return &static_cast<const Derived&>(*this)[0][0]; }
+    constexpr T* get_data() noexcept { return &static_cast<Derived&>(*this)[0][0]; }
+    constexpr const T* get_data() const noexcept { return &static_cast<const Derived&>(*this)[0][0]; }
     
     constexpr T* begin() noexcept { return &static_cast<Derived&>(*this)[0][0]; }
     constexpr const T* begin() const noexcept { return &static_cast<const Derived&>(*this)[0][0]; }
@@ -1043,17 +1043,17 @@ static_assert(std::is_standard_layout_v<Matrix4f>, "must be C layout");
 //tools
 
 //vector
-[[nodiscard]] constexpr inline float lengthSquared(const Vector2f& v) noexcept
+[[nodiscard]] constexpr inline float length_squared(const Vector2f& v) noexcept
 {
     return v.x * v.x + v.y * v.y;
 }
 
-[[nodiscard]] constexpr inline float lengthSquared(const Vector3f& v) noexcept
+[[nodiscard]] constexpr inline float length_squared(const Vector3f& v) noexcept
 {
     return v.x * v.x + v.y * v.y + v.z * v.z;
 }
 
-[[nodiscard]] constexpr inline float lengthSquared(const Vector4f& v) noexcept
+[[nodiscard]] constexpr inline float length_squared(const Vector4f& v) noexcept
 {
     return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
 }
@@ -1090,7 +1090,7 @@ static_assert(std::is_standard_layout_v<Matrix4f>, "must be C layout");
 template <typename T>
 [[nodiscard]] constexpr float length(const T& v) noexcept
 {
-    return std::sqrt(lengthSquared(v));
+    return std::sqrt(length_squared(v));
 }
 
 template <typename T>
@@ -1102,9 +1102,9 @@ template <typename T>
 }
 
 template<typename T>
-[[nodiscard]] constexpr float distanceSquared(const T& a, const T& b) noexcept
+[[nodiscard]] constexpr float distance_squared(const T& a, const T& b) noexcept
 {
-    return lengthSquared(b - a);
+    return length_squared(b - a);
 }
 
 template<typename T>
@@ -1311,7 +1311,7 @@ template<typename T>
     return result;
 }
 
-[[nodiscard]] constexpr inline Matrix4f lookAtRH(const Vector3f& eye, const Vector3f& center, const Vector3f& up) noexcept
+[[nodiscard]] constexpr inline Matrix4f look_at_rh(const Vector3f& eye, const Vector3f& center, const Vector3f& up) noexcept
 {
     const Vector3f f(normalize(center - eye));
     const Vector3f s(normalize(cross(f, up)));
@@ -1333,7 +1333,7 @@ template<typename T>
     return result;
 }
 
-[[nodiscard]] constexpr inline Matrix4f lookAtLH(const Vector3f& eye, const Vector3f& center, const Vector3f& up) noexcept
+[[nodiscard]] constexpr inline Matrix4f look_at_lh(const Vector3f& eye, const Vector3f& center, const Vector3f& up) noexcept
 {
     const Vector3f f(normalize(center - eye));
     const Vector3f s(normalize(cross(up, f)));
@@ -1355,16 +1355,16 @@ template<typename T>
     return result;
 }
 
-[[nodiscard]] constexpr inline Matrix4f lookAt(const Vector3f& eye, const Vector3f& center, const Vector3f& up) noexcept
+[[nodiscard]] constexpr inline Matrix4f look_at(const Vector3f& eye, const Vector3f& center, const Vector3f& up) noexcept
 {
     #if defined(YIALITE_CLIP_RH)
-        return lookAtRH(eye, center, up);
+        return look_at_rh(eye, center, up);
     #else
-        return lookAtLH(eye, center, up);
+        return look_at_lh(eye, center, up);
     #endif
 }
 
-[[nodiscard]] constexpr inline Matrix4f orthoRH_NO(float left, float right, float bottom, float top, float z_near, float z_far) noexcept
+[[nodiscard]] constexpr inline Matrix4f ortho_rh_no(float left, float right, float bottom, float top, float z_near, float z_far) noexcept
 {
     Matrix4f result(1.0f);
     result[0][0] =  2.0f / (right - left);
@@ -1376,7 +1376,7 @@ template<typename T>
     return result;
 }
 
-[[nodiscard]] constexpr inline Matrix4f orthoRH_ZO(float left, float right, float bottom, float top, float z_near, float z_far) noexcept
+[[nodiscard]] constexpr inline Matrix4f ortho_rh_zo(float left, float right, float bottom, float top, float z_near, float z_far) noexcept
 {
     Matrix4f result(1.0f);
     result[0][0] =  2.0f / (right - left);
@@ -1388,7 +1388,7 @@ template<typename T>
     return result;
 }
 
-[[nodiscard]] constexpr inline Matrix4f orthoLH_ZO(float left, float right, float bottom, float top, float z_near, float z_far) noexcept
+[[nodiscard]] constexpr inline Matrix4f ortho_lh_zo(float left, float right, float bottom, float top, float z_near, float z_far) noexcept
 {    
     Matrix4f result(1.0f);
     result[0][0] =  2.0f / (right - left);
@@ -1403,17 +1403,17 @@ template<typename T>
 [[nodiscard]] constexpr inline Matrix4f ortho(float left, float right, float bottom, float top, float z_near, float z_far) noexcept
 {
     #if defined(YIALITE_CLIP_RH) && defined(YIALITE_CLIP_NO)
-        return orthoRH_NO(left, right, bottom, top, z_near, z_far);
+        return ortho_rh_no(left, right, bottom, top, z_near, z_far);
     #elif defined(YIALITE_CLIP_RH) && defined(YIALITE_CLIP_ZO)
-        return orthoRH_ZO(left, right, bottom, top, z_near, z_far);
+        return ortho_rh_zo(left, right, bottom, top, z_near, z_far);
     #elif defined(YIALITE_CLIP_LH) && defined(YIALITE_CLIP_ZO)
-        return orthoLH_ZO(left, right, bottom, top, z_near, z_far);
+        return ortho_lh_zo(left, right, bottom, top, z_near, z_far);
     #else
-        return orthoLH_ZO(left, right, bottom, top, z_near, z_far);
+        return ortho_lh_zo(left, right, bottom, top, z_near, z_far);
     #endif
 }
 
-[[nodiscard]] inline Matrix4f perspectiveRH_NO(float fovy, float aspect, float z_near, float z_far) noexcept
+[[nodiscard]] inline Matrix4f perspective_rh_no(float fovy, float aspect, float z_near, float z_far) noexcept
 {
     YIALITE_ASSERT(aspect > std::numeric_limits<float>::epsilon() * TOLERANCE_SCALE && "aspect must be greater than 0");
 
@@ -1428,7 +1428,7 @@ template<typename T>
     return result;
 }
 
-[[nodiscard]] inline Matrix4f perspectiveRH_ZO(float fovy, float aspect, float z_near, float z_far) noexcept
+[[nodiscard]] inline Matrix4f perspective_rh_zo(float fovy, float aspect, float z_near, float z_far) noexcept
 {
     YIALITE_ASSERT(aspect > std::numeric_limits<float>::epsilon() * TOLERANCE_SCALE && "aspect must be greater than 0");
 
@@ -1443,7 +1443,7 @@ template<typename T>
     return result;
 }
 
-[[nodiscard]] inline Matrix4f perspectiveLH_ZO(float fovy, float aspect, float z_near, float z_far) noexcept
+[[nodiscard]] inline Matrix4f perspective_lh_zo(float fovy, float aspect, float z_near, float z_far) noexcept
 {
     YIALITE_ASSERT(aspect > std::numeric_limits<float>::epsilon() * TOLERANCE_SCALE && "aspect must be greater than 0");
 
@@ -1461,13 +1461,13 @@ template<typename T>
 [[nodiscard]] inline Matrix4f perspective(float fovy, float aspect, float z_near, float z_far) noexcept
 {
     #if defined(YIALITE_CLIP_RH) && defined(YIALITE_CLIP_NO)
-        return perspectiveRH_NO(fovy, aspect, z_near, z_far);
+        return perspective_rh_no(fovy, aspect, z_near, z_far);
     #elif defined(YIALITE_CLIP_RH) && defined(YIALITE_CLIP_ZO)
-        return perspectiveRH_ZO(fovy, aspect, z_near, z_far);
+        return perspective_rh_zo(fovy, aspect, z_near, z_far);
     #elif defined(YIALITE_CLIP_LH) && defined(YIALITE_CLIP_ZO)
-        return perspectiveLH_ZO(fovy, aspect, z_near, z_far);
+        return perspective_lh_zo(fovy, aspect, z_near, z_far);
     #else
-        return perspectiveLH_ZO(fovy, aspect, z_near, z_far);
+        return perspective_lh_zo(fovy, aspect, z_near, z_far);
     #endif
 }
 

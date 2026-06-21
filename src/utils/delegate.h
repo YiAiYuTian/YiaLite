@@ -36,7 +36,7 @@ struct DelegateImpl<Ret(Args...)>
     {
         CallableBase* m_callable = nullptr;
 
-        bool isEmpty() const
+        bool is_empty() const
         {
             return m_callable == nullptr;
         }
@@ -49,7 +49,7 @@ struct DelegateImpl<Ret(Args...)>
             m_callable = ALLOCATE_OBJECT(Callable<Fx>, yialite::forward<Fx>(func));
         }
 
-        void resetMove(Type&& other)
+        void reset_move(Type&& other)
         {
             DEALLOCATE_OBJECT(CallableBase, m_callable);
             m_callable = nullptr;
@@ -95,12 +95,12 @@ public:
 
     Delegate(Delegate&& other) noexcept
     {
-        this->resetMove(yialite::move(other));
+        this->reset_move(yialite::move(other));
     }
 
     Delegate& operator=(Delegate&& other) noexcept
     {
-        if (this != &other) this->resetMove(yialite::move(other));
+        if (this != &other) this->reset_move(yialite::move(other));
         return *this;
     }
 
@@ -119,7 +119,7 @@ public:
 
     explicit operator bool() const noexcept
     {
-        return !this->isEmpty();
+        return !this->is_empty();
     }
 
     ~Delegate() = default;

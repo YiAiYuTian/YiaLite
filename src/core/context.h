@@ -3,6 +3,7 @@
 
 #include "core.h"
 #include "config.h"
+#include "result.h"
 
 namespace yialite
 {
@@ -12,16 +13,24 @@ class Renderer2D;
 class Event;
 class DevUI;
 
-struct YIALITE_API Context
+class YIALITE_API Context
 {
-    Context(const ContextConfig& config);
+public:
     ~Context();
-    struct Initializer;
-    Initializer* initializer = nullptr;
+    Context(const Context&) = delete;
+    Context& operator=(const Context&) = delete;
+    Context(Context&& other) noexcept;
+    Context& operator=(Context&& other) noexcept;
+
+    static Result<Context*> create(const ContextConfig& config);
+    static void destroy(Context* context);
+
     Window* window = nullptr;
     Renderer2D* renderer2d = nullptr;
     Event* event = nullptr;
     DevUI* devui = nullptr;
+private:
+    Context() = default;
 };
 
 }

@@ -18,7 +18,7 @@ public:
     String(String&& str) noexcept;
     ~String() noexcept;
 
-    [[nodiscard]] const char* cStr() const noexcept;
+    [[nodiscard]] const char* c_str() const noexcept;
     [[nodiscard]] char* data() noexcept;
     [[nodiscard]] const char* data() const noexcept;
 
@@ -52,22 +52,22 @@ public:
     void append(const String& str, size_t pos, size_t count = npos);
     void clear();
     String& erase(size_t pos, size_t count = npos);
-    [[nodiscard]] String subStr(size_t pos, size_t count = npos) const;
+    [[nodiscard]] String sub_str(size_t pos, size_t count = npos) const;
     [[nodiscard]] bool   empty() const noexcept;
     [[nodiscard]] size_t find(const char* str, size_t pos = 0) const;
     [[nodiscard]] size_t find(const String& str, size_t pos = 0) const;
-    [[nodiscard]] size_t findFirstOf(const char* str, size_t pos = 0) const;
-    [[nodiscard]] size_t findFirstOf(const String& str, size_t pos = 0) const;
-    [[nodiscard]] size_t findFirstNotOf(const char* str, size_t pos = 0) const;
-    [[nodiscard]] size_t findFirstNotOf(const String& str, size_t pos = 0) const;
-    [[nodiscard]] size_t findLastOf(const char* str, size_t pos = npos) const;
-    [[nodiscard]] size_t findLastOf(const String& str, size_t pos = npos) const;
-    [[nodiscard]] size_t findLastNotOf(const char* str, size_t pos = npos) const;
-    [[nodiscard]] size_t findLastNotOf(const String& str, size_t pos = npos) const;
+    [[nodiscard]] size_t find_first_of(const char* str, size_t pos = 0) const;
+    [[nodiscard]] size_t find_first_of(const String& str, size_t pos = 0) const;
+    [[nodiscard]] size_t find_first_not_of(const char* str, size_t pos = 0) const;
+    [[nodiscard]] size_t find_first_not_of(const String& str, size_t pos = 0) const;
+    [[nodiscard]] size_t find_last_of(const char* str, size_t pos = npos) const;
+    [[nodiscard]] size_t find_last_of(const String& str, size_t pos = npos) const;
+    [[nodiscard]] size_t find_last_not_of(const char* str, size_t pos = npos) const;
+    [[nodiscard]] size_t find_last_not_of(const String& str, size_t pos = npos) const;
 public:
     static constexpr size_t npos = static_cast<size_t>(-1);
 private:
-    size_t calculateCapacity(size_t length) const;
+    size_t calculate_capacity(size_t length) const;
 private:
     char* m_data = nullptr;
     size_t m_length = 0;
