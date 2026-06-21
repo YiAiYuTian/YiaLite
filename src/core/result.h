@@ -20,7 +20,7 @@ struct ErrorTag {};
 } // namespace detail
 
 template <typename T>
-class YIALITE_API Result
+class Result
 {
 public:
     Result(const T& value) : m_has_value(true) { construct_value(value); }
