@@ -1,106 +1,13 @@
-cmake_minimum_required(VERSION 3.10.0)
+﻿cmake_minimum_required(VERSION 3.21)
 project(YiaLite VERSION 0.1.1 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
-find_package(SDL3 CONFIG REQUIRED)
-find_package(spdlog CONFIG REQUIRED)
-find_package(Vorbis CONFIG REQUIRED)
-find_package(imgui CONFIG REQUIRED)
-find_package(Stb REQUIRED)
-
-find_path(MINIAUDIO_INCLUDE_DIRS "miniaudio.h")
-
-if((LIBRARY_LINKAGE STREQUAL "static") OR (NOT BUILD_SHARED_LIBS))
-  add_library(${PROJECT_NAME} STATIC)
-else()
-  add_library(${PROJECT_NAME} SHARED)
-  target_compile_definitions(${PROJECT_NAME} PRIVATE YIALITE_EXPORTS YIALITE_SHARED)
-endif()
-
-add_library(YiaLite::YiaLite ALIAS ${PROJECT_NAME})
-
-if(MSVC AND DEFINED CRT_LINKAGE)
-  if(CRT_LINKAGE STREQUAL "static")
-    set_property(TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-  else()
-    set_property(TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-  endif()
-endif()
-
-set(YIA_HEADERS "src/audio/audio_manager.h"
-                "src/core/config.h"
-                "src/core/context.h"
-                "src/core/core.h"
-                "src/core/initialize.h"
-                "src/core/log.h"
-                "src/core/yialite_exception.h"
-                "src/devui/devui.h"
-                "src/event/event.h"
-                "src/event/keycode.h"
-                "src/event/mouse_button.h"
-                "src/input/input.h"
-                "src/input/scancode.h"
-                "src/math/math.h"
-                "src/renderer/renderer2d.h"
-                "src/renderer/render_color.h"
-                "src/renderer/texture/texture2d.h"
-                "src/utils/containers/yia_hashmap.h"
-                "src/utils/containers/yia_list.h"
-                "src/utils/containers/yia_pair.h"
-                "src/utils/memory/allocator.h"
-                "src/utils/memory/memory_pool.h"
-                "src/utils/memory/memory.h"
-                "src/utils/string/yia_string.h"
-                "src/utils/string/yia_string_view.h"
-                "src/utils/utility.h"
-                "src/utils/singleton.h"
-                "src/utils/hash_key.h"
-                "src/utils/delegate.h"
-                "src/utils/base_types.h"
-                "src/window/window.h"
-)
-
-set(YIA_SOURCES "src/core/logger.cpp"
-                "src/core/context.cpp"
-                "src/core/initialize.cpp"
-                "src/core/log.cpp"
-                "src/audio/audio_manager.cpp"
-                "src/input/input.cpp"
-                "src/window/window.cpp"
-                "src/renderer/renderer2d.cpp"
-                "src/renderer/texture/texture2d.cpp"
-                "src/event/event.cpp"
-                "src/devui/devui.cpp"
-                "src/utils/memory/allocator.cpp"
-                "src/utils/memory/memory_pool.cpp"
-                "src/utils/string/yia_string.cpp"
-                "src/utils/string/yia_string_view.cpp"
-                "src/thirdparty/miniaudio/miniaudio.cpp"
-                "src/thirdparty/miniaudio/libvorbis/miniaudio_libvorbis.c"
-                "src/thirdparty/stb_image/stb_image.cpp"
-)
-
-target_sources(${PROJECT_NAME} PRIVATE ${YIA_SOURCES} ${YIA_HEADERS})
-
-target_include_directories(${PROJECT_NAME} 
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-    $<INSTALL_INTERFACE:include>
-  PRIVATE 
-    ${Stb_INCLUDE_DIR}
-    ${MINIAUDIO_INCLUDE_DIRS}
-)
-
-target_link_libraries(${PROJECT_NAME} 
-  PRIVATE 
-    SDL3::SDL3
-    spdlog::spdlog_header_only
-    Vorbis::vorbisfile
-  PUBLIC
-    imgui::imgui
-)
+add_subdirectory(thirdparty)
+add_subdirectory(src)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -109,10 +16,20 @@ install(
   DIRECTORY src/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/yialite
   FILES_MATCHING PATTERN "*.h"
-
   PATTERN "thirdparty" EXCLUDE
   PATTERN "logger.h" EXCLUDE
-  PATTERN "miniaudio_libvorbis.h" EXCLUDE
+  PATTERN "mem_pool.h" EXCLUDE
+)
+
+install(
+  FILES 
+    "thirdparty/imgui/imconfig.h"
+    "thirdparty/imgui/imgui.h"
+    "thirdparty/imgui/imgui_internal.h"
+    "thirdparty/imgui/imstb_rectpack.h"
+    "thirdparty/imgui/imstb_textedit.h"
+    "thirdparty/imgui/imstb_truetype.h"
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/yialite/imgui
 )
 
 if(NOT DEFINED PORT)
@@ -121,11 +38,32 @@ if(NOT DEFINED PORT)
     DESTINATION ${CMAKE_INSTALL_DATADIR}/yialite
   )
   install(
-    DIRECTORY licenses/
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/yialite/licenses
-    FILES_MATCHING
-      PATTERN "LICENSE"
-      PATTERN "LICENSE.txt"
+    FILES "thirdparty/imgui/LICENSE.txt"
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/yialite/licenses/imgui
+  )
+  install(
+    FILES "thirdparty/miniaudio/LICENSE"
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/yialite/licenses/miniaudio
+  )
+  install(
+    FILES "thirdparty/ogg/COPYING"
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/yialite/licenses/ogg
+  )
+  install(
+    FILES "thirdparty/SDL/LICENSE.txt"
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/yialite/licenses/SDL
+  )
+  install(
+    FILES "thirdparty/spdlog/LICENSE"
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/yialite/licenses/spdlog
+  )
+  install(
+    FILES "thirdparty/stb/LICENSE"
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/yialite/licenses/stb
+  )
+  install(
+    FILES "thirdparty/vorbis/COPYING"
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/yialite/licenses/vorbis
   )
 endif()
 
