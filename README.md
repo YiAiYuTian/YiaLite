@@ -7,3 +7,5 @@ As a beginner in C++, I casually wrote this library. There are many areas that a
 * [spdlog](https://github.com/gabime/spdlog)
 * [vorbis](https://github.com/xiph/vorbis)
 * [miniaudio](https://github.com/mackron/miniaudio)
+* [ogg](https://github.com/xiph/ogg)
+* [stb](https://github.com/nothings/stb)
