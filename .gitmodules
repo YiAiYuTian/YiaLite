@@ -7,6 +7,7 @@
 [submodule "thirdparty/ogg"]
 	path = thirdparty/ogg
 	url = https://github.com/YiAiYuTian/ogg
+	branch = main
 [submodule "thirdparty/SDL"]
 	path = thirdparty/SDL
 	url = https://github.com/YiAiYuTian/SDL
@@ -19,3 +20,4 @@
 [submodule "thirdparty/vorbis"]
 	path = thirdparty/vorbis
 	url = https://github.com/YiAiYuTian/vorbis
+	branch = main
