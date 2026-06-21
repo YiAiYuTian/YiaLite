@@ -48,7 +48,7 @@ set(YIA_HEADERS
   "utils/delegate.h"
   "utils/base_types.h"
   "window/window.h"
- "core/result_export.h")
+  "core/result_export.h")
 
 set(YIA_SOURCES
   "core/logger.cpp"
@@ -98,22 +98,6 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_SOURCE_DIR}/thirdparty/stb
 )
 
-# ===========================================================================
-# Link dependencies — all PRIVATE, all wrapped in $<BUILD_INTERFACE:>
-#
-# Why BUILD_INTERFACE:
-#   - install(EXPORT) validates that referenced targets are in an export set.
-#   - SDL3-static / spdlog / vorbisfile / ogg are add_subdirectory targets,
-#     NOT exported → CMake errors out without the wrapper.
-#   - $<BUILD_INTERFACE:> tells CMake these deps only exist at build time;
-#     the installed YiaLiteTargets.cmake will be clean (no third-party refs).
-#
-# Why this works for DLL consumers:
-#   - All third-party symbols are already resolved inside YiaLite.dll at link
-#     time (static libs absorbed into the DLL).
-#   - Consumer links only YiaLite.lib (import lib) → zero unresolved symbols.
-#   - Consumer never needs to link SDL3 / spdlog / vorbis / ogg themselves.
-# ===========================================================================
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
     $<BUILD_INTERFACE:SDL3::SDL3-static>

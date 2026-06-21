@@ -1,19 +1,4 @@
-﻿# ===========================================================================
-# Third-party libraries — all built as STATIC, absorbed into YiaLite.dll
-#
-# CRITICAL: Every third-party must be STATIC. If any becomes SHARED (DLL),
-# its code lives outside YiaLite.dll → consumer would need that DLL too.
-# This breaks our "only YiaLite.dll needed" contract.
-#
-# Strategy:
-#   1. Set BUILD_SHARED_LIBS=OFF as a NORMAL variable (not CACHE FORCE)
-#      — normal vars override cache in the same scope, more reliable
-#   2. Pass per-project options via -D flags to add_subdirectory
-#   3. Disable all install/test/example overhead
-# ===========================================================================
-
-# Global: force all add_library() calls to STATIC by default
-set(BUILD_SHARED_LIBS OFF)
+﻿set(BUILD_SHARED_LIBS OFF)
 
 # ===========================================================================
 # SDL3
