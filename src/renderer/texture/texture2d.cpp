@@ -1,4 +1,5 @@
-﻿#include "texture2d.h"
+﻿#include "pch.h"
+#include "texture2d.h"
 #include "../../core/error.h"
 #include "../../renderer/renderer2d.h"
 #include "../../utils/memory/allocator.h"

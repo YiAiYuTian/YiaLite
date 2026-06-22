@@ -7,25 +7,25 @@ namespace yialite
 {
 
 class Context;
-template class YIALITE_API Result<Context*>;
+extern template class Result<Context*>;
 
 class Window;
-template class YIALITE_API Result<Window*>;
+extern template class Result<Window*>;
 
 class Renderer2D;
-template class YIALITE_API Result<Renderer2D*>;
+extern template class Result<Renderer2D*>;
 
 class Texture2D;
-template class YIALITE_API Result<Texture2D*>;
+extern template class Result<Texture2D*>;
 
 class Event;
-template class YIALITE_API Result<Event*>;
+extern template class Result<Event*>;
 
 class DevUI;
-template class YIALITE_API Result<DevUI*>;
+extern template class Result<DevUI*>;
 
 class AudioManager;
-template class YIALITE_API Result<AudioManager*>;
+extern template class Result<AudioManager*>;
 
 }
 

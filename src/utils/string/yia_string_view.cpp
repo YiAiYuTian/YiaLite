@@ -1,7 +1,6 @@
+#include "pch.h"
 #include "yia_string_view.h"
 #include "yia_string.h"
-
-#include <cstring>
 
 namespace yialite
 {

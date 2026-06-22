@@ -1,4 +1,5 @@
-﻿#include "audio_manager.h"
+﻿#include "pch.h"
+#include "audio_manager.h"
 #include "../core/error.h"
 #include "../core/logger.h"
 #include "../utils/memory/allocator.h"
@@ -6,7 +7,6 @@
 #include "../utils/string/yia_string.h"
 
 #include <miniaudio_libvorbis.h>
-#include <algorithm>
 
 namespace yialite
 {

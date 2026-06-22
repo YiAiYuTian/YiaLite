@@ -1,7 +1,6 @@
+#include "pch.h"
 #include "yia_string.h"
 #include "../memory/allocator.h"
-
-#include <cstring>
 
 namespace yialite
 {

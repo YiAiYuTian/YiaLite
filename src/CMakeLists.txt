@@ -24,6 +24,7 @@ set(YIA_HEADERS
   "core/result.h"
   "core/initialize.h"
   "core/log.h"
+  "core/result_export.h"
   "devui/devui.h"
   "event/event.h"
   "event/keycode.h"
@@ -47,14 +48,14 @@ set(YIA_HEADERS
   "utils/hash_key.h"
   "utils/delegate.h"
   "utils/base_types.h"
-  "window/window.h"
-  "core/result_export.h")
+  "window/window.h")
 
 set(YIA_SOURCES
   "core/logger.cpp"
   "core/context.cpp"
   "core/initialize.cpp"
   "core/log.cpp"
+  "core/result_export.cpp"
   "audio/audio_manager.cpp"
   "input/input.cpp"
   "window/window.cpp"
@@ -85,6 +86,8 @@ set(THIRDPARTY_SOURSES
 
 target_sources(${PROJECT_NAME} PRIVATE ${YIA_SOURCES} ${YIA_HEADERS} ${THIRDPARTY_SOURSES})
 
+set_source_files_properties(${THIRDPARTY_SOURSES} PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -109,4 +112,9 @@ target_link_libraries(${PROJECT_NAME}
 target_compile_definitions(${PROJECT_NAME}
   PRIVATE
     IMGUI_DEFINE_MATH_OPERATORS
+)
+
+target_precompile_headers(${PROJECT_NAME}
+  PRIVATE
+    pch.h
 )

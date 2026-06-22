@@ -1,136 +1,262 @@
-#ifndef YIALITE_DELEGATE_H
+﻿#ifndef YIALITE_DELEGATE_H
 #define YIALITE_DELEGATE_H
 
-#include "utility.h"
 #include "memory/allocator.h"
+#include "base_types.h"
+
+#include <type_traits>
+#include <functional>
+#include <utility>
 
 namespace yialite
 {
 
-template <typename FuncType>
-struct DelegateImpl;
+namespace detail
+{
+    inline constexpr size_t SBO_SIZE  = 32;
+    inline constexpr size_t SBO_ALIGN = alignof(void*);
+}
+
+template <typename T>
+class Delegate;
 
 template <typename Ret, typename... Args>
-struct DelegateImpl<Ret(Args...)>
+class Delegate<Ret(Args...)>
 {
-    struct CallableBase
-    {
-        virtual ~CallableBase() = default;
-        virtual Ret invoke(Args...) = 0;
-    };
-
-    template <typename Fx>
-    struct Callable : CallableBase
-    {
-        Fx m_func;
-
-        Callable(Fx&& func) : m_func(yialite::forward<Fx>(func)) {}
-
-        Ret invoke(Args... args) override
-        {
-            return m_func(yialite::forward<Args>(args)...);
-        }
-    };
-
-    struct Type
-    {
-        CallableBase* m_callable = nullptr;
-
-        bool is_empty() const
-        {
-            return m_callable == nullptr;
-        }
-
-        template <typename Fx>
-        void reset(Fx&& func)
-        {
-            DEALLOCATE_OBJECT(CallableBase, m_callable);
-            m_callable = nullptr;
-            m_callable = ALLOCATE_OBJECT(Callable<Fx>, yialite::forward<Fx>(func));
-        }
-
-        void reset_move(Type&& other)
-        {
-            DEALLOCATE_OBJECT(CallableBase, m_callable);
-            m_callable = nullptr;
-            m_callable = other.m_callable;
-            other.m_callable = nullptr;
-        }
-
-        void tidy()
-        {
-            DEALLOCATE_OBJECT(CallableBase, m_callable);
-            m_callable = nullptr;
-        }
-
-        Ret operator()(Args... args) const
-        {
-            if (m_callable) return m_callable->invoke(yialite::forward<Args>(args)...);
-            
-            if constexpr(yialite::is_void_v<Ret>) return;
-            else return {};
-        }
-
-        ~Type() { tidy(); }
-    };
-};
-
-template <typename FuncType>
-class Delegate : public DelegateImpl<FuncType>::Type
-{
-private:
-    using Base = typename DelegateImpl<FuncType>::Type;
 public:
+    using result_type = Ret;
+
     Delegate() noexcept = default;
-    Delegate(yialite::nullptr_t) noexcept {}
-
-    Delegate(const Delegate& other) = delete;
-    Delegate& operator=(const Delegate& other) = delete;
-
-    template <class Fx>
-    Delegate(Fx&& func)
+    Delegate(std::nullptr_t) noexcept : Delegate() {}
+    Delegate(const Delegate& other)
     {
-        this->reset(yialite::forward<Fx>(func));
+        if (!other.m_callable) return;
+
+        m_callable = other.m_callable->clone(m_sbo);
+        set_inline_from_callable();
     }
+    Delegate(Delegate&& other) noexcept { steal_from(other); }
 
-    Delegate(Delegate&& other) noexcept
+    template <typename Fn>
+    requires
+        !std::is_same_v<std::decay_t<Fn>, Delegate>             &&
+        (std::is_invocable_r_v<Ret, std::decay_t<Fn>, Args...>  ||
+        std::is_member_function_pointer_v<std::decay_t<Fn>>)
+    Delegate(Fn&& func)
     {
-        this->reset_move(yialite::move(other));
+        using Decayed = std::decay_t<Fn>;
+
+        if constexpr (std::is_member_function_pointer_v<Decayed>) emplace(std::mem_fn(std::forward<Fn>(func)));
+        else
+        {
+            if constexpr (std::is_copy_constructible_v<Decayed>     &&
+                sizeof(CallableImpl<Decayed>) <= detail::SBO_SIZE   &&
+                alignof(CallableImpl<Decayed>) <= detail::SBO_ALIGN)
+            {
+                emplace(std::forward<Fn>(func));
+            }
+            else emplace_heap(std::forward<Fn>(func));
+        }
+    }
+    ~Delegate() { tidy(); }
+
+    //operators
+    Delegate& operator=(const Delegate& other)
+    {
+        if (this == &other) return *this;
+
+        Delegate tmp(other);
+        tidy();
+        steal_from(tmp);
+        return *this;
     }
 
     Delegate& operator=(Delegate&& other) noexcept
     {
-        if (this != &other) this->reset_move(yialite::move(other));
+        if (this == &other) return *this;
+
+        tidy();
+        steal_from(other);
         return *this;
     }
 
-    template <class Fx>
-    Delegate& operator=(Fx&& func)
+    template <typename Fn>
+    requires
+        !std::is_same_v<std::decay_t<Fn>, Delegate>             &&
+        (std::is_invocable_r_v<Ret, std::decay_t<Fn>, Args...>  ||
+        std::is_member_function_pointer_v<std::decay_t<Fn>>)
+    Delegate& operator=(Fn&& func)
     {
-        this->reset(yialite::forward<Fx>(func));
+        using Decayed = std::decay_t<Fn>;
+
+        if constexpr (std::is_member_function_pointer_v<Decayed>) emplace(std::mem_fn(std::forward<Fn>(func)));
+        else
+        {
+            if constexpr (std::is_copy_constructible_v<Decayed>     &&
+                sizeof(CallableImpl<Decayed>) <= detail::SBO_SIZE   &&
+                alignof(CallableImpl<Decayed>) <= detail::SBO_ALIGN)
+            {
+                emplace(std::forward<Fn>(func));
+            }
+            else emplace_heap(std::forward<Fn>(func));
+        }
         return *this;
     }
 
-    Delegate& operator=(yialite::nullptr_t) noexcept
+    Delegate& operator=(std::nullptr_t) noexcept
     {
-        this->tidy();
+        tidy();
         return *this;
     }
 
-    explicit operator bool() const noexcept
+    bool operator==(std::nullptr_t) const noexcept { return m_callable == nullptr; }
+    explicit operator bool() const noexcept { return m_callable != nullptr; }
+
+    Ret operator()(Args... args) const
     {
-        return !this->is_empty();
+        if (!m_callable)
+        {
+            if constexpr (std::is_void_v<Ret>) return;
+            else return Ret{};
+        }
+
+        return m_callable->invoke(std::forward<Args>(args)...);
     }
 
-    ~Delegate() = default;
+    //tools
+    void swap(Delegate& other) noexcept
+    {
+        if (this == &other) return;
+
+        Delegate tmp;
+        tmp.steal_from(*this);
+        this->steal_from(other);
+        other.steal_from(tmp);
+    }
+
+    void reset() noexcept { tidy(); }
+    bool empty() const noexcept { return m_callable == nullptr; }
+private:
+    //Callable
+    class ICallable
+    {
+    public:
+        virtual ~ICallable() = default;
+        virtual Ret invoke(Args... args) const = 0;
+        virtual ICallable* clone(void* dst) = 0;
+        virtual void relocate(void* dst) noexcept = 0;
+    };
+
+    template <typename Fn>
+    class CallableImpl final : public ICallable
+    {
+    public:
+        mutable Fn m_func;
+
+        template <typename U>
+        requires(std::is_constructible_v<Fn, U&&>)
+        explicit CallableImpl(U&& f) : m_func(std::forward<U>(f)) {}
+
+        Ret invoke(Args... args) const override
+        {
+            return m_func(std::forward<Args>(args)...);
+        }
+
+        ICallable* clone(void* dst) override
+        {
+            if constexpr (std::is_copy_constructible_v<Fn>)
+            {
+                Fn copy = m_func;
+                if constexpr (sizeof(CallableImpl) <= detail::SBO_SIZE && alignof(CallableImpl) <= detail::SBO_ALIGN)
+                {
+                    return new (dst) CallableImpl(std::move(copy));
+                }
+                else return ALLOCATE_OBJECT(CallableImpl, std::move(copy));
+            }
+            else return nullptr;
+        }
+
+        void relocate(void* dst) noexcept override
+        {
+            new (dst) CallableImpl(std::move(m_func));
+            this->~CallableImpl();
+        }
+    };
+private:
+    void tidy() noexcept
+    {
+        if (!m_callable) return;
+
+        if (m_inline) m_callable->~ICallable();
+        else DEALLOCATE_OBJECT(ICallable, m_callable);
+
+        m_callable = nullptr;
+        m_inline = false;
+    }
+
+    bool is_sbo(const ICallable* p) const noexcept
+    {
+        return static_cast<const void*>(p) == static_cast<const void*>(m_sbo);
+    }
+
+    void set_inline_from_callable() noexcept
+    {
+        m_inline = is_sbo(m_callable);
+    }
+
+    void steal_from(Delegate& other) noexcept
+    {
+        if (!other.m_callable) return;
+
+        if (other.m_inline)
+        {
+            other.m_callable->relocate(m_sbo);
+            m_callable = reinterpret_cast<ICallable*>(m_sbo);
+            m_inline = true;
+        }
+        else
+        {
+            m_callable = other.m_callable;
+            m_inline = false;
+        }
+
+        other.m_callable = nullptr;
+        other.m_inline = false;
+    }
+
+    template <typename Fn>
+    void emplace(Fn&& func)
+    {
+        tidy();
+        using Impl = std::decay_t<Fn>;
+        static_assert(sizeof(CallableImpl<Impl>) <= detail::SBO_SIZE, "Delegate: callable too large for SBO");
+        static_assert(alignof(CallableImpl<Impl>) <= detail::SBO_ALIGN, "Delegate: callable alignment too large for SBO");
+        ICallable* p = new (m_sbo) CallableImpl<Impl>(std::forward<Fn>(func));
+        m_callable = p;
+        m_inline = true;
+    }
+
+    template <typename Fn>
+    void emplace_heap(Fn&& func)
+    {
+        tidy();
+        using Impl = std::decay_t<Fn>;
+        ICallable* p = ALLOCATE_OBJECT(CallableImpl<Impl>, std::forward<Fn>(func));
+        m_callable = p;
+        m_inline = false;
+    }
+private:
+    alignas(detail::SBO_ALIGN) Uint8 m_sbo[detail::SBO_SIZE]{};
+    ICallable* m_callable = nullptr;
+    bool       m_inline   = false;
 };
 
-template <class FuncType>
-bool operator==(const Delegate<FuncType>& func, yialite::nullptr_t) noexcept
+template <typename Ret, typename... Args>
+void swap(Delegate<Ret(Args...)>& a, Delegate<Ret(Args...)>& b) noexcept
 {
-    return !func;
+    a.swap(b);
 }
 
-}
+} // namespace yialite
 
-#endif
+#endif // YIALITE_DELEGATE_H

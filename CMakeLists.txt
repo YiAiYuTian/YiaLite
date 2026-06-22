@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-add_subdirectory(thirdparty)
+add_subdirectory(thirdparty EXCLUDE_FROM_ALL)
 add_subdirectory(src)
 
 include(GNUInstallDirs)

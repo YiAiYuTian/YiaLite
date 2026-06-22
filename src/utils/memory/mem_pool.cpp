@@ -1,7 +1,6 @@
-﻿#include "mem_pool.h"
+﻿#include "pch.h"
+#include "mem_pool.h"
 #include "../../core/logger.h"
-
-#include <cstdlib>
 
 namespace yialite
 {

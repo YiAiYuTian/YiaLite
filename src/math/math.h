@@ -1,4 +1,4 @@
-// Matrices and vectors use column-major order.
+﻿// Matrices and vectors use column-major order.
 
 #ifndef YIALITE_MATH_H
 #define YIALITE_MATH_H
@@ -390,14 +390,14 @@ template<typename T, typename Derived, typename Tag = Vector4Tag>
 struct Vector4Base
 {
     [[nodiscard]] constexpr Derived operator-() const noexcept
-    requires(std::is_same_v<Tag, Vector4Tag>)
+    requires std::is_same_v<Tag, Vector4Tag>
     {
         auto& self = static_cast<const Derived&>(*this);
         return Derived(-self[0], -self[1], -self[2], -self[3]);
     }
     
     [[nodiscard]] constexpr Derived operator+(const Derived &other) const noexcept
-    requires(std::is_same_v<Tag, Vector4Tag>)
+    requires std::is_same_v<Tag, Vector4Tag>
     {
         auto& self = static_cast<const Derived&>(*this);
 
@@ -410,7 +410,7 @@ struct Vector4Base
     }
 
     [[nodiscard]] constexpr Derived operator-(const Derived& other) const noexcept
-    requires(std::is_same_v<Tag, Vector4Tag>)
+    requires std::is_same_v<Tag, Vector4Tag>
     {
         auto& self = static_cast<const Derived&>(*this);
 
@@ -423,7 +423,7 @@ struct Vector4Base
     }
 
     [[nodiscard]] constexpr Derived operator*(T scalar) const noexcept
-    requires(std::is_same_v<Tag, Vector4Tag>)
+    requires std::is_same_v<Tag, Vector4Tag>
     {
         auto& self = static_cast<const Derived&>(*this);
 
@@ -436,7 +436,7 @@ struct Vector4Base
     }
 
     [[nodiscard]] constexpr Derived operator/(T scalar) const noexcept
-    requires(std::is_same_v<Tag, Vector4Tag>)
+    requires std::is_same_v<Tag, Vector4Tag>
     {
         auto& self = static_cast<const Derived&>(*this);
 
@@ -457,7 +457,7 @@ struct Vector4Base
     }
 
     constexpr Derived& operator+=(const Derived& other) noexcept
-    requires(std::is_same_v<Tag, Vector4Tag>)
+    requires std::is_same_v<Tag, Vector4Tag>
     {
         auto& self = static_cast<Derived&>(*this);
         self[0] += other[0];
@@ -469,7 +469,7 @@ struct Vector4Base
     }
 
     constexpr Derived& operator-=(const Derived& other) noexcept
-    requires(std::is_same_v<Tag, Vector4Tag>)
+    requires std::is_same_v<Tag, Vector4Tag>
     {
         auto& self = static_cast<Derived&>(*this);
         self[0] -= other[0];
@@ -481,7 +481,7 @@ struct Vector4Base
     }
 
     constexpr Derived& operator*=(T scalar) noexcept
-    requires(std::is_same_v<Tag, Vector4Tag>)
+    requires std::is_same_v<Tag, Vector4Tag>
     {
         auto& self = static_cast<Derived&>(*this);
         self[0] *= scalar;
@@ -493,7 +493,7 @@ struct Vector4Base
     }
 
     constexpr Derived& operator/=(T scalar) noexcept
-    requires(std::is_same_v<Tag, Vector4Tag>)
+    requires std::is_same_v<Tag, Vector4Tag>
     {
         auto& self = static_cast<Derived&>(*this);
 
@@ -1115,7 +1115,7 @@ template<typename T>
 
 template<typename T>
 [[nodiscard]] constexpr T radians(T degrees) noexcept
-requires(std::numeric_limits<T>::is_iec559)
+requires std::numeric_limits<T>::is_iec559
 {
     return degrees * static_cast<T>(0.01745329251994329576923690768489);
 }

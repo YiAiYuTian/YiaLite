@@ -1,4 +1,5 @@
-﻿#include "initialize.h"
+﻿#include "pch.h"
+#include "initialize.h"
 #include "logger.h"
 #include "../utils/memory/allocator.h"
 

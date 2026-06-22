@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "logger.h"
-
-#include <iostream>
 
 namespace yialite
 {

@@ -1,4 +1,5 @@
-﻿#include "window.h"
+﻿#include "pch.h"
+#include "window.h"
 #include "../core/error.h"
 #include "../core/logger.h"
 #include "../utils/memory/allocator.h"

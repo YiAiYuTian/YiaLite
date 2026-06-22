@@ -1,4 +1,5 @@
-﻿#include "renderer2d.h"
+﻿#include "pch.h"
+#include "renderer2d.h"
 #include "../core/error.h"
 #include "../window/window.h"
 #include "../renderer/texture/texture2d.h"

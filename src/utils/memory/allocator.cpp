@@ -1,12 +1,8 @@
-﻿#include "allocator.h"
+﻿#include "pch.h"
+#include "allocator.h"
 #include "mem_pool.h"
 #include "../../core/logger.h"
 #include "../singleton.h"
-
-#include <mutex>
-#include <cstdlib>
-#include <cstring>
-#include <atomic>
 
 namespace yialite
 {
