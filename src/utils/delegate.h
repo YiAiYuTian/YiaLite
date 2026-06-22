@@ -6,7 +6,6 @@
 
 #include <type_traits>
 #include <functional>
-#include <utility>
 
 namespace yialite
 {

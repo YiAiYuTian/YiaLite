@@ -1,7 +1,6 @@
 ﻿#ifndef YIALITE_ERROR_H
 #define YIALITE_ERROR_H
 
-#include "../utils/utility.h"
 #include "../utils/memory/allocator.h"
 #include "../utils/string/yia_string.h"
 

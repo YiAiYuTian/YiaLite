@@ -3,7 +3,6 @@
 
 #include "../../core/core.h"
 #include "../hash_key.h"
-#include "../utility.h"
 #include "../memory/allocator.h"
 #include "yia_pair.h"
 
@@ -236,7 +235,7 @@ Value& HashMap<Key, Value>::operator[](Key&& key)
     auto [found, idx] = find_bucket(key);
     YIALITE_ASSERT(idx != invalid_index && "HashMap Full");
 
-    if (!found) return emplace(yialite::move(key), Value{})->second;
+    if (!found) return emplace(std::move(key), Value{})->second;
     return m_pairs[idx].second;
 }
 
@@ -258,14 +257,14 @@ typename HashMap<Key, Value>::Iterator HashMap<Key, Value>::emplace(Key&& key, V
 
     if (!found)
     {
-        new (&m_pairs[idx].first)  Key(yialite::move(key));
-        new (&m_pairs[idx].second) Value(yialite::move(value));
+        new (&m_pairs[idx].first)  Key(std::move(key));
+        new (&m_pairs[idx].second) Value(std::move(value));
         m_states[idx] = BucketState::Occupied;
         ++m_size;
     }
     else
     {
-        m_pairs[idx].second = yialite::move(value);
+        m_pairs[idx].second = std::move(value);
     }
 
     return Iterator(this, idx, typename Iterator::DirectTag{});
@@ -387,8 +386,8 @@ void HashMap<Key, Value>::reserve(size_t capacity)
             while (new_states[idx] == BucketState::Occupied)
                 idx = (idx + 1) % new_capacity;
 
-            new (&new_pairs[idx].first)  Key(yialite::move(m_pairs[i].first));
-            new (&new_pairs[idx].second) Value(yialite::move(m_pairs[i].second));
+            new (&new_pairs[idx].first)  Key(std::move(m_pairs[i].first));
+            new (&new_pairs[idx].second) Value(std::move(m_pairs[i].second));
             m_pairs[i].first.~Key();
             m_pairs[i].second.~Value();
             new_states[idx] = BucketState::Occupied;

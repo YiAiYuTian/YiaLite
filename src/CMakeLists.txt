@@ -43,7 +43,6 @@ set(YIA_HEADERS
   "utils/memory/memory.h"
   "utils/string/yia_string.h"
   "utils/string/yia_string_view.h"
-  "utils/utility.h"
   "utils/singleton.h"
   "utils/hash_key.h"
   "utils/delegate.h"

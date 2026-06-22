@@ -2,10 +2,10 @@
 #define YIALITE_ALLOCATOR_H
 
 #include "../../core/core.h"
-#include "../utility.h"
 #include "../base_types.h"
 
 #include <new>
+#include <utility>
 
 namespace yialite
 {
@@ -48,7 +48,7 @@ public:
     []<typename ...TArgs>(TArgs&& ...args)\
     {\
         type* _p = ALLOCATE(type);\
-        return new (_p) type(yialite::forward<TArgs>(args)...);\
+        return new (_p) type(std::forward<TArgs>(args)...);\
     }(__VA_ARGS__)
 
 #define DEALLOCATE(ptr)                 do{ yialite::Allocator::deallocate(ptr); ptr = nullptr; } while(0)

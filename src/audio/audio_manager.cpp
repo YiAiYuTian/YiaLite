@@ -146,7 +146,7 @@ Result<void> AudioManager::add_sound(const char* name, const char* path)
         return Result<void>(ErrorCode::SoundLoadFailed, ma_result_description(result));
     }
 
-    m_impl->sounds.emplace(yialite::move(sound_name), yialite::move(sound));
+    m_impl->sounds.emplace(std::move(sound_name), std::move(sound));
     return ok();
 }
 

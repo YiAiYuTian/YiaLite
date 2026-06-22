@@ -2,7 +2,9 @@
 #define YIALITE_MEMORY_H
 
 #include "allocator.h"
-#include "../utility.h"
+
+#include <type_traits>
+#include <utility>
 
 namespace yialite
 {
@@ -12,7 +14,7 @@ class Scope
 {
 public:
     Scope() noexcept = default;
-    Scope(yialite::nullptr_t) noexcept : Scope() {}
+    Scope(std::nullptr_t) noexcept : Scope() {}
     explicit Scope(T* ptr) noexcept : m_ptr(ptr) {}
     Scope(Scope&& other) noexcept : m_ptr(other.m_ptr) { other.m_ptr = nullptr; }
     Scope(const Scope&) = delete;
@@ -100,7 +102,7 @@ class Ref
     friend class Weak<T>;
 public:
     Ref() noexcept = default;
-    Ref(yialite::nullptr_t) noexcept : Ref() {}
+    Ref(std::nullptr_t) noexcept : Ref() {}
     explicit Ref(T* ptr) : m_ptr(ptr) 
     { 
         if (m_ptr)
@@ -186,7 +188,7 @@ class Weak
 {
 public:
     Weak() noexcept = default;
-    Weak(yialite::nullptr_t) noexcept : Weak() {}
+    Weak(std::nullptr_t) noexcept : Weak() {}
     Weak(const Ref<T>& strong) noexcept : m_block(strong.m_block) { if (m_block) m_block->add_weak(); }
     Weak(const Weak& other) noexcept : m_block(other.m_block) { if (m_block) m_block->add_weak(); }
     Weak(Weak&& other) noexcept : m_block(other.m_block) { other.m_block = nullptr; }
@@ -243,13 +245,13 @@ private:
 template<typename T, typename ...Args>
 Scope<T> make_scope(Args&&... args)
 {
-    return Scope<T>(ALLOCATE_OBJECT(T, yialite::forward<Args>(args)...));
+    return Scope<T>(ALLOCATE_OBJECT(T, std::forward<Args>(args)...));
 }
 
 template<typename T, typename ...Args>
 Ref<T> make_ref(Args&&... args)
 {
-    return Ref<T>(ALLOCATE_OBJECT(T, yialite::forward<Args>(args)...));
+    return Ref<T>(ALLOCATE_OBJECT(T, std::forward<Args>(args)...));
 }
 
 template<typename T>

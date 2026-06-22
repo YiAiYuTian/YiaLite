@@ -1,7 +1,7 @@
 #ifndef YIALITE_PAIR_H
 #define YIALITE_PAIR_H
 
-#include "../utility.h"
+#include <utility>
 
 namespace yialite 
 {
@@ -16,8 +16,8 @@ struct Pair
 
     template<typename A, typename B>
     constexpr Pair(A&& a, B&& b) noexcept
-        : first(yialite::forward<A>(a)),
-          second(yialite::forward<B>(b)) {}
+        : first(std::forward<A>(a)),
+          second(std::forward<B>(b)) {}
     constexpr Pair(const Pair&) = default;
     constexpr Pair(Pair&&) noexcept = default;
 

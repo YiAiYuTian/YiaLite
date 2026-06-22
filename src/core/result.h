@@ -2,11 +2,11 @@
 #define YIALITE_RESULT_H
 
 #include "error.h"
-#include "../utils/utility.h"
 #include "../utils/string/yia_string_view.h"
 #include "../utils/base_types.h"
 
 #include <new>
+#include <utility>
 
 namespace yialite
 {
@@ -24,7 +24,7 @@ class Result
 {
 public:
     Result(const T& value) : m_has_value(true) { construct_value(value); }
-    Result(T&& value) noexcept : m_has_value(true) { construct_value(yialite::move(value)); }
+    Result(T&& value) noexcept : m_has_value(true) { construct_value(std::move(value)); }
 
     Result(ErrorCode code) : m_has_value(false) { construct_error(code); }
     Result(ErrorCode code, const char* message) : m_has_value(false) { construct_error(code, message); }
@@ -42,7 +42,7 @@ public:
     Result(Result&& other) noexcept : m_has_value(other.m_has_value)
     {
         if (m_has_value)
-            construct_value(yialite::move(other.value_ref()));
+            construct_value(std::move(other.value_ref()));
         else
             construct_error(other.error_ref());
     }
@@ -68,7 +68,7 @@ public:
             destroy();
             m_has_value = other.m_has_value;
             if (m_has_value)
-                construct_value(yialite::move(other.value_ref()));
+                construct_value(std::move(other.value_ref()));
             else
                 construct_error(other.error_ref());
         }
@@ -83,14 +83,14 @@ public:
     
     T& value() & { return value_ref(); }
     const T& value() const& { return value_ref(); }
-    T&& value() && { return yialite::move(value_ref()); }
-    const T&& value() const&& { return yialite::move(value_ref()); }
+    T&& value() && { return std::move(value_ref()); }
+    const T&& value() const&& { return std::move(value_ref()); }
 
     T* operator->() { return &value_ref(); }
     const T* operator->() const { return &value_ref(); }
     T& operator*() & { return value_ref(); }
     const T& operator*() const& { return value_ref(); }
-    T&& operator*() && { return yialite::move(value_ref()); }
+    T&& operator*() && { return std::move(value_ref()); }
 
     // Error access
     const Error& error() const noexcept { return error_ref(); }
@@ -99,17 +99,17 @@ public:
     // Value or default
     T value_or(T&& default_value) const&
     {
-        return m_has_value ? value_ref() : yialite::move(default_value);
+        return m_has_value ? value_ref() : std::move(default_value);
     }
 
     T value_or(T&& default_value) &&
     {
-        return m_has_value ? yialite::move(value_ref()) : yialite::move(default_value);
+        return m_has_value ? std::move(value_ref()) : std::move(default_value);
     }
 
 private:
     void construct_value(const T& v) { new (&m_storage) T(v); }
-    void construct_value(T&& v) noexcept { new (&m_storage) T(yialite::move(v)); }
+    void construct_value(T&& v) noexcept { new (&m_storage) T(std::move(v)); }
     void construct_error(ErrorCode code) { new (&m_error_storage) Error(code); }
     void construct_error(ErrorCode code, const char* msg) { new (&m_error_storage) Error(code, msg); }
     void construct_error(const Error& e) { new (&m_error_storage) Error(e); }
@@ -210,7 +210,7 @@ private:
 inline Result<void> ok() { return Result<void>(); }
 
 template <typename T>
-Result<T> ok_t(T&& value) { return Result<T>(yialite::forward<T>(value)); }
+Result<T> ok_t(T&& value) { return Result<T>(std::forward<T>(value)); }
 
 inline Result<void> err(ErrorCode code) { return Result<void>(code); }
 inline Result<void> err(ErrorCode code, const char* message) { return Result<void>(code, message); }

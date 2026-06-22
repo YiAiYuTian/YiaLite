@@ -169,47 +169,47 @@ void Event::register_devui_event(DevUI* devui)
 
 void Event::register_quit_event_callback(QuitEventCallback&& callback)
 {
-    m_impl->quit_event_callback = yialite::move(callback);
+    m_impl->quit_event_callback = std::move(callback);
 }
 
 void Event::register_key_event_callback(KeyEventCallback&& callback)
 {
-    m_impl->key_event_callback = yialite::move(callback);
+    m_impl->key_event_callback = std::move(callback);
 }
 
 void Event::register_mouse_button_event_callback(MouseButtonEventCallback&& callback)
 {
-    m_impl->mouse_event_callback = yialite::move(callback);
+    m_impl->mouse_event_callback = std::move(callback);
 }
 
 void Event::register_mouse_wheel_event_callback(MouseWheelEventCallback&& callback)
 {
-    m_impl->mouse_wheel_event_callback = yialite::move(callback);
+    m_impl->mouse_wheel_event_callback = std::move(callback);
 }
 
 void Event::register_mouse_motion_event_callback(MouseMotionEventCallback&& callback)
 {
-    m_impl->mouse_motion_event_callback = yialite::move(callback);
+    m_impl->mouse_motion_event_callback = std::move(callback);
 }
 
 void Event::register_window_resized_event_callback(WindowResizedEventCallback&& callback)
 {
-    m_impl->window_resized_event_callback = yialite::move(callback);
+    m_impl->window_resized_event_callback = std::move(callback);
 }
 
 void Event::register_window_moved_event_callback(WindowMovedEventCallback&& callback)
 {
-    m_impl->window_moved_event_callback = yialite::move(callback);
+    m_impl->window_moved_event_callback = std::move(callback);
 }
 
 void Event::register_window_focus_gained_event_callback(WindowFocusGainedEventCallback&& callback)
 {
-    m_impl->window_focus_gained_event_callback = yialite::move(callback);
+    m_impl->window_focus_gained_event_callback = std::move(callback);
 }
 
 void Event::register_window_focus_lost_event_callback(WindowFocusLostEventCallback&& callback)
 {
-    m_impl->window_focus_lost_event_callback = yialite::move(callback);
+    m_impl->window_focus_lost_event_callback = std::move(callback);
 }
 
 }
