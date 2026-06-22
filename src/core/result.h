@@ -122,10 +122,10 @@ private:
             error_ref().~Error();
     }
 
-    T& value_ref() { return *reinterpret_cast<T*>(&m_storage); }
-    const T& value_ref() const { return *reinterpret_cast<const T*>(&m_storage); }
-    Error& error_ref() { return *reinterpret_cast<Error*>(&m_error_storage); }
-    const Error& error_ref() const { return *reinterpret_cast<const Error*>(&m_error_storage); }
+    T& value_ref() { return *std::launder(reinterpret_cast<T*>(&m_storage)); }
+    const T& value_ref() const { return *std::launder(reinterpret_cast<const T*>(&m_storage)); }
+    Error& error_ref() { return *std::launder(reinterpret_cast<Error*>(&m_error_storage)); }
+    const Error& error_ref() const { return *std::launder(reinterpret_cast<const Error*>(&m_error_storage)); }
 
 private:
     alignas(T) Uint8 m_storage[sizeof(T)] = {};
@@ -199,8 +199,8 @@ private:
         if (!m_has_value) error_ref().~Error();
     }
 
-    Error& error_ref() { return *reinterpret_cast<Error*>(&m_error_storage); }
-    const Error& error_ref() const { return *reinterpret_cast<const Error*>(&m_error_storage); }
+    Error& error_ref() { return *std::launder(reinterpret_cast<Error*>(&m_error_storage)); }
+    const Error& error_ref() const { return *std::launder(reinterpret_cast<const Error*>(&m_error_storage)); }
 
     alignas(Error) unsigned char m_error_storage[sizeof(Error)] = {};
     bool m_has_value = false;

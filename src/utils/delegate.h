@@ -210,7 +210,7 @@ private:
         if (other.m_inline)
         {
             other.m_callable->relocate(m_sbo);
-            m_callable = reinterpret_cast<ICallable*>(m_sbo);
+            m_callable = std::launder(reinterpret_cast<ICallable*>(m_sbo));
             m_inline = true;
         }
         else
