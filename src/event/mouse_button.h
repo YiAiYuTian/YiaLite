@@ -1,39 +1,71 @@
-﻿/* 
-    Simple DirectMedia Layer
-    Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
-    Modified for YiaLite
-*/
-
-#ifndef YIALITE_MOUSE_BUTTON_H
+﻿#ifndef YIALITE_MOUSE_BUTTON_H
 #define YIALITE_MOUSE_BUTTON_H
 
 #include "../utils/base_types.h"
 
 namespace yialite
 {
-    typedef Uint8 MouseButton;
+
+//Copy in SDL_mouse.h
+
+//mouse button
+enum class MouseButton : Uint8
+{
+    LEFT   = 1,
+    MIDDLE = 2,
+    RIGHT  = 3,
+    X1     = 4,
+    X2     = 5
+};
+
+//mouse button flags
+#define YIALITE_MOUSE_BUTTON_MASK(x)  (1u << ((static_cast<Uint8>(x))-1))
+typedef Uint32 MouseButtonFlags_;
+enum class MouseButtonFlags : Uint32
+{
+    LMASK =  YIALITE_MOUSE_BUTTON_MASK(MouseButton::LEFT),
+    MMASK =  YIALITE_MOUSE_BUTTON_MASK(MouseButton::MIDDLE),
+    RMASK =  YIALITE_MOUSE_BUTTON_MASK(MouseButton::RIGHT),
+    X1MASK = YIALITE_MOUSE_BUTTON_MASK(MouseButton::X1),
+    X2MASK = YIALITE_MOUSE_BUTTON_MASK(MouseButton::X2)
+};
+
+namespace detail
+{
+    inline constexpr MouseButtonFlags_ to_mouse_btn_flags_(MouseButtonFlags v)
+    {
+        return static_cast<MouseButtonFlags_>(v);
+    }
 }
 
-//MouseButton
-#define YIALITE_MOUSE_BUTTON_LEFT     1
-#define YIALITE_MOUSE_BUTTON_MIDDLE   2
-#define YIALITE_MOUSE_BUTTON_RIGHT    3
-#define YIALITE_MOUSE_BUTTON_X1       4
-#define YIALITE_MOUSE_BUTTON_X2       5
-
-#define YIALITE_MOUSE_BUTTON_MASK(X)  (1u << ((X)-1))
-
-namespace yialite
+//mouse button flags operator | 
+inline constexpr MouseButtonFlags_ operator|(MouseButtonFlags a, MouseButtonFlags b) 
 {
-    typedef Uint32 MouseButtonFlags;
-    enum MouseButtonFlags_ : Uint32
-    {
-        MOUSE_BUTTON_LMASK =  YIALITE_MOUSE_BUTTON_MASK(YIALITE_MOUSE_BUTTON_LEFT),
-        MOUSE_BUTTON_MMASK =  YIALITE_MOUSE_BUTTON_MASK(YIALITE_MOUSE_BUTTON_MIDDLE),
-        MOUSE_BUTTON_RMASK =  YIALITE_MOUSE_BUTTON_MASK(YIALITE_MOUSE_BUTTON_RIGHT),
-        MOUSE_BUTTON_X1MASK = YIALITE_MOUSE_BUTTON_MASK(YIALITE_MOUSE_BUTTON_X1),
-        MOUSE_BUTTON_X2MASK = YIALITE_MOUSE_BUTTON_MASK(YIALITE_MOUSE_BUTTON_X2)
-    };
+    return detail::to_mouse_btn_flags_(a) | detail::to_mouse_btn_flags_(b);
+}
+inline constexpr MouseButtonFlags_ operator|(MouseButtonFlags a, MouseButtonFlags_ b) 
+{
+    return detail::to_mouse_btn_flags_(a) | b;
+}
+inline constexpr MouseButtonFlags_ operator|(MouseButtonFlags_ a, MouseButtonFlags b) 
+{
+    return a | detail::to_mouse_btn_flags_(b);
+}
+
+//mouse button flags operator &
+inline constexpr MouseButtonFlags_ operator&(MouseButtonFlags a, MouseButtonFlags b) 
+{
+    return detail::to_mouse_btn_flags_(a) & detail::to_mouse_btn_flags_(b);
+}
+inline constexpr MouseButtonFlags_ operator&(MouseButtonFlags a, MouseButtonFlags_ b) 
+{
+    return detail::to_mouse_btn_flags_(a) & b;
+}
+inline constexpr MouseButtonFlags_ operator&(MouseButtonFlags_ a, MouseButtonFlags b) 
+{
+    return a & detail::to_mouse_btn_flags_(b);
+}
+
 }
 
 #endif

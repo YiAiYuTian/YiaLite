@@ -11,10 +11,10 @@ bool is_key_pressed(Scancode key)
     auto* keyboard = SDL_GetKeyboardState(nullptr);
     if (!keyboard) return false;
     
-    return keyboard[key];
+    return keyboard[static_cast<int>(key)];
 }
 
-bool is_mouse_button_pressed(MouseButtonFlags button, float* x, float* y)
+bool is_mouse_button_pressed(MouseButtonFlags_ button, float* x, float* y)
 {
     SDL_MouseButtonFlags button_flag = SDL_GetMouseState(x, y);
 

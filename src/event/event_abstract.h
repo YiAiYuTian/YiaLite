@@ -87,7 +87,7 @@ class MouseMotionEvent : public IEvent
 public:
     float x, y;
     float rel_x, rel_y;
-    Uint32 btn_mask;
+    MouseButtonFlags_ btn_flags;
 
     EventType get_type() const override { return EventType::MouseMotion; }
 };
@@ -137,35 +137,35 @@ using EventMetaMap = std::tuple<
 namespace detail
 {
     template<typename Map, typename T>
-    struct TypeToEnum;
+    struct event_type_to_enum;
 
     template<typename T, EventType E, typename EventClass, typename... Rest>
-    struct TypeToEnum<std::tuple<EventMeta<E, EventClass>, Rest...>, T>
+    struct event_type_to_enum<std::tuple<EventMeta<E, EventClass>, Rest...>, T>
         : std::conditional_t<
         std::is_same_v<T, EventClass>,
         std::integral_constant<EventType, E>,
-        TypeToEnum<std::tuple<Rest...>, T>>
+        event_type_to_enum<std::tuple<Rest...>, T>>
     {};
 
     template<typename T>
-    struct TypeToEnum<std::tuple<>, T>
+    struct event_type_to_enum<std::tuple<>, T>
     {
         static_assert(sizeof(T) == 0, "This event type is not registered in EventMetaMap");
     };
 
     template<typename Map, EventType TargetE>
-    struct EnumToType;
+    struct event_enum_to_type;
 
     template<EventType TargetE, EventType E, typename EventClass, typename... Rest>
-    struct EnumToType<std::tuple<EventMeta<E, EventClass>, Rest...>, TargetE>
+    struct event_enum_to_type<std::tuple<EventMeta<E, EventClass>, Rest...>, TargetE>
         : std::conditional_t<
         (E == TargetE),
         std::type_identity<EventClass>,
-        EnumToType<std::tuple<Rest...>, TargetE>>
+        event_enum_to_type<std::tuple<Rest...>, TargetE>>
     {};
 
     template<EventType TargetE>
-    struct EnumToType<std::tuple<>, TargetE>
+    struct event_enum_to_type<std::tuple<>, TargetE>
     {
         static_assert(TargetE != TargetE, "No matching event struct for this EventType");
     };
@@ -174,11 +174,11 @@ namespace detail
 template<typename T>
 constexpr EventType get_event_type_enum()
 {
-    return detail::TypeToEnum<EventMetaMap, T>::value;
+    return detail::event_type_to_enum<EventMetaMap, T>::value;
 }
 
 template<EventType TargetE>
-using EventFromEnum = typename detail::EnumToType<EventMetaMap, TargetE>::type;
+using event_from_enum = typename detail::event_enum_to_type<EventMetaMap, TargetE>::type;
 
 }
 

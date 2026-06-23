@@ -64,7 +64,7 @@ void SDLEventAdapter::poll_event(EventBus& bus, bool has_devui)
             e.y        = m_event.motion.y;
             e.rel_x    = m_event.motion.xrel;
             e.rel_y    = m_event.motion.yrel;
-            e.btn_mask = m_event.motion.state;
+            e.btn_flags = m_event.motion.state;
             bus.publish(e);
             break;
         }

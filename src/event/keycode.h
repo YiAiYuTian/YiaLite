@@ -1,144 +1,300 @@
-﻿/* 
-    Simple DirectMedia Layer
-    Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
-    Modified for YiaLite
-*/
-
-#ifndef YIALITE_KEYCODE_H
+﻿#ifndef YIALITE_KEYCODE_H
 #define YIALITE_KEYCODE_H
 
 #include "../utils/base_types.h"
 
 namespace yialite
 {
-    typedef Uint32 Keycode;
-    typedef Uint16 Keymod;
-}
 
-//keycode
+//Copy in SDL_Keycode.h
 #define YIALITE_KEY_EXTENDED_MASK          (1u << 29)
 #define YIALITE_KEY_SCANCODE_MASK          (1u << 30)
-#define YIALITE_SCANCODE_TO_KEYCODE(X)  (X | YIALITE_KEY_SCANCODE_MASK)
-#define YIALITE_KEY_UNKNOWN                0x00000000u /**< 0 */
-#define YIALITE_KEY_RETURN                 0x0000000du /**< '\r' */
-#define YIALITE_KEY_ESCAPE                 0x0000001bu /**< '\x1B' */
-#define YIALITE_KEY_BACKSPACE              0x00000008u /**< '\b' */
-#define YIALITE_KEY_TAB                    0x00000009u /**< '\t' */
-#define YIALITE_KEY_SPACE                  0x00000020u /**< ' ' */
-#define YIALITE_KEY_EXCLAIM                0x00000021u /**< '!' */
-#define YIALITE_KEY_DBLAPOSTROPHE          0x00000022u /**< '"' */
-#define YIALITE_KEY_HASH                   0x00000023u /**< '#' */
-#define YIALITE_KEY_DOLLAR                 0x00000024u /**< '$' */
-#define YIALITE_KEY_PERCENT                0x00000025u /**< '%' */
-#define YIALITE_KEY_AMPERSAND              0x00000026u /**< '&' */
-#define YIALITE_KEY_APOSTROPHE             0x00000027u /**< '\'' */
-#define YIALITE_KEY_LEFTPAREN              0x00000028u /**< '(' */
-#define YIALITE_KEY_RIGHTPAREN             0x00000029u /**< ')' */
-#define YIALITE_KEY_ASTERISK               0x0000002au /**< '*' */
-#define YIALITE_KEY_PLUS                   0x0000002bu /**< '+' */
-#define YIALITE_KEY_COMMA                  0x0000002cu /**< ',' */
-#define YIALITE_KEY_MINUS                  0x0000002du /**< '-' */
-#define YIALITE_KEY_PERIOD                 0x0000002eu /**< '.' */
-#define YIALITE_KEY_SLASH                  0x0000002fu /**< '/' */
-#define YIALITE_KEY_0                      0x00000030u /**< '0' */
-#define YIALITE_KEY_1                      0x00000031u /**< '1' */
-#define YIALITE_KEY_2                      0x00000032u /**< '2' */
-#define YIALITE_KEY_3                      0x00000033u /**< '3' */
-#define YIALITE_KEY_4                      0x00000034u /**< '4' */
-#define YIALITE_KEY_5                      0x00000035u /**< '5' */
-#define YIALITE_KEY_6                      0x00000036u /**< '6' */
-#define YIALITE_KEY_7                      0x00000037u /**< '7' */
-#define YIALITE_KEY_8                      0x00000038u /**< '8' */
-#define YIALITE_KEY_9                      0x00000039u /**< '9' */
-#define YIALITE_KEY_COLON                  0x0000003au /**< ':' */
-#define YIALITE_KEY_SEMICOLON              0x0000003bu /**< ';' */
-#define YIALITE_KEY_LESS                   0x0000003cu /**< '<' */
-#define YIALITE_KEY_EQUALS                 0x0000003du /**< '=' */
-#define YIALITE_KEY_GREATER                0x0000003eu /**< '>' */
-#define YIALITE_KEY_QUESTION               0x0000003fu /**< '?' */
-#define YIALITE_KEY_AT                     0x00000040u /**< '@' */
-#define YIALITE_KEY_LEFTBRACKET            0x0000005bu /**< '[' */
-#define YIALITE_KEY_BACKSLASH              0x0000005cu /**< '\\' */
-#define YIALITE_KEY_RIGHTBRACKET           0x0000005du /**< ']' */
-#define YIALITE_KEY_CARET                  0x0000005eu /**< '^' */
-#define YIALITE_KEY_UNDERSCORE             0x0000005fu /**< '_' */
-#define YIALITE_KEY_GRAVE                  0x00000060u /**< '`' */
-#define YIALITE_KEY_A                      0x00000061u /**< 'a' */
-#define YIALITE_KEY_B                      0x00000062u /**< 'b' */
-#define YIALITE_KEY_C                      0x00000063u /**< 'c' */
-#define YIALITE_KEY_D                      0x00000064u /**< 'd' */
-#define YIALITE_KEY_E                      0x00000065u /**< 'e' */
-#define YIALITE_KEY_F                      0x00000066u /**< 'f' */
-#define YIALITE_KEY_G                      0x00000067u /**< 'g' */
-#define YIALITE_KEY_H                      0x00000068u /**< 'h' */
-#define YIALITE_KEY_I                      0x00000069u /**< 'i' */
-#define YIALITE_KEY_J                      0x0000006au /**< 'j' */
-#define YIALITE_KEY_K                      0x0000006bu /**< 'k' */
-#define YIALITE_KEY_L                      0x0000006cu /**< 'l' */
-#define YIALITE_KEY_M                      0x0000006du /**< 'm' */
-#define YIALITE_KEY_N                      0x0000006eu /**< 'n' */
-#define YIALITE_KEY_O                      0x0000006fu /**< 'o' */
-#define YIALITE_KEY_P                      0x00000070u /**< 'p' */
-#define YIALITE_KEY_Q                      0x00000071u /**< 'q' */
-#define YIALITE_KEY_R                      0x00000072u /**< 'r' */
-#define YIALITE_KEY_S                      0x00000073u /**< 's' */
-#define YIALITE_KEY_T                      0x00000074u /**< 't' */
-#define YIALITE_KEY_U                      0x00000075u /**< 'u' */
-#define YIALITE_KEY_V                      0x00000076u /**< 'v' */
-#define YIALITE_KEY_W                      0x00000077u /**< 'w' */
-#define YIALITE_KEY_X                      0x00000078u /**< 'x' */
-#define YIALITE_KEY_Y                      0x00000079u /**< 'y' */
-#define YIALITE_KEY_Z                      0x0000007au /**< 'z' */
-#define YIALITE_KEY_LEFTBRACE              0x0000007bu /**< '{' */
-#define YIALITE_KEY_PIPE                   0x0000007cu /**< '|' */
-#define YIALITE_KEY_RIGHTBRACE             0x0000007du /**< '}' */
-#define YIALITE_KEY_TILDE                  0x0000007eu /**< '~' */
-#define YIALITE_KEY_DELETE                 0x0000007fu /**< '\x7F' */
-#define YIALITE_KEY_PLUSMINUS              0x000000b1u /**< '\xB1' */
-#define YIALITE_KEY_CAPSLOCK               0x40000039u /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_CAPSLOCK) */
-#define YIALITE_KEY_F1                     0x4000003au /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F1) */
-#define YIALITE_KEY_F2                     0x4000003bu /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F2) */
-#define YIALITE_KEY_F3                     0x4000003cu /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F3) */
-#define YIALITE_KEY_F4                     0x4000003du /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F4) */
-#define YIALITE_KEY_F5                     0x4000003eu /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F5) */
-#define YIALITE_KEY_F6                     0x4000003fu /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F6) */
-#define YIALITE_KEY_F7                     0x40000040u /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F7) */
-#define YIALITE_KEY_F8                     0x40000041u /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F8) */
-#define YIALITE_KEY_F9                     0x40000042u /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F9) */
-#define YIALITE_KEY_F10                    0x40000043u /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F10) */
-#define YIALITE_KEY_F11                    0x40000044u /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F11) */
-#define YIALITE_KEY_F12                    0x40000045u /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F12) */
-#define YIALITE_KEY_PRINTSCREEN            0x40000046u /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_PRINTSCREEN) */
-#define YIALITE_KEY_SCROLLLOCK             0x40000047u /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_SCROLLLOCK) */
-#define YIALITE_KEY_PAUSE                  0x40000048u /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_PAUSE) */
-#define YIALITE_KEY_INSERT                 0x40000049u /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_INSERT) */
-#define YIALITE_KEY_HOME                   0x4000004au /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_HOME) */
-#define YIALITE_KEY_PAGEUP                 0x4000004bu /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_PAGEUP) */
-#define YIALITE_KEY_END                    0x4000004du /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_END) */
-#define YIALITE_KEY_PAGEDOWN               0x4000004eu /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_PAGEDOWN) */
-#define YIALITE_KEY_RIGHT                  0x4000004fu /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_RIGHT) */
-#define YIALITE_KEY_LEFT                   0x40000050u /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_LEFT) */
-#define YIALITE_KEY_DOWN                   0x40000051u /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_DOWN) */
-#define YIALITE_KEY_UP                     0x40000052u /**< SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_UP) */
+#define YIALITE_SCANCODE_TO_KEYCODE(x)  (static_cast<int>(x) | YIALITE_KEY_SCANCODE_MASK)
+
+//keycode
+enum class Keycode : Uint32
+{
+    UNKNOWN               = 0x00000000u, /**< 0 */
+    RETURN                = 0x0000000du, /**< '\r' */
+    ESCAPE                = 0x0000001bu, /**< '\x1B' */
+    BACKSPACE             = 0x00000008u, /**< '\b' */
+    TAB                   = 0x00000009u, /**< '\t' */
+    SPACE                 = 0x00000020u, /**< ' ' */
+    EXCLAIM               = 0x00000021u, /**< '!' */
+    DBLAPOSTROPHE         = 0x00000022u, /**< '"' */
+    HASH                  = 0x00000023u, /**< '#' */
+    DOLLAR                = 0x00000024u, /**< '$' */
+    PERCENT               = 0x00000025u, /**< '%' */
+    AMPERSAND             = 0x00000026u, /**< '&' */
+    APOSTROPHE            = 0x00000027u, /**< '\'' */
+    LEFTPAREN             = 0x00000028u, /**< '(' */
+    RIGHTPAREN            = 0x00000029u, /**< ')' */
+    ASTERISK              = 0x0000002au, /**< '*' */
+    PLUS                  = 0x0000002bu, /**< '+' */
+    COMMA                 = 0x0000002cu, /**< ',' */
+    MINUS                 = 0x0000002du, /**< '-' */
+    PERIOD                = 0x0000002eu, /**< '.' */
+    SLASH                 = 0x0000002fu, /**< '/' */
+    K_0                   = 0x00000030u, /**< '0' */
+    K_1                   = 0x00000031u, /**< '1' */
+    K_2                   = 0x00000032u, /**< '2' */
+    K_3                   = 0x00000033u, /**< '3' */
+    K_4                   = 0x00000034u, /**< '4' */
+    K_5                   = 0x00000035u, /**< '5' */
+    K_6                   = 0x00000036u, /**< '6' */
+    K_7                   = 0x00000037u, /**< '7' */
+    K_8                   = 0x00000038u, /**< '8' */
+    K_9                   = 0x00000039u, /**< '9' */
+    COLON                 = 0x0000003au, /**< ':' */
+    SEMICOLON             = 0x0000003bu, /**< ';' */
+    LESS                  = 0x0000003cu, /**< '<' */
+    EQUALS                = 0x0000003du, /**< '=' */
+    GREATER               = 0x0000003eu, /**< '>' */
+    QUESTION              = 0x0000003fu, /**< '?' */
+    AT                    = 0x00000040u, /**< '@' */
+    LEFTBRACKET           = 0x0000005bu, /**< '[' */
+    BACKSLASH             = 0x0000005cu, /**< '\\' */
+    RIGHTBRACKET          = 0x0000005du, /**< ']' */
+    CARET                 = 0x0000005eu, /**< '^' */
+    UNDERSCORE            = 0x0000005fu, /**< '_' */
+    GRAVE                 = 0x00000060u, /**< '`' */
+    A                     = 0x00000061u, /**< 'a' */
+    B                     = 0x00000062u, /**< 'b' */
+    C                     = 0x00000063u, /**< 'c' */
+    D                     = 0x00000064u, /**< 'd' */
+    E                     = 0x00000065u, /**< 'e' */
+    F                     = 0x00000066u, /**< 'f' */
+    G                     = 0x00000067u, /**< 'g' */
+    H                     = 0x00000068u, /**< 'h' */
+    I                     = 0x00000069u, /**< 'i' */
+    J                     = 0x0000006au, /**< 'j' */
+    K                     = 0x0000006bu, /**< 'k' */
+    L                     = 0x0000006cu, /**< 'l' */
+    M                     = 0x0000006du, /**< 'm' */
+    N                     = 0x0000006eu, /**< 'n' */
+    O                     = 0x0000006fu, /**< 'o' */
+    P                     = 0x00000070u, /**< 'p' */
+    Q                     = 0x00000071u, /**< 'q' */
+    R                     = 0x00000072u, /**< 'r' */
+    S                     = 0x00000073u, /**< 's' */
+    T                     = 0x00000074u, /**< 't' */
+    U                     = 0x00000075u, /**< 'u' */
+    V                     = 0x00000076u, /**< 'v' */
+    W                     = 0x00000077u, /**< 'w' */
+    X                     = 0x00000078u, /**< 'x' */
+    Y                     = 0x00000079u, /**< 'y' */
+    Z                     = 0x0000007au, /**< 'z' */
+    LEFTBRACE             = 0x0000007bu, /**< '{' */
+    PIPE                  = 0x0000007cu, /**< '|' */
+    RIGHTBRACE            = 0x0000007du, /**< '}' */
+    TILDE                 = 0x0000007eu, /**< '~' */
+    DELETE                = 0x0000007fu, /**< '\x7F' */
+    PLUSMINUS             = 0x000000b1u, /**< '\xB1' */
+    CAPSLOCK              = 0x40000039u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::CAPSLOCK) */
+    F1                    = 0x4000003au, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F1) */
+    F2                    = 0x4000003bu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F2) */
+    F3                    = 0x4000003cu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F3) */
+    F4                    = 0x4000003du, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F4) */
+    F5                    = 0x4000003eu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F5) */
+    F6                    = 0x4000003fu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F6) */
+    F7                    = 0x40000040u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F7) */
+    F8                    = 0x40000041u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F8) */
+    F9                    = 0x40000042u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F9) */
+    F10                   = 0x40000043u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F10) */
+    F11                   = 0x40000044u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F11) */
+    F12                   = 0x40000045u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F12) */
+    PRINTSCREEN           = 0x40000046u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::PRINTSCREEN) */
+    SCROLLLOCK            = 0x40000047u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::SCROLLLOCK) */
+    PAUSE                 = 0x40000048u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::PAUSE) */
+    INSERT                = 0x40000049u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::INSERT) */
+    HOME                  = 0x4000004au, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::HOME) */
+    PAGEUP                = 0x4000004bu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::PAGEUP) */
+    END                   = 0x4000004du, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::END) */
+    PAGEDOWN              = 0x4000004eu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::PAGEDOWN) */
+    RIGHT                 = 0x4000004fu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::RIGHT) */
+    LEFT                  = 0x40000050u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::LEFT) */
+    DOWN                  = 0x40000051u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::DOWN) */
+    UP                    = 0x40000052u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::UP) */
+    NUMLOCKCLEAR          = 0x40000053u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::NUMLOCKCLEAR) */
+    KP_DIVIDE             = 0x40000054u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_DIVIDE) */
+    KP_MULTIPLY           = 0x40000055u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_MULTIPLY) */
+    KP_MINUS              = 0x40000056u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_MINUS) */
+    KP_PLUS               = 0x40000057u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_PLUS) */
+    KP_ENTER              = 0x40000058u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_ENTER) */
+    KP_1                  = 0x40000059u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_1) */
+    KP_2                  = 0x4000005au, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_2) */
+    KP_3                  = 0x4000005bu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_3) */
+    KP_4                  = 0x4000005cu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_4) */
+    KP_5                  = 0x4000005du, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_5) */
+    KP_6                  = 0x4000005eu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_6) */
+    KP_7                  = 0x4000005fu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_7) */
+    KP_8                  = 0x40000060u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_8) */
+    KP_9                  = 0x40000061u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_9) */
+    KP_0                  = 0x40000062u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_0) */
+    KP_PERIOD             = 0x40000063u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_PERIOD) */
+    APPLICATION           = 0x40000065u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::APPLICATION) */
+    POWER                 = 0x40000066u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::POWER) */
+    KP_EQUALS             = 0x40000067u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_EQUALS) */
+    F13                   = 0x40000068u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F13) */
+    F14                   = 0x40000069u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F14) */
+    F15                   = 0x4000006au, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F15) */
+    F16                   = 0x4000006bu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F16) */
+    F17                   = 0x4000006cu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F17) */
+    F18                   = 0x4000006du, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F18) */
+    F19                   = 0x4000006eu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F19) */
+    F20                   = 0x4000006fu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F20) */
+    F21                   = 0x40000070u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F21) */
+    F22                   = 0x40000071u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F22) */
+    F23                   = 0x40000072u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F23) */
+    F24                   = 0x40000073u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::F24) */
+    EXECUTE               = 0x40000074u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::EXECUTE) */
+    HELP                  = 0x40000075u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::HELP) */
+    MENU                  = 0x40000076u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::MENU) */
+    SELECT                = 0x40000077u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::SELECT) */
+    STOP                  = 0x40000078u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::STOP) */
+    AGAIN                 = 0x40000079u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::AGAIN) */
+    UNDO                  = 0x4000007au, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::UNDO) */
+    CUT                   = 0x4000007bu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::CUT) */
+    COPY                  = 0x4000007cu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::COPY) */
+    PASTE                 = 0x4000007du, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::PASTE) */
+    FIND                  = 0x4000007eu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::FIND) */
+    MUTE                  = 0x4000007fu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::MUTE) */
+    VOLUMEUP              = 0x40000080u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::VOLUMEUP) */
+    VOLUMEDOWN            = 0x40000081u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::VOLUMEDOWN) */
+    KP_COMMA              = 0x40000085u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_COMMA) */
+    KP_EQUALSAS400        = 0x40000086u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_EQUALSAS400) */
+    ALTERASE              = 0x40000099u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::ALTERASE) */
+    SYSREQ                = 0x4000009au, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::SYSREQ) */
+    CANCEL                = 0x4000009bu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::CANCEL) */
+    CLEAR                 = 0x4000009cu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::CLEAR) */
+    PRIOR                 = 0x4000009du, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::PRIOR) */
+    RETURN2               = 0x4000009eu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::RETURN2) */
+    SEPARATOR             = 0x4000009fu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::SEPARATOR) */
+    OUT                   = 0x400000a0u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::OUT) */
+    OPER                  = 0x400000a1u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::OPER) */
+    CLEARAGAIN            = 0x400000a2u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::CLEARAGAIN) */
+    CRSEL                 = 0x400000a3u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::CRSEL) */
+    EXSEL                 = 0x400000a4u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::EXSEL) */
+    KP_00                 = 0x400000b0u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_00) */
+    KP_000                = 0x400000b1u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_000) */
+    THOUSANDSSEPARATOR    = 0x400000b2u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::THOUSANDSSEPARATOR) */
+    DECIMALSEPARATOR      = 0x400000b3u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::DECIMALSEPARATOR) */
+    CURRENCYUNIT          = 0x400000b4u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::CURRENCYUNIT) */
+    CURRENCYSUBUNIT       = 0x400000b5u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::CURRENCYSUBUNIT) */
+    KP_LEFTPAREN          = 0x400000b6u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_LEFTPAREN) */
+    KP_RIGHTPAREN         = 0x400000b7u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_RIGHTPAREN) */
+    KP_LEFTBRACE          = 0x400000b8u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_LEFTBRACE) */
+    KP_RIGHTBRACE         = 0x400000b9u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_RIGHTBRACE) */
+    KP_TAB                = 0x400000bau, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_TAB) */
+    KP_BACKSPACE          = 0x400000bbu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_BACKSPACE) */
+    KP_A                  = 0x400000bcu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_A) */
+    KP_B                  = 0x400000bdu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_B) */
+    KP_C                  = 0x400000beu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_C) */
+    KP_D                  = 0x400000bfu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_D) */
+    KP_E                  = 0x400000c0u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_E) */
+    KP_F                  = 0x400000c1u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_F) */
+    KP_XOR                = 0x400000c2u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_XOR) */
+    KP_POWER              = 0x400000c3u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_POWER) */
+    KP_PERCENT            = 0x400000c4u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_PERCENT) */
+    KP_LESS               = 0x400000c5u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_LESS) */
+    KP_GREATER            = 0x400000c6u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_GREATER) */
+    KP_AMPERSAND          = 0x400000c7u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_AMPERSAND) */
+    KP_DBLAMPERSAND       = 0x400000c8u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_DBLAMPERSAND) */
+    KP_VERTICALBAR        = 0x400000c9u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_VERTICALBAR) */
+    KP_DBLVERTICALBAR     = 0x400000cau, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_DBLVERTICALBAR) */
+    KP_COLON              = 0x400000cbu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_COLON) */
+    KP_HASH               = 0x400000ccu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_HASH) */
+    KP_SPACE              = 0x400000cdu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_SPACE) */
+    KP_AT                 = 0x400000ceu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_AT) */
+    KP_EXCLAM             = 0x400000cfu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_EXCLAM) */
+    KP_MEMSTORE           = 0x400000d0u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_MEMSTORE) */
+    KP_MEMRECALL          = 0x400000d1u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_MEMRECALL) */
+    KP_MEMCLEAR           = 0x400000d2u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_MEMCLEAR) */
+    KP_MEMADD             = 0x400000d3u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_MEMADD) */
+    KP_MEMSUBTRACT        = 0x400000d4u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_MEMSUBTRACT) */
+    KP_MEMMULTIPLY        = 0x400000d5u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_MEMMULTIPLY) */
+    KP_MEMDIVIDE          = 0x400000d6u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_MEMDIVIDE) */
+    KP_PLUSMINUS          = 0x400000d7u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_PLUSMINUS) */
+    KP_CLEAR              = 0x400000d8u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_CLEAR) */
+    KP_CLEARENTRY         = 0x400000d9u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_CLEARENTRY) */
+    KP_BINARY             = 0x400000dau, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_BINARY) */
+    KP_OCTAL              = 0x400000dbu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_OCTAL) */
+    KP_DECIMAL            = 0x400000dcu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_DECIMAL) */
+    KP_HEXADECIMAL        = 0x400000ddu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::KP_HEXADECIMAL) */
+    LCTRL                 = 0x400000e0u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::LCTRL) */
+    LSHIFT                = 0x400000e1u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::LSHIFT) */
+    LALT                  = 0x400000e2u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::LALT) */
+    LGUI                  = 0x400000e3u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::LGUI) */
+    RCTRL                 = 0x400000e4u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::RCTRL) */
+    RSHIFT                = 0x400000e5u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::RSHIFT) */
+    RALT                  = 0x400000e6u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::RALT) */
+    RGUI                  = 0x400000e7u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::RGUI) */
+    MODE                  = 0x40000101u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::MODE) */
+    SLEEP                 = 0x40000102u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::SLEEP) */
+    WAKE                  = 0x40000103u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::WAKE) */
+    CHANNEL_INCREMENT     = 0x40000104u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::CHANNEL_INCREMENT) */
+    CHANNEL_DECREMENT     = 0x40000105u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::CHANNEL_DECREMENT) */
+    MEDIA_PLAY            = 0x40000106u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::MEDIA_PLAY) */
+    MEDIA_PAUSE           = 0x40000107u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::MEDIA_PAUSE) */
+    MEDIA_RECORD          = 0x40000108u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::MEDIA_RECORD) */
+    MEDIA_FAST_FORWARD    = 0x40000109u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::MEDIA_FAST_FORWARD) */
+    MEDIA_REWIND          = 0x4000010au, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::MEDIA_REWIND) */
+    MEDIA_NEXT_TRACK      = 0x4000010bu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::MEDIA_NEXT_TRACK) */
+    MEDIA_PREVIOUS_TRACK  = 0x4000010cu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::MEDIA_PREVIOUS_TRACK) */
+    MEDIA_STOP            = 0x4000010du, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::MEDIA_STOP) */
+    MEDIA_EJECT           = 0x4000010eu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::MEDIA_EJECT) */
+    MEDIA_PLAY_PAUSE      = 0x4000010fu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::MEDIA_PLAY_PAUSE) */
+    MEDIA_SELECT          = 0x40000110u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::MEDIA_SELECT) */
+    AC_NEW                = 0x40000111u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::AC_NEW) */
+    AC_OPEN               = 0x40000112u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::AC_OPEN) */
+    AC_CLOSE              = 0x40000113u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::AC_CLOSE) */
+    AC_EXIT               = 0x40000114u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::AC_EXIT) */
+    AC_SAVE               = 0x40000115u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::AC_SAVE) */
+    AC_PRINT              = 0x40000116u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::AC_PRINT) */
+    AC_PROPERTIES         = 0x40000117u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::AC_PROPERTIES) */
+    AC_SEARCH             = 0x40000118u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::AC_SEARCH) */
+    AC_HOME               = 0x40000119u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::AC_HOME) */
+    AC_BACK               = 0x4000011au, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::AC_BACK) */
+    AC_FORWARD            = 0x4000011bu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::AC_FORWARD) */
+    AC_STOP               = 0x4000011cu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::AC_STOP) */
+    AC_REFRESH            = 0x4000011du, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::AC_REFRESH) */
+    AC_BOOKMARKS          = 0x4000011eu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::AC_BOOKMARKS) */
+    SOFTLEFT              = 0x4000011fu, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::SOFTLEFT) */
+    SOFTRIGHT             = 0x40000120u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::SOFTRIGHT) */
+    CALL                  = 0x40000121u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::CALL) */
+    ENDCALL               = 0x40000122u, /**< YIALITE_SCANCODE_TO_KEYCODE(Scancode::ENDCALL) */
+    LEFT_TAB              = 0x20000001u, /**< Extended key Left Tab */
+    LEVEL5_SHIFT          = 0x20000002u, /**< Extended key Level 5 Shift */
+    MULTI_KEY_COMPOSE     = 0x20000003u, /**< Extended key Multi-key Compose */
+    LMETA                 = 0x20000004u, /**< Extended key Left Meta */
+    RMETA                 = 0x20000005u, /**< Extended key Right Meta */
+    LHYPER                = 0x20000006u, /**< Extended key Left Hyper */
+    RHYPER                = 0x20000007u  /**< Extended key Right Hyper */
+};
 
 //keymod
-#define YIALITE_KEY_MOD_NONE   0x0000u /**< no modifier is applicable. */
-#define YIALITE_KEY_MOD_LSHIFT 0x0001u /**< the left Shift key is down. */
-#define YIALITE_KEY_MOD_RSHIFT 0x0002u /**< the right Shift key is down. */
-#define YIALITE_KEY_MOD_LEVEL5 0x0004u /**< the Level 5 Shift key is down. */
-#define YIALITE_KEY_MOD_LCTRL  0x0040u /**< the left Ctrl (Control) key is down. */
-#define YIALITE_KEY_MOD_RCTRL  0x0080u /**< the right Ctrl (Control) key is down. */
-#define YIALITE_KEY_MOD_LALT   0x0100u /**< the left Alt key is down. */
-#define YIALITE_KEY_MOD_RALT   0x0200u /**< the right Alt key is down. */
-#define YIALITE_KEY_MOD_LGUI   0x0400u /**< the left GUI key (often the Windows key) is down. */
-#define YIALITE_KEY_MOD_RGUI   0x0800u /**< the right GUI key (often the Windows key) is down. */
-#define YIALITE_KEY_MOD_NUM    0x1000u /**< the Num Lock key (may be located on an extended keypad) is down. */
-#define YIALITE_KEY_MOD_CAPS   0x2000u /**< the Caps Lock key is down. */
-#define YIALITE_KEY_MOD_MODE   0x4000u /**< the !AltGr key is down. */
-#define YIALITE_KEY_MOD_SCROLL 0x8000u /**< the Scroll Lock key is down. */
-#define YIALITE_KEY_MOD_CTRL   (YIALITE_KEY_MOD_LCTRL | YIALITE_KEY_MOD_RCTRL)   /**< Any Ctrl key is down. */
-#define YIALITE_KEY_MOD_SHIFT  (YIALITE_KEY_MOD_LSHIFT | YIALITE_KEY_MOD_RSHIFT) /**< Any Shift key is down. */
-#define YIALITE_KEY_MOD_ALT    (YIALITE_KEY_MOD_LALT | YIALITE_KEY_MOD_RALT)     /**< Any Alt key is down. */
-#define YIALITE_KEY_MOD_GUI    (YIALITE_KEY_MOD_LGUI | YIALITE_KEY_MOD_RGUI)     /**< Any GUI key is down. */
+enum class Keymod : Uint16
+{
+    NONE   =  0x0000u, /**< no modifier is applicable. */
+    LSHIFT =  0x0001u, /**< the left Shift key is down. */
+    RSHIFT =  0x0002u, /**< the right Shift key is down. */
+    LEVEL5 =  0x0004u, /**< the Level 5 Shift key is down. */
+    LCTRL  =  0x0040u, /**< the left Ctrl (Control) key is down. */
+    RCTRL  =  0x0080u, /**< the right Ctrl (Control) key is down. */
+    LALT   =  0x0100u, /**< the left Alt key is down. */
+    RALT   =  0x0200u, /**< the right Alt key is down. */
+    LGUI   =  0x0400u, /**< the left GUI key (often the Windows key) is down. */
+    RGUI   =  0x0800u, /**< the right GUI key (often the Windows key) is down. */
+    NUM    =  0x1000u, /**< the Num Lock key (may be located on an extended keypad) is down. */
+    CAPS   =  0x2000u, /**< the Caps Lock key is down. */
+    MODE   =  0x4000u, /**< the !AltGr key is down. */
+    SCROLL =  0x8000u, /**< the Scroll Lock key is down. */
+    CTRL   =  (LCTRL  | RCTRL),   /**< Any Ctrl key is down. */
+    SHIFT  =  (LSHIFT | RSHIFT),  /**< Any Shift key is down.*/
+    ALT    =  (LALT   | RALT),    /**< Any Alt key is down. */
+    GUI    =  (LGUI   | RGUI)     /**< Any GUI key is down. */
+};
+
+}
 
 #endif
