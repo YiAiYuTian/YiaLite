@@ -17,6 +17,7 @@ endif()
 
 set(YIA_HEADERS
   "audio/audio_manager.h"
+  "backends/sdl/event/sdl_event_adapter.h"
   "core/config.h"
   "core/context.h"
   "core/core.h"
@@ -26,7 +27,10 @@ set(YIA_HEADERS
   "core/log.h"
   "core/result_export.h"
   "devui/devui.h"
-  "event/event.h"
+  "event/event_abstract.h"
+  "event/event_adapter.h"
+  "event/event_bus.h"
+  "event/event_manager.h"
   "event/keycode.h"
   "event/mouse_button.h"
   "input/input.h"
@@ -35,6 +39,7 @@ set(YIA_HEADERS
   "renderer/renderer2d.h"
   "renderer/render_color.h"
   "renderer/texture/texture2d.h"
+  "utils/containers/yia_array.h"
   "utils/containers/yia_hashmap.h"
   "utils/containers/yia_list.h"
   "utils/containers/yia_pair.h"
@@ -50,22 +55,23 @@ set(YIA_HEADERS
   "window/window.h")
 
 set(YIA_SOURCES
+  "audio/audio_manager.cpp"
+  "backends/sdl/event/sdl_event_adapter.cpp"
   "core/logger.cpp"
   "core/context.cpp"
   "core/initialize.cpp"
   "core/log.cpp"
   "core/result_export.cpp"
-  "audio/audio_manager.cpp"
+  "devui/devui.cpp"
+  "event/event_manager.cpp"
   "input/input.cpp"
-  "window/window.cpp"
   "renderer/renderer2d.cpp"
   "renderer/texture/texture2d.cpp"
-  "event/event.cpp"
-  "devui/devui.cpp"
   "utils/memory/allocator.cpp"
   "utils/memory/mem_pool.cpp"
   "utils/string/yia_string.cpp"
   "utils/string/yia_string_view.cpp"
+  "window/window.cpp"
 )
 
 set(THIRDPARTY_SOURSES

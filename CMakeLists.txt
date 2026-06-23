@@ -17,6 +17,7 @@ install(
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/yialite
   FILES_MATCHING PATTERN "*.h"
   PATTERN "thirdparty" EXCLUDE
+  PATTERN "backends" EXCLUDE
   PATTERN "logger.h" EXCLUDE
   PATTERN "mem_pool.h" EXCLUDE
 )

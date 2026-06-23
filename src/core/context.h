@@ -9,8 +9,8 @@ namespace yialite
 {
 
 class Window;
+class EventManager;
 class Renderer2D;
-class Event;
 class DevUI;
 
 class YIALITE_API Context
@@ -27,7 +27,7 @@ public:
 
     Window* window = nullptr;
     Renderer2D* renderer2d = nullptr;
-    Event* event = nullptr;
+    EventManager* event = nullptr;
     DevUI* devui = nullptr;
 private:
     Context() = default;

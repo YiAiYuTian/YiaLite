@@ -5,7 +5,7 @@
 #include "error.h"
 #include "../window/window.h"
 #include "../renderer/renderer2d.h"
-#include "../event/event.h"
+#include "../event/event_manager.h"
 #include "../devui/devui.h"
 #include "../utils/memory/allocator.h"
 
@@ -29,7 +29,7 @@ Context& Context::operator=(Context&& other) noexcept
     if (this != &other)
     {
         DevUI::destroy(devui);
-        Event::destroy(event);
+        EventManager::destroy(event);
         Renderer2D::destroy(renderer2d);
         Window::destroy(window);
 
@@ -51,18 +51,18 @@ Result<Context*> Context::create(const ContextConfig& config)
     Context* ctx = ALLOCATE_OBJECT(Context);
     if (!ctx) return Result<Context*>(ErrorCode::OutOfMemory, "Failed to allocate Context");
 
-    // 1. Initialize SDL
+    //initialize SDL
     auto init_result = init();
     if (!init_result)
         return Result<Context*>(init_result.error());
 
-    // 2. Create Window
+    //create window
     auto window_result = Window::create(config.window_config);
     if (!window_result)
         return Result<Context*>(window_result.error());
     ctx->window = window_result.value();
 
-    // 3. Create Renderer2D
+    //create renderer2d
     auto renderer_result = Renderer2D::create(ctx->window);
     if (!renderer_result)
     {
@@ -71,8 +71,8 @@ Result<Context*> Context::create(const ContextConfig& config)
     }
     ctx->renderer2d = renderer_result.value();
 
-    // 4. Create Event
-	auto event_result = Event::create();
+    //create event
+	auto event_result = EventManager::create();
     if (!event_result)
     {
 		Renderer2D::destroy(ctx->renderer2d);
@@ -81,20 +81,20 @@ Result<Context*> Context::create(const ContextConfig& config)
     }
     ctx->event = event_result.value();
 
-    // 5. Optionally create DevUI
+    //create devui
     ctx->devui = nullptr;
     if (config.enable_devui)
     {
         auto dev_result = DevUI::create(ctx->window, ctx->renderer2d);
         if (!dev_result)
         {
-			Event::destroy(ctx->event);
+			EventManager::destroy(ctx->event);
 			Renderer2D::destroy(ctx->renderer2d);
 			Window::destroy(ctx->window);
 			return Result<Context*>(dev_result.error());
         }
 		ctx->devui = dev_result.value();
-        ctx->event->register_devui_event(ctx->devui);
+        ctx->event->set_devui(ctx->devui);
     }
 
     return ctx;
@@ -108,7 +108,7 @@ void Context::destroy(Context* context)
 Context::~Context()
 {
     DevUI::destroy(devui);
-    Event::destroy(event);
+    EventManager::destroy(event);
     Renderer2D::destroy(renderer2d);
     Window::destroy(window);
     quit();

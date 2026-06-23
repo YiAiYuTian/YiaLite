@@ -13,7 +13,7 @@
 #include "audio/audio_manager.h"
 
 //event
-#include "event/event.h"
+#include "event/event_manager.h"
 
 //input
 #include "input/input.h"
@@ -37,5 +37,6 @@
 #include "utils/string/yia_string.h"
 #include "utils/containers/yia_list.h"
 #include "utils/containers/yia_hashmap.h"
+#include "utils/containers/yia_array.h"
 
 #endif
