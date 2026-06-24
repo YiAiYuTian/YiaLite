@@ -14,37 +14,22 @@ namespace detail
 
     template<typename T, typename U = void>
     struct is_functor : std::false_type {};
-
     template<typename T>
     struct is_functor<T, std::void_t<functor_op_ptr_type<T>>> : std::true_type {};
-
     template<typename T>
     constexpr bool is_functor_v = is_functor<T>::value;
 
     //event arg from callback
     template<typename T>
     struct event_arg_from_callback;
-
     template<typename T>
-    struct event_arg_from_callback<void(const T&)>
-    {
-        using type = T;
-    };
-
+    struct event_arg_from_callback<void(const T&)> { using type = T; };
     template<typename T>
     struct event_arg_from_callback<void(*)(const T&)> : event_arg_from_callback<void(const T&)> {};
-
     template<typename Obj, typename T>
-    struct event_arg_from_callback<void (Obj::*)(const T&) const>
-    {
-        using type = T;
-    };
-
+    struct event_arg_from_callback<void (Obj::*)(const T&) const> { using type = T; };
     template<typename Obj, typename T>
-    struct event_arg_from_callback<void (Obj::*)(const T&)>
-    {
-        using type = T;
-    };
+    struct event_arg_from_callback<void (Obj::*)(const T&)> { using type = T; };
 
     //event args type
     template<typename Fn, bool IsFunctor>
@@ -67,6 +52,7 @@ namespace detail
     template<typename Fn>
     using event_arg_t = typename event_arg_t_impl<Fn, is_functor_v<Fn>>::type;
 
+    //valid event callback
     template<typename Fn>
     concept valid_event_callback = requires {
         typename event_arg_t<Fn>;
@@ -85,6 +71,11 @@ class IEventAdapter;
 
 class YIALITE_API EventManager
 {
+    //example: void(const QuitEvent& e) {} or lambda [](const QuitEvent& e) ->void {} <--------
+    template<typename Fn>
+    using event_type = detail::event_arg_t<Fn>;
+    template<typename Fn>
+    using event_callback = Delegate<void(const event_type<Fn>&)>;
 public:
     ~EventManager();
     EventManager(EventManager&& other) noexcept;
@@ -97,20 +88,30 @@ public:
     void set_devui(DevUI* devui);
 
     template<detail::valid_event_callback Fn>
-    void subscribe(EventPriority prio, Fn&& f)
+    Subscription subscribe(EventPriority prio, Fn&& f)
     {
-        using event_type = detail::event_arg_t<Fn>;
-        using Callback = Delegate<void(const event_type&)>;
-
-        m_bus.subscribe<event_type>(prio, Callback{std::forward<Fn>(f)});
+        return m_bus.subscribe<event_type<Fn>>(prio, event_callback<Fn>{std::forward<Fn>(f)});
     }
     template<detail::valid_event_callback Fn>
-    void subscribe(Fn&& f)
+    Subscription subscribe(Fn&& f)
     {
-        using event_type = detail::event_arg_t<Fn>;
-        using Callback = Delegate<void(const event_type&)>;
+        return m_bus.subscribe<event_type<Fn>>(event_callback<Fn>{std::forward<Fn>(f)});
+    }
 
-        m_bus.subscribe<event_type>(Callback{std::forward<Fn>(f)});
+    template<detail::valid_event_callback Fn>
+    void callback_once(EventPriority prio, Fn&& f)
+    {
+        m_bus.callback_once<event_type<Fn>>(prio, event_callback<Fn>{std::forward<Fn>(f)});
+    }
+    template<detail::valid_event_callback Fn>
+    void callback_once(Fn&& f)
+    {
+        m_bus.callback_once<event_type<Fn>>(event_callback<Fn>{std::forward<Fn>(f)});
+    }
+
+    void unsubscribe(const Subscription& sp)
+    {
+        m_bus.unsubscribe(sp);
     }
 private:
     EventManager() = default;

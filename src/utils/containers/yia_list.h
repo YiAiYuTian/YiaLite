@@ -13,12 +13,10 @@ public:
     List() noexcept = default;
     explicit List(size_t capacity);
     List(size_t size, const T& value);
+    List(const List& other);
     List(List&& other) noexcept;
     ~List() noexcept;
     
-    List(const List& other) = delete;
-    List& operator=(const List& other) = delete;
-
     [[nodiscard]] T* data() noexcept;
     [[nodiscard]] const T* data() const noexcept;
 
@@ -30,6 +28,7 @@ public:
     const T* end() const noexcept;
 
     //operators
+    List& operator=(const List& other);
     List& operator=(List&& other) noexcept;
     T& operator[](size_t index) noexcept;
     const T& operator[](size_t index) const noexcept;
@@ -50,6 +49,8 @@ public:
     void erase(size_t index);
     void erase(size_t first, size_t last);
     T* erase(T* iterator);
+    T* erase(T* first, T* last);
+    bool need_shrink() const noexcept;
     void shrink_to_fit();
     [[nodiscard]] bool empty() const noexcept;
 private:
@@ -82,6 +83,21 @@ List<T>::List(size_t size, const T &value)
     for(size_t i = 0; i < size; ++i)
     {
         new (m_data + i) T(value);
+    }
+}
+
+template <typename T>
+List<T>::List(const List& other)
+{
+    if(other.m_capacity == 0) return;
+
+    m_capacity = other.m_capacity;
+    m_size = other.m_size;
+    m_data = static_cast<T*>(ALLOCATE_SIZED(m_capacity * sizeof(T)));
+
+    for(size_t i = 0; i < m_size; ++i)
+    {
+        new (m_data + i) T(other.m_data[i]);
     }
 }
 
@@ -153,7 +169,25 @@ T * List<T>::erase(T * iterator)
     return m_data + pos;
 }
 
-template <typename T>
+template<typename T>
+T* List<T>::erase(T* first, T* last)
+{
+    if(first > last || !first || first < m_data || first > m_data + m_size ||
+       !last || last < m_data || last > m_data + m_size) return nullptr;
+
+    size_t first_pos = static_cast<size_t>(first - m_data);
+    size_t last_pos = static_cast<size_t>(last - m_data);
+    erase(first_pos, last_pos);
+    return m_data + first_pos;
+}
+
+template<typename T>
+bool List<T>::need_shrink() const noexcept
+{
+    return m_size <= (m_capacity >> 1);
+}
+
+template<typename T>
 void List<T>::shrink_to_fit()
 {
     if(m_size == m_capacity) return;
@@ -238,6 +272,28 @@ template<typename T>
 const T* List<T>::end() const noexcept
 {
     return m_data + m_size;
+}
+
+template <typename T>
+List<T>& List<T>::operator=(const List<T>& other)
+{
+    if(this == &other) return *this;
+
+    clear();
+    DEALLOCATE(m_data);
+    m_capacity = other.m_capacity;
+    m_size = other.m_size;
+
+    if(m_capacity == 0) return *this;
+    
+    m_data = static_cast<T*>(ALLOCATE_SIZED(m_capacity * sizeof(T)));
+
+    for(size_t i = 0; i < m_size; ++i)
+    {
+        new (m_data + i) T(other.m_data[i]);
+    }
+
+    return *this;
 }
 
 template <typename T>

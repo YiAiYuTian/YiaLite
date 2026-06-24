@@ -9,7 +9,7 @@ namespace yialite
 //Copy in SDL_Keycode.h
 #define YIALITE_KEY_EXTENDED_MASK          (1u << 29)
 #define YIALITE_KEY_SCANCODE_MASK          (1u << 30)
-#define YIALITE_SCANCODE_TO_KEYCODE(x)  (static_cast<int>(x) | YIALITE_KEY_SCANCODE_MASK)
+#define YIALITE_SCANCODE_TO_KEYCODE(x)  (static_cast<yialite::Keycode>(static_cast<int>(x) | YIALITE_KEY_SCANCODE_MASK))
 
 //keycode
 enum class Keycode : Uint32

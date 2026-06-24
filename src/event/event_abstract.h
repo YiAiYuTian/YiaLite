@@ -28,13 +28,15 @@ enum class EventType : Uint32
     Max
 };
 
-enum class EventPriority
+enum class EventPriority : Uint8
 {
     UI = 0,
     GameLogic = 1,
-    Background = 2
+    Background = 2,
+
+    Max
 };
-constexpr size_t EVENT_PRIORITY_COUNT = 3;
+constexpr size_t EVENT_PRIORITY_COUNT = static_cast<size_t>(EventPriority::Max);
 
 class IEvent
 {
