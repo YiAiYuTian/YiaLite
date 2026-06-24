@@ -99,6 +99,13 @@ void SDLEventAdapter::poll_event(EventBus& bus, bool has_devui)
             bus.publish(e);
             break;
         }
+        case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+        {
+            WindowCloseRequestedEvent e;
+            e.win_id = m_event.window.windowID;
+            bus.publish(e);
+            break;
+        }
         default:
             break;
         }

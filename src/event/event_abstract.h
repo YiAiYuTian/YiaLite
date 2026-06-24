@@ -25,6 +25,7 @@ enum class EventType : Uint32
     WindowResize,
     WindowMoved,
     WindowFocus,
+    WindowCloseRequested,
 
     Max
 };
@@ -126,6 +127,14 @@ public:
     EventType get_type() const override { return EventType::WindowFocus; }
 };
 
+class WindowCloseRequestedEvent : public IEvent
+{
+public:
+    WindowID win_id;
+
+    EventType get_type() const override { return EventType::WindowCloseRequested; }
+};
+
 template<EventType E, typename EventClass>
 struct EventMeta
 {
@@ -141,7 +150,8 @@ using EventMetaMap = std::tuple<
     EventMeta<EventType::MouseMotion, MouseMotionEvent>,
     EventMeta<EventType::WindowResize, WindowResizeEvent>,
     EventMeta<EventType::WindowMoved, WindowMovedEvent>,
-    EventMeta<EventType::WindowFocus, WindowFocusEvent>
+    EventMeta<EventType::WindowFocus, WindowFocusEvent>,
+    EventMeta<EventType::WindowCloseRequested, WindowCloseRequestedEvent>
 >;
 
 namespace detail
