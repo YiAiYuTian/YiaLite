@@ -23,7 +23,7 @@
 #include "renderer/texture/texture2d.h"
 
 //window
-#include "window/window.h"
+#include "window/window_manager.h"
 
 //devui
 #include "devui/devui.h"

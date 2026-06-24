@@ -17,7 +17,7 @@ struct DialogFileFilter
     const char* pattern;
 };
 
-class IWindow
+class YIALITE_API IWindow
 {
 public:
     virtual ~IWindow() = default;

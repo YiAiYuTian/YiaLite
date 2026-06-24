@@ -8,6 +8,11 @@
 namespace yialite
 {
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4251)
+#endif
+
 class YIALITE_API WindowManager
 {
 public:
@@ -31,6 +36,10 @@ private:
     HashMap<WindowID, IWindow*> m_windows;
     WindowID m_first_window_id = INVALID_WINDOW_ID;
 };
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 }
 
