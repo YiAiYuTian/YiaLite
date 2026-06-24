@@ -18,6 +18,7 @@ endif()
 set(YIA_HEADERS
   "audio/audio_manager.h"
   "backends/sdl/event/sdl_event_adapter.h"
+  "backends/sdl/window/sdl_window.h"
   "core/config.h"
   "core/context.h"
   "core/core.h"
@@ -52,11 +53,15 @@ set(YIA_HEADERS
   "utils/hash_key.h"
   "utils/delegate.h"
   "utils/base_types.h"
-  "window/window.h")
+  "window/window_config.h"
+  "window/window_manager.h"
+  "window/window.h"
+)
 
 set(YIA_SOURCES
   "audio/audio_manager.cpp"
   "backends/sdl/event/sdl_event_adapter.cpp"
+  "backends/sdl/window/sdl_window.cpp"
   "core/logger.cpp"
   "core/context.cpp"
   "core/initialize.cpp"
@@ -71,6 +76,7 @@ set(YIA_SOURCES
   "utils/memory/mem_pool.cpp"
   "utils/string/yia_string.cpp"
   "utils/string/yia_string_view.cpp"
+  "window/window_manager.cpp"
   "window/window.cpp"
 )
 

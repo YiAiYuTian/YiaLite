@@ -5,6 +5,7 @@
 #include "mouse_button.h"
 #include "../utils/delegate.h"
 #include "../utils/base_types.h"
+#include "../window/window_config.h"
 
 #include <tuple>
 
@@ -36,7 +37,7 @@ enum class EventPriority : Uint8
 
     Max
 };
-constexpr size_t EVENT_PRIORITY_COUNT = static_cast<size_t>(EventPriority::Max);
+inline constexpr size_t EVENT_PRIORITY_COUNT = static_cast<size_t>(EventPriority::Max);
 
 class IEvent
 {
@@ -60,6 +61,7 @@ public:
     bool repeat;
     bool down;
     Keymod mod;
+    WindowID win_id;
 
     EventType get_type() const override { return EventType::Key; }
 };
@@ -71,6 +73,7 @@ public:
     float x, y;
     bool down;
     Uint8 clicks;
+    WindowID win_id;
 
     EventType get_type() const override { return EventType::MouseButton; }
 };
@@ -80,6 +83,7 @@ class MouseWheelEvent : public IEvent
 public:
     float x, y;
     float mouse_x, mouse_y;
+    WindowID win_id;
 
     EventType get_type() const override { return EventType::MouseWheel; }
 };
@@ -90,6 +94,7 @@ public:
     float x, y;
     float rel_x, rel_y;
     MouseButtonFlags_ btn_flags;
+    WindowID win_id;
 
     EventType get_type() const override { return EventType::MouseMotion; }
 };
@@ -98,6 +103,7 @@ class WindowResizeEvent : public IEvent
 {
 public:
     int w, h;
+    WindowID win_id;
 
     EventType get_type() const override { return EventType::WindowResize; }
 };
@@ -106,6 +112,7 @@ class WindowMovedEvent : public IEvent
 {
 public:
     int x, y;
+    WindowID win_id;
 
     EventType get_type() const override { return EventType::WindowMoved; }
 };
@@ -114,6 +121,7 @@ class WindowFocusEvent : public IEvent
 {
 public:
     bool gained;
+    WindowID win_id;
 
     EventType get_type() const override { return EventType::WindowFocus; }
 };

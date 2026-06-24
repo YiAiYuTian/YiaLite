@@ -3,7 +3,7 @@
 #include "logger.h"
 #include "initialize.h"
 #include "error.h"
-#include "../window/window.h"
+#include "../window/window_manager.h"
 #include "../renderer/renderer2d.h"
 #include "../event/event_manager.h"
 #include "../devui/devui.h"
@@ -13,14 +13,14 @@ namespace yialite
 {
 
 Context::Context(Context&& other) noexcept
-    : window(other.window)
+    : win_mgr(other.win_mgr)
     , renderer2d(other.renderer2d)
-    , event(other.event)
+    , evt_mgr(other.evt_mgr)
     , devui(other.devui)
 {
-    other.window = nullptr;
+    other.win_mgr = nullptr;
     other.renderer2d = nullptr;
-    other.event = nullptr;
+    other.evt_mgr = nullptr;
     other.devui = nullptr;
 }
 
@@ -29,18 +29,18 @@ Context& Context::operator=(Context&& other) noexcept
     if (this != &other)
     {
         DevUI::destroy(devui);
-        EventManager::destroy(event);
+        EventManager::destroy(evt_mgr);
         Renderer2D::destroy(renderer2d);
-        Window::destroy(window);
+        WindowManager::destroy(win_mgr);
 
-        window = other.window;
+        win_mgr = other.win_mgr;
         renderer2d = other.renderer2d;
-        event = other.event;
+        evt_mgr = other.evt_mgr;
         devui = other.devui;
 
-        other.window = nullptr;
+        other.win_mgr = nullptr;
         other.renderer2d = nullptr;
-        other.event = nullptr;
+        other.evt_mgr = nullptr;
         other.devui = nullptr;
     }
     return *this;
@@ -57,16 +57,16 @@ Result<Context*> Context::create(const ContextConfig& config)
         return Result<Context*>(init_result.error());
 
     //create window
-    auto window_result = Window::create(config.window_config);
+    auto window_result = WindowManager::create(config.window_config);
     if (!window_result)
         return Result<Context*>(window_result.error());
-    ctx->window = window_result.value();
+    ctx->win_mgr = window_result.value();
 
     //create renderer2d
-    auto renderer_result = Renderer2D::create(ctx->window);
+    auto renderer_result = Renderer2D::create(ctx->win_mgr->get_first_window());
     if (!renderer_result)
     {
-        Window::destroy(ctx->window);
+        WindowManager::destroy(ctx->win_mgr);
         return Result<Context*>(renderer_result.error());
     }
     ctx->renderer2d = renderer_result.value();
@@ -76,25 +76,25 @@ Result<Context*> Context::create(const ContextConfig& config)
     if (!event_result)
     {
 		Renderer2D::destroy(ctx->renderer2d);
-		Window::destroy(ctx->window);
+		WindowManager::destroy(ctx->win_mgr);
 		return Result<Context*>(event_result.error());
     }
-    ctx->event = event_result.value();
+    ctx->evt_mgr = event_result.value();
 
     //create devui
     ctx->devui = nullptr;
     if (config.enable_devui)
     {
-        auto dev_result = DevUI::create(ctx->window, ctx->renderer2d);
+        auto dev_result = DevUI::create(ctx->win_mgr->get_first_window(), ctx->renderer2d);
         if (!dev_result)
         {
-			EventManager::destroy(ctx->event);
+			EventManager::destroy(ctx->evt_mgr);
 			Renderer2D::destroy(ctx->renderer2d);
-			Window::destroy(ctx->window);
+			WindowManager::destroy(ctx->win_mgr);
 			return Result<Context*>(dev_result.error());
         }
 		ctx->devui = dev_result.value();
-        ctx->event->set_devui(ctx->devui);
+        ctx->evt_mgr->set_devui(ctx->devui);
     }
 
     return ctx;
@@ -108,15 +108,15 @@ void Context::destroy(Context* context)
 Context::~Context()
 {
     DevUI::destroy(devui);
-    EventManager::destroy(event);
+    EventManager::destroy(evt_mgr);
     Renderer2D::destroy(renderer2d);
-    Window::destroy(window);
+    WindowManager::destroy(win_mgr);
     quit();
 
     devui = nullptr;
-    event = nullptr;
+    evt_mgr = nullptr;
     renderer2d = nullptr;
-    window = nullptr;
+    win_mgr = nullptr;
 }
 
 }

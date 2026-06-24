@@ -27,7 +27,7 @@ struct DevUI::Impl
     SDL_Renderer* sdl_renderer = nullptr;
 };
 
-Result<DevUI*> DevUI::create(Window* window, Renderer2D* renderer)
+Result<DevUI*> DevUI::create(IWindow* window, Renderer2D* renderer)
 {
     DevUI* devui = ALLOCATE_OBJECT(DevUI);
     devui->m_impl = ALLOCATE(DevUI::Impl);

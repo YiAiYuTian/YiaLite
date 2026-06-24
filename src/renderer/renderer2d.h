@@ -8,7 +8,7 @@
 namespace yialite
 {
 
-class Window;
+class IWindow;
 class Texture2D;
 
 class YIALITE_API Renderer2D
@@ -20,7 +20,7 @@ public:
     Renderer2D(Renderer2D&& other) noexcept;
     Renderer2D& operator=(Renderer2D&& other) noexcept;
 
-    static Result<Renderer2D*> create(Window* window);
+    static Result<Renderer2D*> create(IWindow* window);
     static void destroy(Renderer2D* renderer);
 
     void begin_draw(const Color& background_color = COLOR_BLACK);

@@ -8,7 +8,7 @@
 namespace yialite
 {
 
-class Window;
+class WindowManager;
 class EventManager;
 class Renderer2D;
 class DevUI;
@@ -25,9 +25,9 @@ public:
     static Result<Context*> create(const ContextConfig& config);
     static void destroy(Context* context);
 
-    Window* window = nullptr;
+    WindowManager* win_mgr = nullptr;
     Renderer2D* renderer2d = nullptr;
-    EventManager* event = nullptr;
+    EventManager* evt_mgr = nullptr;
     DevUI* devui = nullptr;
 private:
     Context() = default;

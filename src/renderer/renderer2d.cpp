@@ -36,7 +36,7 @@ Renderer2D& Renderer2D::operator=(Renderer2D&& other) noexcept
     return *this;
 }
 
-Result<Renderer2D*> Renderer2D::create(Window* window)
+Result<Renderer2D*> Renderer2D::create(IWindow* window)
 {
     Renderer2D* r = ALLOCATE_OBJECT(Renderer2D);
     r->m_impl = ALLOCATE(Renderer2D::Impl);

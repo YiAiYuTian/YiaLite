@@ -2,6 +2,7 @@
 #define YIALITE_MOUSE_BUTTON_H
 
 #include "../utils/base_types.h"
+#include "../core/flag_macros.h"
 
 namespace yialite
 {
@@ -38,33 +39,8 @@ namespace detail
     }
 }
 
-//mouse button flags operator | 
-inline constexpr MouseButtonFlags_ operator|(MouseButtonFlags a, MouseButtonFlags b) 
-{
-    return detail::to_mouse_btn_flags_(a) | detail::to_mouse_btn_flags_(b);
-}
-inline constexpr MouseButtonFlags_ operator|(MouseButtonFlags a, MouseButtonFlags_ b) 
-{
-    return detail::to_mouse_btn_flags_(a) | b;
-}
-inline constexpr MouseButtonFlags_ operator|(MouseButtonFlags_ a, MouseButtonFlags b) 
-{
-    return a | detail::to_mouse_btn_flags_(b);
-}
-
-//mouse button flags operator &
-inline constexpr MouseButtonFlags_ operator&(MouseButtonFlags a, MouseButtonFlags b) 
-{
-    return detail::to_mouse_btn_flags_(a) & detail::to_mouse_btn_flags_(b);
-}
-inline constexpr MouseButtonFlags_ operator&(MouseButtonFlags a, MouseButtonFlags_ b) 
-{
-    return detail::to_mouse_btn_flags_(a) & b;
-}
-inline constexpr MouseButtonFlags_ operator&(MouseButtonFlags_ a, MouseButtonFlags b) 
-{
-    return a & detail::to_mouse_btn_flags_(b);
-}
+GEN_FLAG_BIN_OP_AND_ASSIGN_OP(|, MouseButtonFlags, MouseButtonFlags_, detail::to_mouse_btn_flags_)
+GEN_FLAG_BIN_OP_AND_ASSIGN_OP(&, MouseButtonFlags, MouseButtonFlags_, detail::to_mouse_btn_flags_)
 
 }
 

@@ -7,7 +7,7 @@
 namespace yialite
 {
 
-class Window;
+class IWindow;
 class Renderer2D;
 
 class YIALITE_API DevUI
@@ -19,7 +19,7 @@ public:
     DevUI(DevUI&&) = delete;
     DevUI& operator=(DevUI&&) = delete;
 
-    static Result<DevUI*> create(Window* window, Renderer2D* renderer);
+    static Result<DevUI*> create(IWindow* window, Renderer2D* renderer);
     static void destroy(DevUI* devui);
 
     void on_update();
