@@ -113,6 +113,11 @@ public:
     {
         m_bus.unsubscribe(sp);
     }
+
+    void publish(IEvent& event)
+    {
+        m_bus.publish(event);
+    }
 private:
     EventManager() = default;
     EventManager(const EventManager&) = delete;

@@ -8,11 +8,17 @@
 namespace yialite
 {
 
+typedef Uint32  EventTypeID;
+typedef Uint8   EventPriorityID;
+typedef Uint64  EventCallbackUID;
+
+constexpr EventCallbackUID EVENT_CALLBACK_UID_INVALID = 0;
+
 struct Subscription
 {
-    Uint32 event_type_id = 0;
-    Uint8 prio_id = 0;
-    Uint64 callback_uid = 0;
+    EventTypeID event_type_id = 0;
+    EventPriorityID prio_id = 0;
+    EventCallbackUID callback_uid = EVENT_CALLBACK_UID_INVALID;
 };
 
 class EventBus
@@ -22,7 +28,7 @@ private:
 
     struct WrappedHandle
     {
-        Uint64 uid;
+        EventCallbackUID uid;
         EventHandle callback;
     };
 
@@ -35,7 +41,10 @@ public:
     ~EventBus() = default;
     EventBus(const EventBus&) = delete;
     EventBus(EventBus&& other) noexcept 
-        : m_groups(std::move(other.m_groups)), m_uid_counter(other.m_uid_counter) { other.m_uid_counter = 1; }
+        : m_groups(std::move(other.m_groups)), m_uid_counter(other.m_uid_counter) 
+    { 
+        other.m_uid_counter = EVENT_CALLBACK_UID_INVALID; 
+    }
 
     //operators
     EventBus& operator=(const EventBus&) = delete;
@@ -45,7 +54,7 @@ public:
 
         m_groups = std::move(other.m_groups);
         m_uid_counter = other.m_uid_counter;
-        other.m_uid_counter = 1;
+        other.m_uid_counter = EVENT_CALLBACK_UID_INVALID;
         return *this;
     }
 
@@ -53,9 +62,9 @@ public:
     template<typename T>
     Subscription subscribe(EventPriority prio, Delegate<void(const T&)> callback)
     {
-        const Uint32 event_type_id = static_cast<Uint32>(get_event_type_enum<T>());
-        const Uint8 priority_id = static_cast<Uint8>(prio);
-        const Uint64 callback_uid = m_uid_counter++;
+        const EventTypeID event_type_id = static_cast<EventTypeID>(get_event_type_enum<T>());
+        const EventPriorityID priority_id = static_cast<EventPriorityID>(prio);
+        const EventCallbackUID callback_uid = ++m_uid_counter;
 
         EventHandle wrapper = 
             [cb = std::move(callback)](IEvent& e) -> void
@@ -64,7 +73,7 @@ public:
             };
 
         auto& wrapped_handle_group = m_groups[event_type_id];
-        wrapped_handle_group.handles.emplace_back(WrappedHandle{ callback_uid, std::move(wrapper) });
+        wrapped_handle_group.handles[priority_id].emplace_back(callback_uid, std::move(wrapper));
 
         return { event_type_id, priority_id, callback_uid };
     }
@@ -78,9 +87,9 @@ public:
     template<typename T>
     void callback_once(EventPriority prio, Delegate<void(const T&)> callback)
     {
-        const Uint32 event_type_id = static_cast<Uint32>(get_event_type_enum<T>());
-        const Uint8 priority_id = static_cast<Uint8>(prio);
-        const Uint64 callback_uid = m_uid_counter++;
+        const EventTypeID event_type_id = static_cast<EventTypeID>(get_event_type_enum<T>());
+        const EventPriorityID priority_id = static_cast<EventPriorityID>(prio);
+        const EventCallbackUID callback_uid = ++m_uid_counter;
 
         EventHandle wrapper = 
             [cb = std::move(callback), this, event_type_id, priority_id, callback_uid](IEvent& e) -> void
@@ -90,7 +99,7 @@ public:
             };
         
         auto& wrapped_handle_group = m_groups[event_type_id];
-        wrapped_handle_group.handles.emplace_back(WrappedHandle{ callback_uid, std::move(wrapper) });
+        wrapped_handle_group.handles[priority_id].emplace_back(callback_uid, std::move(wrapper));
     }
 
     template<typename T>
@@ -101,6 +110,8 @@ public:
 
     void unsubscribe(const Subscription& sp)
     {
+        if(sp.callback_uid == EVENT_CALLBACK_UID_INVALID) return;
+
         auto* group = m_groups.find(sp.event_type_id);
         if(!group) return;
 
@@ -117,7 +128,7 @@ public:
 
     void publish(IEvent& event)
     {
-        auto* group = m_groups.find(static_cast<Uint32>(event.get_type()));
+        auto* group = m_groups.find(static_cast<EventTypeID>(event.get_type()));
         if(!group) return;
 
         for (size_t prio = 0; prio < EVENT_PRIORITY_COUNT; ++prio)
@@ -142,11 +153,12 @@ public:
             }
         }
         m_groups.clear();
+        m_uid_counter = EVENT_CALLBACK_UID_INVALID;
     }
 private:
-    HashMap<Uint32, WrappedHandleGroup> m_groups;
+    HashMap<EventTypeID, WrappedHandleGroup> m_groups;
 
-    Uint64 m_uid_counter = 1;
+    EventCallbackUID m_uid_counter = EVENT_CALLBACK_UID_INVALID;
 };
 
 }
