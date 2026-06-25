@@ -22,6 +22,10 @@ public:
 
     [[nodiscard]] size_t size() const noexcept;
     [[nodiscard]] size_t capacity() const noexcept;
+    T& front() noexcept;
+    const T& front() const noexcept;
+    T& back() noexcept;
+    const T& back() const noexcept;
     T* begin() noexcept;
     T* end() noexcept;
     const T* begin() const noexcept;
@@ -48,10 +52,11 @@ public:
     void pop_back();
     void erase(size_t index);
     void erase(size_t first, size_t last);
-    T* erase(T* iterator);
-    T* erase(T* first, T* last);
+    T*   erase(T* iterator);
+    T*   erase(T* first, T* last);
     bool need_shrink() const noexcept;
     void shrink_to_fit();
+    void swap(List& other) noexcept;
     [[nodiscard]] bool empty() const noexcept;
 private:
     size_t calculate_capacity(size_t length) const;
@@ -200,7 +205,8 @@ void List<T>::shrink_to_fit()
         return;
     }
 
-    T* new_data = static_cast<T*>(ALLOCATE_SIZED(m_size * sizeof(T)));
+    size_t target_cap = (m_size < 16) ? 16 : m_size;
+    T* new_data = static_cast<T*>(ALLOCATE_SIZED(target_cap * sizeof(T)));
     for(size_t i = 0; i < m_size; ++i)
     {
         new (new_data + i) T(std::move(m_data[i]));
@@ -209,7 +215,15 @@ void List<T>::shrink_to_fit()
     DEALLOCATE(m_data);
 
     m_data = new_data;
-    m_capacity = m_size;
+    m_capacity = target_cap;
+}
+
+template <typename T>
+void List<T>::swap(List<T>& other) noexcept
+{
+    std::swap(m_data, other.m_data);
+    std::swap(m_size, other.m_size);
+    std::swap(m_capacity, other.m_capacity);
 }
 
 template <typename T>
@@ -248,6 +262,34 @@ template <typename T>
 size_t List<T>::capacity() const noexcept
 {
     return m_capacity;
+}
+
+template <typename T>
+T& List<T>::front() noexcept
+{
+    YIALITE_ASSERT(m_size > 0 && "List empty, cannot call front()");
+    return m_data[0];
+}
+
+template <typename T>
+const T& List<T>::front() const noexcept
+{
+    YIALITE_ASSERT(m_size > 0 && "List empty, cannot call front()");
+    return m_data[0];
+}
+
+template <typename T>
+T& List<T>::back() noexcept
+{
+    YIALITE_ASSERT(m_size > 0 && "List empty, cannot call back()");
+    return m_data[m_size - 1];
+}
+
+template <typename T>
+const T& List<T>::back() const noexcept
+{
+    YIALITE_ASSERT(m_size > 0 && "List empty, cannot call back()");
+    return m_data[m_size - 1];
 }
 
 template <typename T>

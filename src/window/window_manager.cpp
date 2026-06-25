@@ -1,41 +1,50 @@
 #include "pch.h"
 #include "window_manager.h"
 #include "../utils/memory/allocator.h"
+#include "../core/logger.h"
+#include "../backends/sdl/window/sdl_window.h"
 
 namespace yialite
 {
 
 WindowManager::~WindowManager()
 {
-    for(auto pair : m_windows)
+    for(auto& pair : m_windows)
     {
-        IWindow::destroy(pair.second);
+        pair.second->destroy();
+        DEALLOCATE_OBJECT(IWindow, pair.second);
     }
     m_windows.clear();
 }
 
 Result<WindowManager*> WindowManager::create(const WindowConfig& config)
 {
-    WindowManager* mgr = ALLOCATE_OBJECT(WindowManager);
-    if(!mgr) return Result<WindowManager*>(ErrorCode::OutOfMemory);
+    WindowManager* wm = ALLOCATE_OBJECT(WindowManager);
+    if(!wm) return Result<WindowManager*>(ErrorCode::OutOfMemory);
     
-    mgr->m_first_window_id = mgr->create_window(config);
-    return mgr;
+    wm->m_first_window_id = wm->create_window(config);
+    return wm;
 }
 
-void WindowManager::destroy(WindowManager *mgr)
+void WindowManager::destroy(WindowManager *wm)
 {
-    DEALLOCATE_OBJECT(WindowManager, mgr);
+    DEALLOCATE_OBJECT(WindowManager, wm);
 }
 
 WindowID WindowManager::create_window(const WindowConfig &config)
 {
-    auto window_result = IWindow::create(config);
-    if(!window_result) return INVALID_WINDOW_ID;
+    IWindow* win = ALLOCATE_OBJECT(SDLWindow);
+    if(!win) return INVALID_WINDOW_ID;
 
-    auto& window = window_result.value();
-    WindowID id = window->get_id();
-    m_windows.insert(id, window);
+    auto win_init_result = win->init(config);
+    if(!win_init_result)
+    {
+        Logger::error("Failed to initialize window: {}", win_init_result.error().message());
+        return INVALID_WINDOW_ID;
+    }
+
+    WindowID id = win->get_id();
+    m_windows.insert(id, win);
     return id;
 }
 
@@ -44,7 +53,8 @@ void WindowManager::destroy_window(WindowID id)
     auto window = m_windows.find(id);
     if(!window) return;
 
-    IWindow::destroy(*window);
+    (*window)->destroy();
+    DEALLOCATE_OBJECT(IWindow, *window);
     m_windows.remove(id);
 }
 

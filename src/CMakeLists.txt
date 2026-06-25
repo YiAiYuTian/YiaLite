@@ -17,8 +17,11 @@ endif()
 
 set(YIA_HEADERS
   "audio/audio_manager.h"
+  "audio/audio_adapter.h"
+  "audio/audio_types.h"
   "backends/sdl/event/sdl_event_adapter.h"
   "backends/sdl/window/sdl_window.h"
+  "backends/miniaudio/audio/miniaudio_adapter.h"
   "core/config.h"
   "core/context.h"
   "core/core.h"
@@ -62,6 +65,7 @@ set(YIA_SOURCES
   "audio/audio_manager.cpp"
   "backends/sdl/event/sdl_event_adapter.cpp"
   "backends/sdl/window/sdl_window.cpp"
+  "backends/miniaudio/audio/miniaudio_adapter.cpp"
   "core/logger.cpp"
   "core/context.cpp"
   "core/initialize.cpp"
@@ -77,7 +81,6 @@ set(YIA_SOURCES
   "utils/string/yia_string.cpp"
   "utils/string/yia_string_view.cpp"
   "window/window_manager.cpp"
-  "window/window.cpp"
 )
 
 set(THIRDPARTY_SOURSES

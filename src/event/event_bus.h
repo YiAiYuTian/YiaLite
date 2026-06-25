@@ -53,7 +53,7 @@ public:
     {
         const EventTypeID event_type_id = static_cast<EventTypeID>(get_event_type_enum<T>());
         const EventPriorityID priority_id = static_cast<EventPriorityID>(prio);
-        const EventCallbackID callback_id = ++m_id_counter;
+        const EventCallbackID callback_id = ++m_next_id;
 
         EventHandle wrapper = 
             [cb = std::move(callback)](IEvent& e) -> void
@@ -78,7 +78,7 @@ public:
     {
         const EventTypeID event_type_id = static_cast<EventTypeID>(get_event_type_enum<T>());
         const EventPriorityID priority_id = static_cast<EventPriorityID>(prio);
-        const EventCallbackID callback_id = ++m_id_counter;
+        const EventCallbackID callback_id = ++m_next_id;
 
         EventHandle wrapper = 
             [cb = std::move(callback), this, event_type_id, priority_id, callback_id](IEvent& e) -> void
@@ -135,7 +135,7 @@ public:
                 group.handles[i].clear();
             }
         }
-        m_id_counter = INVALID_EVENT_CALLBACK_UID;
+        m_next_id = INVALID_EVENT_CALLBACK_UID;
     }
 private:
     void mark_dead(const Subscription& sp)
@@ -149,7 +149,7 @@ private:
 private:
     Array<WrappedHandleGroup, static_cast<size_t>(EventType::Max)> m_groups;
 
-    EventCallbackID m_id_counter = INVALID_EVENT_CALLBACK_UID;
+    EventCallbackID m_next_id = INVALID_EVENT_CALLBACK_UID;
 };
 
 }

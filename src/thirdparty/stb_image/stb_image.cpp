@@ -1,17 +1,17 @@
 ﻿#include "pch.h"
 #include "../../utils/memory/allocator.h"
 
-void* yialite_stb_malloc(size_t size)
+static void* yialite_stb_malloc(size_t size)
 {
    return ALLOCATE_SIZED(size);
 }
 
-void* yialite_stb_realloc(void* ptr, size_t size)
+static void* yialite_stb_realloc(void* ptr, size_t size)
 {
    return REALLOCATE_SIZED(ptr, size);
 }
 
-void yialite_stb_free(void* ptr)
+static void yialite_stb_free(void* ptr)
 {
    DEALLOCATE(ptr);
 }

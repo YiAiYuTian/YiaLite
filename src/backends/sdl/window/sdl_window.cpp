@@ -35,25 +35,20 @@ static SDL_WindowFlags to_sdl_flags(WindowFlags_ flags)
     return result;
 }
 
-SDLWindow::~SDLWindow()
+Result<void> SDLWindow::init(const WindowConfig &config)
+{
+    if(m_window) return ok();
+
+    m_window = SDL_CreateWindow(config.title, config.width, config.height, to_sdl_flags(config.flags));
+    if (!m_window) return Result<void>(ErrorCode::WindowCreateFailed, SDL_GetError());
+
+    return ok();
+}
+
+void SDLWindow::destroy()
 {
     SDL_DestroyWindow(m_window);
-}
-
-Result<IWindow*> SDLWindow::create(const WindowConfig &config)
-{
-    SDLWindow* window = ALLOCATE_OBJECT(SDLWindow);
-    if(!window) return Result<IWindow*>(ErrorCode::OutOfMemory);
-
-    window->m_window = SDL_CreateWindow(config.title, config.width, config.height, to_sdl_flags(config.flags));
-    if (!window->m_window) return Result<IWindow*>(ErrorCode::WindowCreateFailed, SDL_GetError());
-
-    return static_cast<IWindow*>(window);
-}
-
-void SDLWindow::destroy(IWindow *window)
-{
-    DEALLOCATE_OBJECT(IWindow, window);
+    m_window = nullptr;
 }
 
 void SDLWindow::show_open_file_dialog(DialogFileCallback callback, const DialogFileFilter* filters, int nfilters, const char *default_location, bool allow_many)

@@ -20,12 +20,14 @@ struct DialogFileFilter
 class YIALITE_API IWindow
 {
 public:
+    IWindow() = default;
     virtual ~IWindow() = default;
     IWindow(IWindow&&) = delete;
     IWindow(const IWindow&) = delete;
 
-    static Result<IWindow*> create(const WindowConfig& config);
-    static void destroy(IWindow* window);
+    //ptr use
+    virtual Result<void> init(const WindowConfig& config) = 0;
+    virtual void destroy() = 0;
 
     //operators
     IWindow& operator=(IWindow&&) = delete;
@@ -67,8 +69,6 @@ public:
     //For internal use only
     virtual void* get_native_handle() = 0;
     virtual const void* get_native_handle() const = 0;
-protected:
-    IWindow() = default;
 };
 
 }

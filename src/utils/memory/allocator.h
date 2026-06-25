@@ -56,7 +56,7 @@ public:
     do{\
         if(ptr){\
             using _type = type;\
-            ptr->~_type();\
+            (ptr)->~_type();\
             yialite::Allocator::deallocate(ptr);\
         }\
     } while(0)

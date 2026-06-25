@@ -20,7 +20,7 @@ public:
 
     //tools
     static Result<WindowManager*> create(const WindowConfig& config);
-    static void destroy(WindowManager* mgr);
+    static void destroy(WindowManager* wm);
 
     WindowID create_window(const WindowConfig& config);
     void destroy_window(WindowID id);
@@ -35,6 +35,8 @@ private:
     WindowManager() = default;
     WindowManager(WindowManager&&) = delete;
     WindowManager(const WindowManager&) = delete;
+    
+    //operators
     WindowManager& operator=(WindowManager&&) = delete;
     WindowManager& operator=(const WindowManager&) = delete;
 private:

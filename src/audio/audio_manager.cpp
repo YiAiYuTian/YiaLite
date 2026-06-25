@@ -1,231 +1,199 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "audio_manager.h"
+#include "../backends/miniaudio/audio/miniaudio_adapter.h"
 #include "../core/error.h"
-#include "../core/logger.h"
 #include "../utils/memory/allocator.h"
-#include "../utils/containers/yia_hashmap.h"
-#include "../utils/string/yia_string.h"
-
-#include <miniaudio_libvorbis.h>
 
 namespace yialite
 {
 
-void* yialite_miniaudio_malloc(size_t sz, void* pUserData)
-{
-    return ALLOCATE_SIZED(sz);
-}
-
-void* yialite_miniaudio_realloc(void *p, size_t sz, void *pUserData)
-{
-    return REALLOCATE_SIZED(p, sz);
-}
-
-void yialite_miniaudio_free(void *p, void *pUserData)
-{
-    DEALLOCATE(p);
-}
-
-struct AudioManager::Impl
-{
-    ma_engine engine;
-    ma_resource_manager resource_manager;
-    HashMap<String, ma_sound*> sounds;
-};
-
-AudioManager::AudioManager(AudioManager&& other) noexcept
-    : m_impl(other.m_impl)
-{
-    other.m_impl = nullptr;
-}
-
-AudioManager& AudioManager::operator=(AudioManager&& other) noexcept
-{
-    if (this != &other)
-    {
-        if (m_impl)
-        {
-            for (auto pair : m_impl->sounds)
-            {
-                ma_sound_uninit(pair.second);
-                DEALLOCATE(pair.second);
-            }
-            m_impl->sounds.clear();
-            ma_engine_uninit(&m_impl->engine);
-            ma_resource_manager_uninit(&m_impl->resource_manager);
-            DEALLOCATE_OBJECT(AudioManager::Impl, m_impl);
-        }
-        m_impl = other.m_impl;
-        other.m_impl = nullptr;
-    }
-    return *this;
-}
-
 Result<AudioManager*> AudioManager::create()
 {
     AudioManager* am = ALLOCATE_OBJECT(AudioManager);
-    am->m_impl = ALLOCATE_OBJECT(AudioManager::Impl);
+    if (!am) return Result<AudioManager*>(ErrorCode::OutOfMemory, "Failed to allocate AudioManager");
 
-    ma_result result;
-    ma_resource_manager_config resource_manager_config;
-    ma_engine_config engine_config;
-
-    ma_decoding_backend_vtable* pCustomBackendVTables[] = {
-        ma_decoding_backend_libvorbis,
-        nullptr
-    };
-
-    resource_manager_config = ma_resource_manager_config_init();
-    resource_manager_config.ppCustomDecodingBackendVTables = pCustomBackendVTables;
-    resource_manager_config.customDecodingBackendCount     = sizeof(pCustomBackendVTables) / sizeof(pCustomBackendVTables[0]);
-    resource_manager_config.pCustomDecodingBackendUserData = nullptr;
-
-    result = ma_resource_manager_init(&resource_manager_config, &am->m_impl->resource_manager);
-    if (result != MA_SUCCESS)
+    IAudioAdapter* adapter = ALLOCATE_OBJECT(MiniaudioAdapter);
+    if (!adapter)
     {
-        DEALLOCATE_OBJECT(AudioManager::Impl, am->m_impl);
-        am->m_impl = nullptr;
         DEALLOCATE_OBJECT(AudioManager, am);
-        return Result<AudioManager*>(ErrorCode::AudioEngineInitFailed, ma_result_description(result));
+        return Result<AudioManager*>(ErrorCode::OutOfMemory, "Failed to allocate MiniaudioAdapter");
     }
 
-    engine_config = ma_engine_config_init();
-    engine_config.pResourceManager = &am->m_impl->resource_manager;
-    engine_config.allocationCallbacks.onMalloc   = yialite_miniaudio_malloc;
-    engine_config.allocationCallbacks.onRealloc  = yialite_miniaudio_realloc;
-    engine_config.allocationCallbacks.onFree     = yialite_miniaudio_free;
-
-    result = ma_engine_init(&engine_config, &am->m_impl->engine);
-    if (result != MA_SUCCESS)
+    auto init_result = adapter->init();
+    if (!init_result)
     {
-        ma_resource_manager_uninit(&am->m_impl->resource_manager);
-        DEALLOCATE_OBJECT(AudioManager::Impl, am->m_impl);
-        am->m_impl = nullptr;
+        DEALLOCATE_OBJECT(IAudioAdapter, adapter);
         DEALLOCATE_OBJECT(AudioManager, am);
-        return Result<AudioManager*>(ErrorCode::AudioEngineInitFailed, ma_result_description(result));
+        return Result<AudioManager*>(init_result.error());
     }
 
-    Logger::info("AudioManager initialized successfully");
+    am->m_adapter = adapter;
     return am;
 }
 
 AudioManager::~AudioManager()
 {
-    if (!m_impl) return;
-
-    for (auto pair : m_impl->sounds)
+    if (m_adapter)
     {
-        ma_sound_uninit(pair.second);
-        DEALLOCATE(pair.second);
+        m_adapter->destroy();
+        DEALLOCATE_OBJECT(IAudioAdapter, m_adapter);
+        m_adapter = nullptr;
     }
-    m_impl->sounds.clear();
-
-    ma_engine_uninit(&m_impl->engine);
-    ma_resource_manager_uninit(&m_impl->resource_manager);
-    DEALLOCATE_OBJECT(AudioManager::Impl, m_impl);
-    m_impl = nullptr;
 }
 
-void AudioManager::destroy(AudioManager* manager)
+void AudioManager::destroy(AudioManager* am)
 {
-    DEALLOCATE_OBJECT(AudioManager, manager);
+    DEALLOCATE_OBJECT(AudioManager, am);
 }
 
-Result<void> AudioManager::add_sound(const char* name, const char* path)
+void AudioManager::update(float dt)
 {
-    ma_result result;
-    String sound_name(name);
-    ma_sound* sound = nullptr;
-
-    sound = ALLOCATE(ma_sound);
-
-    result = ma_sound_init_from_file(&m_impl->engine, path, 0, NULL, NULL, sound);
-    if (result != MA_SUCCESS)
-    {
-        DEALLOCATE(sound);
-        return Result<void>(ErrorCode::SoundLoadFailed, ma_result_description(result));
-    }
-
-    m_impl->sounds.emplace(std::move(sound_name), std::move(sound));
-    return ok();
+    if (m_adapter) m_adapter->update(dt);
 }
 
-Result<void> AudioManager::replace_sound(const char* name, const char* path)
+SoundID AudioManager::load_sound(const char* path)
 {
-    String key(name);
-    if (auto value = m_impl->sounds.find(key); value)
-    {
-        ma_sound_uninit(*value);
-        DEALLOCATE(*value);
-        m_impl->sounds.remove(key);
-        return add_sound(name, path);
-    }
-    return Result<void>(ErrorCode::SoundNotFound, "Sound '" + String(name) + "' not found, replace failed");
+    return m_adapter ? m_adapter->load_sound(path) : INVALID_SOUND_ID;
 }
 
-Result<void> AudioManager::remove_sound(const char* name)
+void AudioManager::unload_sound(SoundID id)
 {
-    String key(name);
-    if (auto value = m_impl->sounds.find(key); value)
-    {
-        ma_sound_uninit(*value);
-        DEALLOCATE(*value);
-        m_impl->sounds.remove(key);
-        return ok();
-    }
-	return Result<void>(ErrorCode::SoundNotFound, "Sound '" + String(name) + "' not found, remove failed");
+    if (m_adapter) m_adapter->unload_sound(id);
 }
 
-void AudioManager::remove_all_sounds()
+void AudioManager::unload_all_sounds()
 {
-    for (auto pair : m_impl->sounds)
-    {
-        ma_sound_uninit(pair.second);
-        DEALLOCATE(pair.second);
-    }
-    m_impl->sounds.clear();
+    if (m_adapter) m_adapter->unload_all_sounds();
 }
 
-bool AudioManager::has_sound(const char* name) const
+bool AudioManager::is_sound_loaded(SoundID id) const
 {
-    return m_impl->sounds.find(String(name), nullptr);
+    return m_adapter ? m_adapter->is_sound_loaded(id) : false;
 }
 
-Result<void> AudioManager::play_sound(const char* path)
+VoiceID AudioManager::play(SoundID id, const PlayParams& params)
 {
-    ma_result result;
-    result = ma_engine_play_sound(&m_impl->engine, path, nullptr);
-    if (result != MA_SUCCESS)
-    {
-        return Result<void>(ErrorCode::SoundPlayFailed, "Failed to play sound '" + String(path) + "' :" + ma_result_description(result));
-    }
-    return ok();
+    return m_adapter ? m_adapter->play(id, params) : INVALID_VOICE_ID;
 }
 
-Result<void> AudioManager::play_sound_from_name(const char* name, bool loop, float volume)
+void AudioManager::stop(VoiceID voice)
 {
-    String key(name);
-    if (auto value = m_impl->sounds.find(key); value)
-    {
-        ma_result result;
-        if (loop) ma_sound_set_looping(*value, MA_TRUE);
-        volume = std::clamp(volume, 0.0f, 1.0f);
-        ma_sound_set_volume(*value, volume);
+    if (m_adapter) m_adapter->stop(voice);
+}
 
-        result = ma_sound_start(*value);
-        if (result != MA_SUCCESS)
-        {
-			return Result<void>(ErrorCode::SoundPlayFailed, "Failed to play sound '" + String(name) + "' :" + ma_result_description(result));
-        }
-        return ok();
-    }
+void AudioManager::stop_all_voices()
+{
+    if (m_adapter) m_adapter->stop_all_voices();
+}
 
-    return Result<void>(ErrorCode::SoundNotFound, "Sound '" + String(name) + "' not found");
+void AudioManager::pause(VoiceID voice)
+{
+    if (m_adapter) m_adapter->pause(voice);
+}
+
+void AudioManager::resume(VoiceID voice)
+{
+    if (m_adapter) m_adapter->resume(voice);
+}
+
+bool AudioManager::is_voice_playing(VoiceID voice) const
+{
+    return m_adapter ? m_adapter->is_voice_playing(voice) : false;
+}
+
+void AudioManager::set_volume(VoiceID voice, float v)
+{
+    if (m_adapter) m_adapter->set_volume(voice, v);
+}
+
+void AudioManager::set_pitch(VoiceID voice, float v)
+{
+    if (m_adapter) m_adapter->set_pitch(voice, v);
+}
+
+void AudioManager::set_pan(VoiceID voice, float v)
+{
+    if (m_adapter) m_adapter->set_pan(voice, v);
+}
+
+void AudioManager::set_loop(VoiceID voice, bool loop)
+{
+    if (m_adapter) m_adapter->set_loop(voice, loop);
+}
+
+void AudioManager::set_spatialization(VoiceID voice, bool enabled)
+{
+    if (m_adapter) m_adapter->set_spatialization(voice, enabled);
+}
+
+void AudioManager::set_voice_position(VoiceID voice, float x, float y, float z)
+{
+    if (m_adapter) m_adapter->set_voice_position(voice, x, y, z);
+}
+
+void AudioManager::set_voice_velocity(VoiceID voice, float x, float y, float z)
+{
+    if (m_adapter) m_adapter->set_voice_velocity(voice, x, y, z);
+}
+
+void AudioManager::set_voice_distance(VoiceID voice, float min_dist, float max_dist)
+{
+    if (m_adapter) m_adapter->set_voice_distance(voice, min_dist, max_dist);
+}
+
+void AudioManager::fade_out_and_stop(VoiceID voice, float seconds)
+{
+    if (m_adapter) m_adapter->fade_out_and_stop(voice, seconds);
+}
+
+void AudioManager::create_bus(const char* name)
+{
+    if (m_adapter) m_adapter->create_bus(name);
+}
+
+void AudioManager::set_bus_volume(const char* name, float v)
+{
+    if (m_adapter) m_adapter->set_bus_volume(name, v);
+}
+
+void AudioManager::pause_bus(const char* name)
+{
+    if (m_adapter) m_adapter->pause_bus(name);
+}
+
+void AudioManager::resume_bus(const char* name)
+{
+    if (m_adapter) m_adapter->resume_bus(name);
+}
+
+void AudioManager::remove_bus(const char* name)
+{
+    if (m_adapter) m_adapter->remove_bus(name);
+}
+
+void AudioManager::set_listener(const ListenerState& state)
+{
+    if (m_adapter) m_adapter->set_listener(state);
+}
+
+void AudioManager::set_doppler_factor(float factor)
+{
+    if (m_adapter) m_adapter->set_doppler_factor(factor);
+}
+
+void AudioManager::set_speed_of_sound(float speed)
+{
+    if (m_adapter) m_adapter->set_speed_of_sound(speed);
 }
 
 size_t AudioManager::get_sound_count() const
 {
-    return m_impl->sounds.size();
+    return m_adapter ? m_adapter->get_sound_count() : 0;
+}
+
+size_t AudioManager::get_voice_count() const
+{
+    return m_adapter ? m_adapter->get_voice_count() : 0;
 }
 
 }

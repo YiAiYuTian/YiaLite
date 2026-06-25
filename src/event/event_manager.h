@@ -121,6 +121,8 @@ private:
     EventManager() = default;
     EventManager(EventManager&&) = delete;
     EventManager(const EventManager&) = delete;
+    
+    //operators
     EventManager& operator=(EventManager&&) = delete;
     EventManager& operator=(const EventManager&) = delete;
 private:

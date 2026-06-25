@@ -1,4 +1,4 @@
-#ifndef YIALITE_HASHMAP_H
+﻿#ifndef YIALITE_HASHMAP_H
 #define YIALITE_HASHMAP_H
 
 #include "../../core/core.h"
@@ -24,13 +24,12 @@ public:
         struct DirectTag {};
         Iterator(HashMap* map, size_t index, DirectTag) : m_map(map), m_index(index) {}
 
-        Pair<Key&, Value&> operator*() const
+        Pair<const Key, Value>& operator*() const
         {
-            return { m_map->m_pairs[m_index].first,
-                     m_map->m_pairs[m_index].second };
+            return m_map->m_pairs[m_index];
         }
 
-        Pair<Key, Value>* operator->() const
+        Pair<const Key, Value>* operator->() const
         {
             return &m_map->m_pairs[m_index];
         }
@@ -90,6 +89,7 @@ public:
     //tools
     void clear();
     void reserve(size_t capacity);
+    void swap(HashMap& other) noexcept;
     Iterator emplace(Key&& key, Value&& value);
     Iterator insert(const Key& key, const Value& value);
     bool find(const Key& key, Value** value) const;
@@ -103,7 +103,6 @@ public:
 
     Iterator begin() { return Iterator(this, 0); }
     Iterator end()   { return Iterator(this, m_capacity); }
-
 public:
     constexpr static size_t invalid_index = static_cast<size_t>(-1);
 private:
@@ -119,7 +118,7 @@ private:
         Deleted  = 2
     };
 private:
-    Pair<Key, Value>* m_pairs  = nullptr;
+    Pair<const Key, Value>* m_pairs  = nullptr;
     Uint8*            m_states = nullptr;
     size_t            m_size   = 0;
     size_t            m_capacity = 0;
@@ -257,8 +256,7 @@ typename HashMap<Key, Value>::Iterator HashMap<Key, Value>::emplace(Key&& key, V
 
     if (!found)
     {
-        new (&m_pairs[idx].first)  Key(std::move(key));
-        new (&m_pairs[idx].second) Value(std::move(value));
+        new (&m_pairs[idx]) Pair<const Key, Value>(std::move(key), std::move(value));
         m_states[idx] = BucketState::Occupied;
         ++m_size;
     }
@@ -280,8 +278,7 @@ typename HashMap<Key, Value>::Iterator HashMap<Key, Value>::insert(const Key& ke
 
     if (!found)
     {
-        new (&m_pairs[idx].first)  Key(key);
-        new (&m_pairs[idx].second) Value(value);
+        new (&m_pairs[idx]) Pair<const Key, Value>(key, value);
         m_states[idx] = BucketState::Occupied;
         ++m_size;
     }
@@ -371,7 +368,7 @@ void HashMap<Key, Value>::reserve(size_t capacity)
 
     size_t saved_size = m_size;
 
-    Pair<Key, Value>* new_pairs  = static_cast<Pair<Key, Value>*>(ALLOCATE_SIZED(new_capacity * sizeof(Pair<Key, Value>)));
+    Pair<const Key, Value>* new_pairs  = static_cast<Pair<const Key, Value>*>(ALLOCATE_SIZED(new_capacity * sizeof(Pair<const Key, Value>)));
     Uint8*            new_states = static_cast<Uint8*>(ALLOCATE_SIZED(new_capacity * sizeof(Uint8)));
 
     reset_states(new_states, new_capacity);
@@ -386,8 +383,7 @@ void HashMap<Key, Value>::reserve(size_t capacity)
             while (new_states[idx] == BucketState::Occupied)
                 idx = (idx + 1) % new_capacity;
 
-            new (&new_pairs[idx].first)  Key(std::move(m_pairs[i].first));
-            new (&new_pairs[idx].second) Value(std::move(m_pairs[i].second));
+            new (&new_pairs[idx]) Pair<const Key, Value>(std::move(m_pairs[i].first), std::move(m_pairs[i].second));
             m_pairs[i].first.~Key();
             m_pairs[i].second.~Value();
             new_states[idx] = BucketState::Occupied;
@@ -401,6 +397,15 @@ void HashMap<Key, Value>::reserve(size_t capacity)
     m_states   = new_states;
     m_capacity = new_capacity;
     m_size     = saved_size;
+}
+
+template<typename Key, typename Value>
+void HashMap<Key, Value>::swap(HashMap<Key, Value>& other) noexcept
+{
+    std::swap(m_pairs, other.m_pairs);
+    std::swap(m_states, other.m_states);
+    std::swap(m_size, other.m_size);
+    std::swap(m_capacity, other.m_capacity);
 }
 
 template<typename Key, typename Value>

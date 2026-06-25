@@ -12,10 +12,11 @@ namespace yialite
 class SDLWindow : public IWindow
 {
 public:
-    ~SDLWindow() override;
+    SDLWindow() = default;
+    ~SDLWindow() override = default;
 
-    static Result<IWindow*> create(const WindowConfig& config);
-    static void destroy(IWindow* window);
+    Result<void> init(const WindowConfig& config) override;
+    void destroy() override;
 
     void show_open_file_dialog(
         DialogFileCallback callback,
@@ -54,9 +55,7 @@ public:
     inline void* get_native_handle() override { return reinterpret_cast<void*>(m_window); }
     inline const void* get_native_handle() const override { return reinterpret_cast<void*>(m_window); }
 private:
-    SDLWindow() = default;
-private:
-    SDL_Window* m_window;
+    SDL_Window* m_window = nullptr;
 };
 
 }
