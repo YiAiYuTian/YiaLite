@@ -9,8 +9,8 @@ namespace yialite
 class Context;
 extern template class Result<Context*>;
 
-class Window;
-extern template class Result<Window*>;
+class WindowManager;
+extern template class Result<WindowManager*>;
 
 class Renderer2D;
 extern template class Result<Renderer2D*>;
@@ -18,8 +18,8 @@ extern template class Result<Renderer2D*>;
 class Texture2D;
 extern template class Result<Texture2D*>;
 
-class Event;
-extern template class Result<Event*>;
+class EventManager;
+extern template class Result<EventManager*>;
 
 class DevUI;
 extern template class Result<DevUI*>;
