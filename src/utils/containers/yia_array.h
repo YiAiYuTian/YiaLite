@@ -1,7 +1,5 @@
-#ifndef YIALITE_ARRAY_H
+﻿#ifndef YIALITE_ARRAY_H
 #define YIALITE_ARRAY_H
-
-#include <utility>
 
 namespace yialite
 {
@@ -11,44 +9,34 @@ class Array
 {
 public:
     Array() = default;
-    Array(const Array&) = delete;
-    Array(Array&& other) noexcept
-    {
-        for(size_t i = 0; i < N; ++i)
-        {
-            m_data[i] = std::move(other.m_data[i]);
-        }
-    }
     ~Array() = default;
+    Array(Array&&) = delete;
+    Array(const Array&) = delete;
 
     //operators
+    Array& operator=(Array&&) = delete;
     Array& operator=(const Array&) = delete;
-    Array& operator=(Array&& other) noexcept
-    {
-        if(this == &other) return *this;
-        
-        for(size_t i = 0; i < N; ++i)
-        {
-            m_data[i] = std::move(other.m_data[i]);
-        }
-        return *this;
-    }
-
-    T& operator[](size_t idx) noexcept
-    {
-        return m_data[idx];
-    }
-    const T& operator[](size_t idx) const noexcept
-    {
-        return m_data[idx];
-    }
+    [[nodiscard]] T& operator[](size_t idx) noexcept { return m_data[idx]; }
+    [[nodiscard]] const T& operator[](size_t idx) const noexcept { return m_data[idx]; }
 
     //tools
-    T* begin() noexcept             { return m_data; }
-    T* end() noexcept               { return m_data + N; }
+    [[nodiscard]] T* data() noexcept { return m_data; }
+    [[nodiscard]] const T* data() const noexcept { return m_data; }
+
+    T* begin() noexcept { return m_data; }
+    T* end() noexcept { return m_data + N; }
     const T* begin() const noexcept { return m_data; }
-    const T* end() const noexcept   { return m_data + N; }
+    const T* end() const noexcept { return m_data + N; }
+
     [[nodiscard]] constexpr size_t size() const noexcept { return N; }
+    [[nodiscard]] constexpr size_t max_size() const noexcept { return N; }
+    [[nodiscard]] constexpr bool empty() const noexcept { return N == 0; }
+
+    void fill(const T& value)
+    {
+        for (size_t i = 0; i < N; ++i)
+            m_data[i] = value;
+    }
 private:
     T m_data[N];
 };

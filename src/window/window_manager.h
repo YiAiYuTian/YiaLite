@@ -18,6 +18,7 @@ class YIALITE_API WindowManager
 public:
     ~WindowManager();
 
+    //tools
     static Result<WindowManager*> create(const WindowConfig& config);
     static void destroy(WindowManager* mgr);
 
@@ -32,6 +33,10 @@ public:
     const void* get_native_handle(WindowID id) const;
 private:
     WindowManager() = default;
+    WindowManager(WindowManager&&) = delete;
+    WindowManager(const WindowManager&) = delete;
+    WindowManager& operator=(WindowManager&&) = delete;
+    WindowManager& operator=(const WindowManager&) = delete;
 private:
     HashMap<WindowID, IWindow*> m_windows;
     WindowID m_first_window_id = INVALID_WINDOW_ID;

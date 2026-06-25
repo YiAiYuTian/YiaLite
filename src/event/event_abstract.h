@@ -14,8 +14,7 @@ namespace yialite
 
 enum class EventType : Uint32
 {
-    None = 0,
-    Quit,
+    Quit = 0,
 
     Key,
     MouseButton,

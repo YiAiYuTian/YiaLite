@@ -2,7 +2,7 @@
 #define YIALITE_EVENT_BUS_H
 
 #include "event_abstract.h"
-#include "../utils/containers/yia_hashmap.h"
+#include "../utils/containers/yia_array.h"
 #include "../utils/containers/yia_list.h"
 
 namespace yialite
@@ -28,8 +28,9 @@ private:
 
     struct WrappedHandle
     {
-        EventCallbackID id;
+        EventCallbackID id = INVALID_EVENT_CALLBACK_UID;
         EventHandle callback;
+        bool dead = false;
     };
 
     struct WrappedHandleGroup
@@ -39,24 +40,12 @@ private:
 public:
     EventBus() = default;
     ~EventBus() = default;
+    EventBus(EventBus&&) = delete;
     EventBus(const EventBus&) = delete;
-    EventBus(EventBus&& other) noexcept 
-        : m_groups(std::move(other.m_groups)), m_id_counter(other.m_id_counter) 
-    { 
-        other.m_id_counter = INVALID_EVENT_CALLBACK_UID; 
-    }
 
     //operators
+    EventBus& operator=(EventBus&&) = delete;
     EventBus& operator=(const EventBus&) = delete;
-    EventBus& operator=(EventBus&& other) noexcept
-    {
-        if(this == &other) return *this; 
-
-        m_groups = std::move(other.m_groups);
-        m_id_counter = other.m_id_counter;
-        other.m_id_counter = INVALID_EVENT_CALLBACK_UID;
-        return *this;
-    }
 
     //tools
     template<typename T>
@@ -111,52 +100,54 @@ public:
     void unsubscribe(const Subscription& sp)
     {
         if(sp.callback_id == INVALID_EVENT_CALLBACK_UID) return;
-
-        auto* group = m_groups.find(sp.event_type_id);
-        if(!group) return;
-
-        auto& handle_list = group->handles[sp.prio_id];
-        handle_list.erase(std::remove_if(handle_list.begin(), handle_list.end(), 
-            [id = sp.callback_id](const WrappedHandle& handle) -> bool
-            {
-                return handle.id == id;
-            }
-        ), handle_list.end());
-
-        if(handle_list.need_shrink()) handle_list.shrink_to_fit();
+        mark_dead(sp);
     }
 
     void publish(IEvent& event)
     {
-        auto* group = m_groups.find(static_cast<EventTypeID>(event.get_type()));
-        if(!group) return;
+        auto& group = m_groups[static_cast<EventTypeID>(event.get_type())];
 
         for (size_t prio = 0; prio < EVENT_PRIORITY_COUNT; ++prio)
         {
-            auto handle_list_snapshot = group->handles[prio];
-            for (auto& handle : handle_list_snapshot)
+            auto& handle_list = group.handles[prio];
+            for (auto it = handle_list.begin(); it != handle_list.end(); )
             {
                 if (event.consumed) return;
-                handle.callback(event);
+                if (it->dead)
+                {
+                    it = handle_list.erase(it);
+                    continue;
+                }
+                it->callback(event);
+                ++it;
             }
+
+            if(handle_list.need_shrink()) handle_list.shrink_to_fit();
         }
     }
 
     void clear()
     {
-        for (auto it = m_groups.begin(); it != m_groups.end(); ++it)
+        for (auto& group : m_groups)
         {
-            auto& group = it->second;
             for (size_t i = 0; i < EVENT_PRIORITY_COUNT; ++i)
             {
                 group.handles[i].clear();
             }
         }
-        m_groups.clear();
         m_id_counter = INVALID_EVENT_CALLBACK_UID;
     }
 private:
-    HashMap<EventTypeID, WrappedHandleGroup> m_groups;
+    void mark_dead(const Subscription& sp)
+    {
+        auto& handle_list = m_groups[static_cast<size_t>(sp.event_type_id)].handles[sp.prio_id];
+        for (auto& h : handle_list)
+        {
+            if (h.id == sp.callback_id) { h.dead = true; return; }
+        }
+    }
+private:
+    Array<WrappedHandleGroup, static_cast<size_t>(EventType::Max)> m_groups;
 
     EventCallbackID m_id_counter = INVALID_EVENT_CALLBACK_UID;
 };

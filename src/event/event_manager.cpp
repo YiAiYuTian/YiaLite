@@ -10,29 +10,6 @@ EventManager::~EventManager()
     DEALLOCATE_OBJECT(IEventAdapter, m_evt_adapter);
 }
 
-EventManager::EventManager(EventManager&& other) noexcept
-    : m_bus(std::move(other.m_bus))
-    , has_devui(other.has_devui)
-    , m_evt_adapter(other.m_evt_adapter)
-{
-    other.m_evt_adapter = nullptr;
-    other.has_devui = false;
-}
-
-EventManager& EventManager::operator=(EventManager&& other) noexcept
-{
-    if (this == &other) return *this;
-    
-    m_bus = std::move(other.m_bus);
-    has_devui = other.has_devui;
-    DEALLOCATE_OBJECT(IEventAdapter, m_evt_adapter);
-    m_evt_adapter = other.m_evt_adapter;
-    
-    other.m_evt_adapter = nullptr;
-    other.has_devui = false;
-    return *this;
-}
-
 Result<EventManager*> EventManager::create()
 {
     EventManager* mgr = ALLOCATE_OBJECT(EventManager);

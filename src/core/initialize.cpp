@@ -34,7 +34,7 @@ Result<void> init()
 {
     SDL_SetMemoryFunctions(yialite_sdl_malloc, yialite_sdl_calloc, yialite_sdl_realloc, yialite_sdl_free);
 
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
+    if (!SDL_Init(SDL_INIT_VIDEO))
     {
         SDL_Quit();
         return Result<void>(ErrorCode::InitFailed, "Failed to initialize SDL: " + String(SDL_GetError()));

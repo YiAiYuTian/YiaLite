@@ -78,9 +78,8 @@ class YIALITE_API EventManager
     using event_callback = Delegate<void(const event_type<Fn>&)>;
 public:
     ~EventManager();
-    EventManager(EventManager&& other) noexcept;
-    EventManager& operator=(EventManager&& other) noexcept;
 
+    //tools
     static Result<EventManager*> create();
     static void destroy(EventManager* mgr);
 
@@ -120,7 +119,9 @@ public:
     }
 private:
     EventManager() = default;
+    EventManager(EventManager&&) = delete;
     EventManager(const EventManager&) = delete;
+    EventManager& operator=(EventManager&&) = delete;
     EventManager& operator=(const EventManager&) = delete;
 private:
     EventBus m_bus;
