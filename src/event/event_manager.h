@@ -98,14 +98,14 @@ public:
     }
 
     template<detail::valid_event_callback Fn>
-    void callback_once(EventPriority prio, Fn&& f)
+    Subscription callback_once(EventPriority prio, Fn&& f)
     {
-        m_bus.callback_once<event_type<Fn>>(prio, event_callback<Fn>{std::forward<Fn>(f)});
+        return m_bus.callback_once<event_type<Fn>>(prio, event_callback<Fn>{std::forward<Fn>(f)});
     }
     template<detail::valid_event_callback Fn>
-    void callback_once(Fn&& f)
+    Subscription callback_once(Fn&& f)
     {
-        m_bus.callback_once<event_type<Fn>>(event_callback<Fn>{std::forward<Fn>(f)});
+        return m_bus.callback_once<event_type<Fn>>(event_callback<Fn>{std::forward<Fn>(f)});
     }
 
     void unsubscribe(const Subscription& sp)

@@ -177,6 +177,10 @@ VoiceID MiniaudioAdapter::play(SoundID id, const PlayParams& params)
 
     if (params.spatial)
     {
+        ma_sound_set_spatialization_enabled(snd, MA_TRUE);
+        
+        ma_sound_set_attenuation_model(snd, ma_attenuation_model_linear);
+
         ma_sound_set_position(snd, params.x, params.y, params.z);
         ma_sound_set_min_distance(snd, params.min_distance);
         ma_sound_set_max_distance(snd, params.max_distance);

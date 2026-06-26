@@ -74,7 +74,7 @@ public:
     }
 
     template<typename T>
-    void callback_once(EventPriority prio, Delegate<void(const T&)> callback)
+    Subscription callback_once(EventPriority prio, Delegate<void(const T&)> callback)
     {
         const EventTypeID event_type_id = static_cast<EventTypeID>(get_event_type_enum<T>());
         const EventPriorityID priority_id = static_cast<EventPriorityID>(prio);
@@ -89,12 +89,14 @@ public:
         
         auto& wrapped_handle_group = m_groups[event_type_id];
         wrapped_handle_group.handles[priority_id].emplace_back(callback_id, std::move(wrapper));
+
+        return { event_type_id, priority_id, callback_id };
     }
 
     template<typename T>
-    void callback_once(Delegate<void(const T&)> callback)
+    Subscription callback_once(Delegate<void(const T&)> callback)
     {
-        callback_once<T>(EventPriority::GameLogic, std::move(callback));
+        return callback_once<T>(EventPriority::GameLogic, std::move(callback));
     }
 
     void unsubscribe(const Subscription& sp)

@@ -33,6 +33,15 @@ public:
     IWindow& operator=(IWindow&&) = delete;
     IWindow& operator=(const IWindow&) = delete;
 
+    /*	
+    constexpr yialite::DialogFileFilter filters[] = {
+		{ "PNG images",  "png" },
+		{ "JPEG images", "jpg;jpeg" },
+		{ "All images",  "png;jpg;jpeg" },
+		{ "All files",   "*" }
+    };
+    constexpr int nfilters = sizeof(file_filters) / sizeof(file_filters[0]);
+    */
     virtual void show_open_file_dialog(
         DialogFileCallback callback,
         const DialogFileFilter* filters, 

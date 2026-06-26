@@ -35,6 +35,7 @@ set(YIA_HEADERS
   "event/event_adapter.h"
   "event/event_bus.h"
   "event/event_manager.h"
+  "event/event_listener.h"
   "event/keycode.h"
   "event/mouse_button.h"
   "input/input.h"
