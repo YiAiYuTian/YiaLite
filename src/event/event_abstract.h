@@ -45,7 +45,7 @@ public:
     virtual ~IEvent() = default;
     virtual EventType get_type() const = 0;
 public:
-    bool consumed = false;
+    mutable bool consumed = false;
 };
 
 class QuitEvent : public IEvent
