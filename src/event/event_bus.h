@@ -2,16 +2,13 @@
 #define YIALITE_EVENT_BUS_H
 
 #include "event_abstract.h"
-#include "../utils/containers/yia_array.h"
+#include "../utils/containers/yia_hashmap.h"
 #include "../utils/containers/yia_list.h"
 
 namespace yialite
 {
 
-typedef Uint32  EventTypeID;
-typedef Uint8   EventPriorityID;
 typedef Uint64  EventCallbackID;
-
 inline constexpr EventCallbackID INVALID_EVENT_CALLBACK_UID = 0;
 
 struct Subscription
@@ -51,7 +48,7 @@ public:
     template<typename T>
     Subscription subscribe(EventPriority prio, Delegate<void(const T&)> callback)
     {
-        const EventTypeID event_type_id = static_cast<EventTypeID>(get_event_type_enum<T>());
+        const EventTypeID event_type_id = T::evt_t_hash;
         const EventPriorityID priority_id = static_cast<EventPriorityID>(prio);
         const EventCallbackID callback_id = ++m_next_id;
 
@@ -76,7 +73,7 @@ public:
     template<typename T>
     Subscription callback_once(EventPriority prio, Delegate<void(const T&)> callback)
     {
-        const EventTypeID event_type_id = static_cast<EventTypeID>(get_event_type_enum<T>());
+        const EventTypeID event_type_id = T::evt_t_hash;
         const EventPriorityID priority_id = static_cast<EventPriorityID>(prio);
         const EventCallbackID callback_id = ++m_next_id;
 
@@ -107,11 +104,12 @@ public:
 
     void publish(IEvent& event)
     {
-        auto& group = m_groups[static_cast<EventTypeID>(event.get_type())];
+        WrappedHandleGroup* group = m_groups.find(event.get_event_type_id());
+        if(!group) return;
 
         for (size_t prio = 0; prio < EVENT_PRIORITY_COUNT; ++prio)
         {
-            auto& handle_list = group.handles[prio];
+            auto& handle_list = group->handles[prio];
             for (auto it = handle_list.begin(); it != handle_list.end(); )
             {
                 if (event.consumed) return;
@@ -130,7 +128,7 @@ public:
 
     void clear()
     {
-        for (auto& group : m_groups)
+        for (auto& [id, group] : m_groups)
         {
             for (size_t i = 0; i < EVENT_PRIORITY_COUNT; ++i)
             {
@@ -142,14 +140,17 @@ public:
 private:
     void mark_dead(const Subscription& sp)
     {
-        auto& handle_list = m_groups[static_cast<size_t>(sp.event_type_id)].handles[sp.prio_id];
+        WrappedHandleGroup* group = m_groups.find(sp.event_type_id);
+        if(!group) return;
+
+        auto& handle_list = group->handles[sp.prio_id];
         for (auto& h : handle_list)
         {
             if (h.id == sp.callback_id) { h.dead = true; return; }
         }
     }
 private:
-    Array<WrappedHandleGroup, static_cast<size_t>(EventType::Max)> m_groups;
+    HashMap<EventTypeID, WrappedHandleGroup> m_groups;
 
     EventCallbackID m_next_id = INVALID_EVENT_CALLBACK_UID;
 };

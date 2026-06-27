@@ -5,20 +5,28 @@
 #include "string/yia_string.h"
 
 #include <cstring>
+#include <array>
+#include <bit>
 
 namespace yialite
 {
 
+namespace detail
+{
+    constexpr static size_t hash_key_hash = 14695981039346656037ULL;
+    constexpr static size_t hash_key_prime = 1099511628211ULL;
+}
+
 template<typename T>
 struct HashKey
 {
-    size_t operator()(const T& key) const = delete;
+    constexpr size_t operator()(const T& key) const noexcept = delete;
 };
 
 template<>
 struct HashKey<Sint8>
 {
-    size_t operator()(Sint8 key) const
+    constexpr size_t operator()(Sint8 key) const noexcept
     {
         return static_cast<size_t>(key);
     }
@@ -27,7 +35,7 @@ struct HashKey<Sint8>
 template<>
 struct HashKey<Uint8>
 {
-    size_t operator()(Uint8 key) const
+    constexpr size_t operator()(Uint8 key) const noexcept
     {
         return static_cast<size_t>(key);
     }
@@ -36,7 +44,7 @@ struct HashKey<Uint8>
 template<>
 struct HashKey<Sint16>
 {
-    size_t operator()(Sint16 key) const
+    constexpr size_t operator()(Sint16 key) const noexcept
     {
         return static_cast<size_t>(key);
     }
@@ -45,7 +53,7 @@ struct HashKey<Sint16>
 template<>
 struct HashKey<Uint16>
 {
-    size_t operator()(Uint16 key) const
+    constexpr size_t operator()(Uint16 key) const noexcept
     {
         return static_cast<size_t>(key);
     }
@@ -54,7 +62,7 @@ struct HashKey<Uint16>
 template<>
 struct HashKey<Sint32>
 {
-    size_t operator()(Sint32 key) const
+    constexpr size_t operator()(Sint32 key) const noexcept
     {
         return static_cast<size_t>(key);
     }
@@ -63,7 +71,7 @@ struct HashKey<Sint32>
 template<>
 struct HashKey<Uint32>
 {
-    size_t operator()(Uint32 key) const
+    constexpr size_t operator()(Uint32 key) const noexcept
     {
         return static_cast<size_t>(key);
     }
@@ -72,7 +80,7 @@ struct HashKey<Uint32>
 template<>
 struct HashKey<Sint64>
 {
-    size_t operator()(Sint64 key) const
+    constexpr size_t operator()(Sint64 key) const noexcept
     {
         return static_cast<size_t>(key);
     }
@@ -81,7 +89,7 @@ struct HashKey<Sint64>
 template<>
 struct HashKey<Uint64>
 {
-    size_t operator()(Uint64 key) const
+    constexpr size_t operator()(Uint64 key) const noexcept
     {
         return static_cast<size_t>(key);
     }
@@ -90,7 +98,7 @@ struct HashKey<Uint64>
 template<>
 struct HashKey<bool>
 {
-    size_t operator()(bool key) const
+    constexpr size_t operator()(bool key) const noexcept
     {
         return static_cast<size_t>(key);
     }
@@ -99,7 +107,7 @@ struct HashKey<bool>
 template<>
 struct HashKey<float>
 {
-    size_t operator()(float key) const
+    size_t operator()(float key) const noexcept
     {
         size_t result = 0;
         static_assert(sizeof(float) <= sizeof(size_t));
@@ -111,15 +119,14 @@ struct HashKey<float>
 template<>
 struct HashKey<double>
 {
-    size_t operator()(double key) const
+    constexpr size_t operator()(double key) const noexcept
     {
-        const Uint8* bytes = reinterpret_cast<const Uint8*>(&key);
-        size_t hash = 14695981039346656037ULL;
-        const size_t prime = 1099511628211ULL;
-        for (size_t i = 0; i < sizeof(double); ++i)
+        const auto bytes = std::bit_cast<std::array<Uint8, sizeof(double)>>(key);
+        size_t hash = detail::hash_key_hash;
+        for (Uint8 b : bytes)
         {
-            hash ^= bytes[i];
-            hash *= prime;
+            hash ^= b;
+            hash *= detail::hash_key_prime;
         }
         return hash;
     }
@@ -128,7 +135,7 @@ struct HashKey<double>
 template<typename T>
 struct HashKey<T*>
 {
-    size_t operator()(T* ptr) const
+    constexpr size_t operator()(T* ptr) const noexcept
     {
         return reinterpret_cast<size_t>(ptr);
     }
@@ -137,15 +144,14 @@ struct HashKey<T*>
 template<>
 struct HashKey<const char*>
 {
-    size_t operator()(const char* str) const
+    constexpr size_t operator()(const char* str) const noexcept
     {
         if (!str) return 0;
-        size_t hash = 14695981039346656037ULL;
-        const size_t prime = 1099511628211ULL;
+        size_t hash = detail::hash_key_hash;
         while (*str)
         {
             hash ^= static_cast<Uint8>(*str);
-            hash *= prime;
+            hash *= detail::hash_key_prime;
             str++;
         }
         return hash;
@@ -155,9 +161,26 @@ struct HashKey<const char*>
 template<>
 struct HashKey<yialite::String>
 {
-    size_t operator()(const yialite::String& str) const
+    size_t operator()(const yialite::String& str) const noexcept
     {
         return HashKey<const char*>{}(str.c_str());
+    }
+};
+
+template<>
+struct HashKey<yialite::StringView>
+{
+    constexpr size_t operator()(yialite::StringView str) const noexcept
+    {
+        if (str.empty()) return 0;
+
+        size_t hash = detail::hash_key_hash;
+        for (size_t i = 0; i < str.length(); ++i)
+        {
+            hash ^= static_cast<Uint8>(str[i]);
+            hash *= detail::hash_key_prime;
+        }
+        return hash;
     }
 };
 

@@ -5,31 +5,15 @@
 #include "mouse_button.h"
 #include "../utils/delegate.h"
 #include "../utils/base_types.h"
+#include "../utils/hash_key.h"
+#include "../utils/utility.h"
 #include "../window/window_config.h"
-
-#include <tuple>
 
 namespace yialite
 {
 
-enum class EventType : Uint32
-{
-    Quit = 0,
-
-    Key,
-    MouseButton,
-    MouseWheel,
-    MouseMotion,
-
-    WindowResize,
-    WindowMoved,
-    WindowFocus,
-    WindowCloseRequested,
-
-    Max
-};
-
-enum class EventPriority : Uint8
+typedef Uint8 EventPriorityID;
+enum class EventPriority : EventPriorityID
 {
     UI = 0,
     GameLogic = 1,
@@ -39,22 +23,33 @@ enum class EventPriority : Uint8
 };
 inline constexpr size_t EVENT_PRIORITY_COUNT = static_cast<size_t>(EventPriority::Max);
 
+typedef Uint64 EventTypeID;
 class IEvent
 {
 public:
     virtual ~IEvent() = default;
-    virtual EventType get_type() const = 0;
+
+    virtual EventTypeID get_event_type_id() const noexcept = 0;
+protected:
+    constexpr IEvent() noexcept = default;
 public:
     mutable bool consumed = false;
 };
 
-class QuitEvent : public IEvent
+template<typename SelfType>
+class EventBase : public IEvent
 {
 public:
-    EventType get_type() const override { return EventType::Quit; }
+    constexpr static EventTypeID evt_t_hash = HashKey<StringView>{}(get_unique_type_sig<SelfType>());
+
+    EventTypeID get_event_type_id() const noexcept override { return evt_t_hash; }
+protected:
+    constexpr EventBase() noexcept = default;
 };
 
-class KeyEvent : public IEvent
+class QuitEvent : public EventBase<QuitEvent> {};
+
+class KeyEvent : public EventBase<KeyEvent>
 {
 public:
     Keycode key;
@@ -62,11 +57,9 @@ public:
     bool down;
     Keymod mod;
     WindowID win_id;
-
-    EventType get_type() const override { return EventType::Key; }
 };
 
-class MouseButtonEvent : public IEvent
+class MouseButtonEvent : public EventBase<MouseButtonEvent>
 {
 public:
     MouseButton btn;
@@ -74,130 +67,51 @@ public:
     bool down;
     Uint8 clicks;
     WindowID win_id;
-
-    EventType get_type() const override { return EventType::MouseButton; }
 };
 
-class MouseWheelEvent : public IEvent
+class MouseWheelEvent : public EventBase<MouseWheelEvent>
 {
 public:
     float x, y;
     float mouse_x, mouse_y;
     WindowID win_id;
-
-    EventType get_type() const override { return EventType::MouseWheel; }
 };
 
-class MouseMotionEvent : public IEvent
+class MouseMotionEvent : public EventBase<MouseMotionEvent>
 {
 public:
     float x, y;
     float rel_x, rel_y;
     MouseButtonFlags_ btn_flags;
     WindowID win_id;
-
-    EventType get_type() const override { return EventType::MouseMotion; }
 };
 
-class WindowResizeEvent : public IEvent
+class WindowResizeEvent : public EventBase<WindowResizeEvent>
 {
 public:
     int w, h;
     WindowID win_id;
-
-    EventType get_type() const override { return EventType::WindowResize; }
 };
 
-class WindowMovedEvent : public IEvent
+class WindowMovedEvent : public EventBase<WindowMovedEvent>
 {
 public:
     int x, y;
     WindowID win_id;
-
-    EventType get_type() const override { return EventType::WindowMoved; }
 };
 
-class WindowFocusEvent : public IEvent
+class WindowFocusEvent : public EventBase<WindowFocusEvent>
 {
 public:
     bool gained;
     WindowID win_id;
-
-    EventType get_type() const override { return EventType::WindowFocus; }
 };
 
-class WindowCloseRequestedEvent : public IEvent
+class WindowCloseRequestedEvent : public EventBase<WindowCloseRequestedEvent>
 {
 public:
     WindowID win_id;
-
-    EventType get_type() const override { return EventType::WindowCloseRequested; }
 };
-
-template<EventType E, typename EventClass>
-struct EventMeta
-{
-    static constexpr EventType Enum = E;
-    using Type = EventClass;
-};
-
-using EventMetaMap = std::tuple<
-    EventMeta<EventType::Quit, QuitEvent>,
-    EventMeta<EventType::Key, KeyEvent>,
-    EventMeta<EventType::MouseButton, MouseButtonEvent>,
-    EventMeta<EventType::MouseWheel, MouseWheelEvent>,
-    EventMeta<EventType::MouseMotion, MouseMotionEvent>,
-    EventMeta<EventType::WindowResize, WindowResizeEvent>,
-    EventMeta<EventType::WindowMoved, WindowMovedEvent>,
-    EventMeta<EventType::WindowFocus, WindowFocusEvent>,
-    EventMeta<EventType::WindowCloseRequested, WindowCloseRequestedEvent>
->;
-
-namespace detail
-{
-    template<typename Map, typename T>
-    struct event_type_to_enum;
-
-    template<typename T, EventType E, typename EventClass, typename... Rest>
-    struct event_type_to_enum<std::tuple<EventMeta<E, EventClass>, Rest...>, T>
-        : std::conditional_t<
-        std::is_same_v<T, EventClass>,
-        std::integral_constant<EventType, E>,
-        event_type_to_enum<std::tuple<Rest...>, T>>
-    {};
-
-    template<typename T>
-    struct event_type_to_enum<std::tuple<>, T>
-    {
-        static_assert(sizeof(T) == 0, "This event type is not registered in EventMetaMap");
-    };
-
-    template<typename Map, EventType TargetE>
-    struct event_enum_to_type;
-
-    template<EventType TargetE, EventType E, typename EventClass, typename... Rest>
-    struct event_enum_to_type<std::tuple<EventMeta<E, EventClass>, Rest...>, TargetE>
-        : std::conditional_t<
-        (E == TargetE),
-        std::type_identity<EventClass>,
-        event_enum_to_type<std::tuple<Rest...>, TargetE>>
-    {};
-
-    template<EventType TargetE>
-    struct event_enum_to_type<std::tuple<>, TargetE>
-    {
-        static_assert(TargetE != TargetE, "No matching event struct for this EventType");
-    };
-}
-
-template<typename T>
-constexpr EventType get_event_type_enum()
-{
-    return detail::event_type_to_enum<EventMetaMap, T>::value;
-}
-
-template<EventType TargetE>
-using event_from_enum = typename detail::event_enum_to_type<EventMetaMap, TargetE>::type;
 
 }
 
