@@ -13,6 +13,7 @@ class Texture2D;
 
 class YIALITE_API Renderer2D
 {
+    FRIEND_ALLOCATOR
 public:
     ~Renderer2D();
     Renderer2D(const Renderer2D&) = delete;

@@ -15,6 +15,7 @@ namespace yialite
 
 class YIALITE_API WindowManager
 {
+    FRIEND_ALLOCATOR
 public:
     ~WindowManager();
 

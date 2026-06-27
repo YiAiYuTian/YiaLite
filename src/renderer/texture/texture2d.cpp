@@ -30,7 +30,7 @@ Texture2D& Texture2D::operator=(Texture2D&& other) noexcept
         if (m_impl)
         {
             SDL_DestroyTexture(m_impl->texture);
-            DEALLOCATE(m_impl);
+            DEALLOCATE_OBJECT(m_impl);
         }
         m_impl = other.m_impl;
         other.m_impl = nullptr;
@@ -41,12 +41,12 @@ Texture2D& Texture2D::operator=(Texture2D&& other) noexcept
 Result<Texture2D*> Texture2D::create(const char* path, Renderer2D* renderer)
 {
     Texture2D* t = ALLOCATE_OBJECT(Texture2D);
-    t->m_impl = ALLOCATE(Texture2D::Impl);
+    t->m_impl = ALLOCATE_OBJECT(Texture2D::Impl);
 
     Uint8* data = stbi_load(path, &t->m_impl->width, &t->m_impl->height, nullptr, 4);
     if (!data)
     {
-        DEALLOCATE_OBJECT(Texture2D, t);
+        DEALLOCATE_OBJECT(t);
         return Result<Texture2D*>(ErrorCode::TextureLoadFailed, stbi_failure_reason());
     }
 
@@ -55,7 +55,7 @@ Result<Texture2D*> Texture2D::create(const char* path, Renderer2D* renderer)
     if (!surface)
     {
         stbi_image_free(data);
-        DEALLOCATE_OBJECT(Texture2D, t);
+        DEALLOCATE_OBJECT(t);
         return Result<Texture2D*>(ErrorCode::TextureLoadFailed, "Failed to create surface: " + String(SDL_GetError()));
     }
 
@@ -65,7 +65,7 @@ Result<Texture2D*> Texture2D::create(const char* path, Renderer2D* renderer)
     {
         SDL_DestroySurface(surface);
         stbi_image_free(data);
-        DEALLOCATE_OBJECT(Texture2D, t);
+        DEALLOCATE_OBJECT(t);
         return Result<Texture2D*>(ErrorCode::TextureLoadFailed, "Failed to create texture2d: " + String(SDL_GetError()));
     }
 
@@ -77,7 +77,7 @@ Result<Texture2D*> Texture2D::create(const char* path, Renderer2D* renderer)
 Result<Texture2D*> Texture2D::create(int width, int height, Renderer2D* renderer, bool is_target)
 {
     Texture2D* t = ALLOCATE_OBJECT(Texture2D);
-    t->m_impl = ALLOCATE(Texture2D::Impl);
+    t->m_impl = ALLOCATE_OBJECT(Texture2D::Impl);
 
     t->m_impl->texture = SDL_CreateTexture(
         reinterpret_cast<SDL_Renderer*>(renderer->get_native_handle()),
@@ -85,7 +85,7 @@ Result<Texture2D*> Texture2D::create(int width, int height, Renderer2D* renderer
     );
     if (!t->m_impl->texture)
     {
-        DEALLOCATE_OBJECT(Texture2D, t);
+        DEALLOCATE_OBJECT(t);
         return Result<Texture2D*>(ErrorCode::TextureCreateFailed, "Failed to create texture2d: " + String(SDL_GetError()));
     }
 
@@ -99,14 +99,14 @@ Texture2D::~Texture2D()
     if (m_impl)
     {
         SDL_DestroyTexture(m_impl->texture);
-        DEALLOCATE(m_impl);
+        DEALLOCATE_OBJECT(m_impl);
         m_impl = nullptr;
     }
 }
 
 void Texture2D::destroy(Texture2D* texture)
 {
-    DEALLOCATE_OBJECT(Texture2D, texture);
+    DEALLOCATE_OBJECT(texture);
 }
 
 int Texture2D::get_width() const

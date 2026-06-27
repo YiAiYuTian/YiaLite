@@ -13,7 +13,7 @@ static void* yialite_stb_realloc(void* ptr, size_t size)
 
 static void yialite_stb_free(void* ptr)
 {
-   DEALLOCATE(ptr);
+   DEALLOCATE_SIZED(ptr);
 }
 
 #define STB_IMAGE_IMPLEMENTATION

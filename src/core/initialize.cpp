@@ -27,7 +27,7 @@ static void* yialite_sdl_realloc(void *mem, size_t size)
 
 static void yialite_sdl_free(void *mem)
 {
-    DEALLOCATE(mem);
+    DEALLOCATE_SIZED(mem);
 }
 
 Result<void> init()

@@ -22,7 +22,7 @@ static void* miniaudio_realloc(void* p, size_t sz, void* p_user_data)
 static void miniaudio_free(void* p, void* p_user_data)
 {
     (void)p_user_data;
-    DEALLOCATE(p);
+    DEALLOCATE_SIZED(p);
 }
 
 MiniaudioAdapter::MiniaudioAdapter()
@@ -79,7 +79,7 @@ void MiniaudioAdapter::destroy()
         for (auto& pair : m_buses)
         {
             ma_sound_group_uninit(pair.second);
-            DEALLOCATE(pair.second);
+            DEALLOCATE_OBJECT(pair.second);
         }
         m_buses.clear();
         ma_engine_uninit(&m_engine);
@@ -156,13 +156,13 @@ VoiceID MiniaudioAdapter::play(SoundID id, const PlayParams& params)
 
     ma_sound_group* group = find_bus(params.bus);
 
-    ma_sound* snd = ALLOCATE(ma_sound);
+    ma_sound* snd = ALLOCATE_OBJECT(ma_sound);
     ma_result result = ma_sound_init_from_file(
         &m_engine, path->c_str(), 0, group, nullptr, snd
     );
     if (result != MA_SUCCESS)
     {
-        DEALLOCATE(snd);
+        DEALLOCATE_OBJECT(snd);
         Logger::error("Failed to play sound (id={}): {}", id, ma_result_description(result));
         return INVALID_VOICE_ID;
     }
@@ -349,11 +349,11 @@ void MiniaudioAdapter::create_bus(const char* name)
     String key(name);
     if (m_buses.find(key)) return;
 
-    ma_sound_group* group = ALLOCATE(ma_sound_group);
+    ma_sound_group* group = ALLOCATE_OBJECT(ma_sound_group);
     ma_result result = ma_sound_group_init(&m_engine, 0, nullptr, group);
     if (result != MA_SUCCESS)
     {
-        DEALLOCATE(group);
+        DEALLOCATE_OBJECT(group);
         Logger::error("Failed to create bus '{}'", name);
         return;
     }
@@ -386,7 +386,7 @@ void MiniaudioAdapter::remove_bus(const char* name)
     if (!group) return;
     
     ma_sound_group_uninit(*group);
-    DEALLOCATE(*group);
+    DEALLOCATE_OBJECT(*group);
     m_buses.remove(key);
 }
 
@@ -464,7 +464,7 @@ void MiniaudioAdapter::release_voice(size_t index)
     if (!vd.active) return;
     
     ma_sound_uninit(vd.sound);
-    DEALLOCATE(vd.sound);
+    DEALLOCATE_OBJECT(vd.sound);
     vd.sound     = nullptr;
     vd.active    = false;
     vd.paused    = false;

@@ -102,7 +102,7 @@ Result<Context*> Context::create(const ContextConfig& config)
 
 void Context::destroy(Context* context)
 {
-    DEALLOCATE_OBJECT(Context, context);
+    DEALLOCATE_OBJECT(context);
 }
 
 Context::~Context()

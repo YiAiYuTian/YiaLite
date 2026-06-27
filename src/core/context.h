@@ -15,6 +15,7 @@ class DevUI;
 
 class YIALITE_API Context
 {
+    FRIEND_ALLOCATOR
 public:
     ~Context();
     Context(const Context&) = delete;

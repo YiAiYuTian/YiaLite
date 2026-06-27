@@ -11,6 +11,7 @@ class Renderer2D;
 
 class YIALITE_API Texture2D
 {
+    FRIEND_ALLOCATOR
     friend class Renderer2D;
 public:
     ~Texture2D();

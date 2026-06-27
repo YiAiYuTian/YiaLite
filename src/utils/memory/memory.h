@@ -19,14 +19,14 @@ public:
     Scope(Scope&& other) noexcept : m_ptr(other.m_ptr) { other.m_ptr = nullptr; }
     Scope(const Scope&) = delete;
     Scope& operator=(const Scope&) = delete;
-    ~Scope() { DEALLOCATE_OBJECT(T, m_ptr); m_ptr = nullptr; }
+    ~Scope() { DEALLOCATE_OBJECT(m_ptr); m_ptr = nullptr; }
 
     //operators
     Scope& operator=(Scope&& other) noexcept
     {
         if (this != &other)
         {
-            DEALLOCATE_OBJECT(T, m_ptr);
+            DEALLOCATE_OBJECT(m_ptr);
             m_ptr = other.m_ptr;
             other.m_ptr = nullptr;
         }
@@ -43,13 +43,14 @@ public:
     [[nodiscard]] const T* get() const { return m_ptr; }
     [[nodiscard]] T* release() { T* ptr = m_ptr; m_ptr = nullptr; return ptr; }
     
-    void reset(T* ptr = nullptr) { DEALLOCATE_OBJECT(T, m_ptr); m_ptr = ptr; }
+    void reset(T* ptr = nullptr) { DEALLOCATE_OBJECT(m_ptr); m_ptr = ptr; }
 private:
     T* m_ptr = nullptr;
 };
 
 class ControlBlock
 {
+    FRIEND_ALLOCATOR
 public:
     void add_ref() { ++m_ref; }
     void add_weak() { ++m_weak; }
@@ -64,7 +65,7 @@ public:
     }
     void release_weak()
     {
-        if (--m_weak == 0) { DEALLOCATE_OBJECT(ControlBlock, this); }
+        if (--m_weak == 0) { DEALLOCATE_OBJECT(this); }
     }
 
     size_t get_ref_count() const { return m_ref; }
@@ -87,7 +88,7 @@ public:
 private:
     void destroy_object() override
     {
-        DEALLOCATE_OBJECT(T, m_obj);
+        DEALLOCATE_OBJECT(m_obj);
         m_obj = nullptr;
     }
 private:

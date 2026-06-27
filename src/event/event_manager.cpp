@@ -7,7 +7,7 @@ namespace yialite
 {
 EventManager::~EventManager()
 {
-    DEALLOCATE_OBJECT(IEventAdapter, m_evt_adapter);
+    DEALLOCATE_OBJECT(m_evt_adapter);
 }
 
 Result<EventManager*> EventManager::create()
@@ -21,7 +21,7 @@ Result<EventManager*> EventManager::create()
 
 void EventManager::destroy(EventManager* mgr)
 {
-    DEALLOCATE_OBJECT(EventManager, mgr);
+    DEALLOCATE_OBJECT(mgr);
 }
 
 void EventManager::set_devui(DevUI* devui)

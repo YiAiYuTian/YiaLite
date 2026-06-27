@@ -71,7 +71,7 @@ String::String(String &&str) noexcept
 
 String::~String() noexcept
 {
-    DEALLOCATE(m_data);
+    DEALLOCATE_SIZED(m_data);
 }
 
 const char* String::c_str() const noexcept
@@ -178,7 +178,7 @@ String &String::operator=(String &&str) noexcept
 {
     if (this != &str)
     {
-        DEALLOCATE(m_data);
+        DEALLOCATE_SIZED(m_data);
 
         m_data = str.m_data;
         m_length = str.m_length;

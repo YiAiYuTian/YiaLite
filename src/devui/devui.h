@@ -12,6 +12,7 @@ class Renderer2D;
 
 class YIALITE_API DevUI
 {
+    FRIEND_ALLOCATOR
 public:
     ~DevUI();
     DevUI(const DevUI&) = delete;

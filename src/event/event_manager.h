@@ -71,6 +71,7 @@ class IEventAdapter;
 
 class YIALITE_API EventManager
 {
+    FRIEND_ALLOCATOR
     //example: void(const QuitEvent& e) {} or lambda [](const QuitEvent& e) ->void {} <--------
     template<typename Fn>
     using event_type = detail::event_arg_t<Fn>;

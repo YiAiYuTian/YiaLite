@@ -170,8 +170,8 @@ HashMap<Key, Value>::~HashMap()
 {
     clear();
 
-    DEALLOCATE(m_pairs);
-    DEALLOCATE(m_states);
+    DEALLOCATE_SIZED(m_pairs);
+    DEALLOCATE_SIZED(m_states);
 }
 
 template<typename Key, typename Value>
@@ -180,8 +180,8 @@ HashMap<Key, Value>& HashMap<Key, Value>::operator=(HashMap&& other) noexcept
     if (this != &other)
     {
         clear();
-        DEALLOCATE(m_pairs);
-        DEALLOCATE(m_states);
+        DEALLOCATE_SIZED(m_pairs);
+        DEALLOCATE_SIZED(m_states);
 
         m_pairs    = other.m_pairs;
         m_states   = other.m_states;
@@ -369,7 +369,7 @@ void HashMap<Key, Value>::reserve(size_t capacity)
     size_t saved_size = m_size;
 
     Pair<const Key, Value>* new_pairs  = static_cast<Pair<const Key, Value>*>(ALLOCATE_SIZED(new_capacity * sizeof(Pair<const Key, Value>)));
-    Uint8*            new_states = static_cast<Uint8*>(ALLOCATE_SIZED(new_capacity * sizeof(Uint8)));
+    Uint8* new_states = static_cast<Uint8*>(ALLOCATE_SIZED(new_capacity * sizeof(Uint8)));
 
     reset_states(new_states, new_capacity);
 
@@ -390,8 +390,8 @@ void HashMap<Key, Value>::reserve(size_t capacity)
         }
     }
 
-    DEALLOCATE(m_pairs);
-    DEALLOCATE(m_states);
+    DEALLOCATE_SIZED(m_pairs);
+    DEALLOCATE_SIZED(m_states);
 
     m_pairs    = new_pairs;
     m_states   = new_states;

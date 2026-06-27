@@ -28,7 +28,7 @@ Renderer2D& Renderer2D::operator=(Renderer2D&& other) noexcept
         if (m_impl)
         {
             SDL_DestroyRenderer(m_impl->renderer);
-            DEALLOCATE(m_impl);
+            DEALLOCATE_OBJECT(m_impl);
         }
         m_impl = other.m_impl;
         other.m_impl = nullptr;
@@ -39,13 +39,13 @@ Renderer2D& Renderer2D::operator=(Renderer2D&& other) noexcept
 Result<Renderer2D*> Renderer2D::create(IWindow* window)
 {
     Renderer2D* r = ALLOCATE_OBJECT(Renderer2D);
-    r->m_impl = ALLOCATE(Renderer2D::Impl);
+    r->m_impl = ALLOCATE_OBJECT(Renderer2D::Impl);
 
     r->m_impl->renderer = SDL_CreateRenderer(
         reinterpret_cast<SDL_Window*>(window->get_native_handle()), nullptr);
     if (!r->m_impl->renderer)
     {
-        DEALLOCATE_OBJECT(Renderer2D, r);
+        DEALLOCATE_OBJECT(r);
         return Result<Renderer2D*>(ErrorCode::RendererCreateFailed, "Renderer2D create failed: " + String(SDL_GetError()));
     }
 
@@ -58,14 +58,14 @@ Renderer2D::~Renderer2D()
     if (m_impl)
     {
         SDL_DestroyRenderer(m_impl->renderer);
-        DEALLOCATE(m_impl);
+        DEALLOCATE_OBJECT(m_impl);
         m_impl = nullptr;
     }
 }
 
 void Renderer2D::destroy(Renderer2D* renderer)
 {
-    DEALLOCATE_OBJECT(Renderer2D, renderer);
+    DEALLOCATE_OBJECT(renderer);
 }
 
 void Renderer2D::begin_draw(const Color& background_color)

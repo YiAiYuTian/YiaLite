@@ -12,7 +12,7 @@ WindowManager::~WindowManager()
     for(auto& pair : m_windows)
     {
         pair.second->destroy();
-        DEALLOCATE_OBJECT(IWindow, pair.second);
+        DEALLOCATE_OBJECT(pair.second);
     }
     m_windows.clear();
 }
@@ -28,7 +28,7 @@ Result<WindowManager*> WindowManager::create(const WindowConfig& config)
 
 void WindowManager::destroy(WindowManager *wm)
 {
-    DEALLOCATE_OBJECT(WindowManager, wm);
+    DEALLOCATE_OBJECT(wm);
 }
 
 WindowID WindowManager::create_window(const WindowConfig &config)
@@ -54,7 +54,7 @@ void WindowManager::destroy_window(WindowID id)
     if(!window) return;
 
     (*window)->destroy();
-    DEALLOCATE_OBJECT(IWindow, *window);
+    DEALLOCATE_OBJECT(*window);
     m_windows.remove(id);
 }
 

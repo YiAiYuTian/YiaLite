@@ -187,7 +187,7 @@ private:
         if (!m_callable) return;
 
         if (m_inline) m_callable->~ICallable();
-        else DEALLOCATE_OBJECT(ICallable, m_callable);
+        else DEALLOCATE_OBJECT(m_callable);
 
         m_callable = nullptr;
         m_inline = false;

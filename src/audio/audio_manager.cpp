@@ -15,15 +15,15 @@ Result<AudioManager*> AudioManager::create()
     IAudioAdapter* adapter = ALLOCATE_OBJECT(MiniaudioAdapter);
     if (!adapter)
     {
-        DEALLOCATE_OBJECT(AudioManager, am);
+        DEALLOCATE_OBJECT(am);
         return Result<AudioManager*>(ErrorCode::OutOfMemory, "Failed to allocate MiniaudioAdapter");
     }
 
     auto init_result = adapter->init();
     if (!init_result)
     {
-        DEALLOCATE_OBJECT(IAudioAdapter, adapter);
-        DEALLOCATE_OBJECT(AudioManager, am);
+        DEALLOCATE_OBJECT(adapter);
+        DEALLOCATE_OBJECT(am);
         return Result<AudioManager*>(init_result.error());
     }
 
@@ -36,14 +36,14 @@ AudioManager::~AudioManager()
     if (m_adapter)
     {
         m_adapter->destroy();
-        DEALLOCATE_OBJECT(IAudioAdapter, m_adapter);
+        DEALLOCATE_OBJECT(m_adapter);
         m_adapter = nullptr;
     }
 }
 
 void AudioManager::destroy(AudioManager* am)
 {
-    DEALLOCATE_OBJECT(AudioManager, am);
+    DEALLOCATE_OBJECT(am);
 }
 
 void AudioManager::update(float dt)

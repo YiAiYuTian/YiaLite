@@ -11,7 +11,7 @@ static void sdl_dialog_file_callback(void* user_data, const char* const* filelis
 {
     DialogFileCallback* callback = reinterpret_cast<DialogFileCallback*>(user_data);
     (*callback)(filelist, filter);
-    DEALLOCATE_OBJECT(DialogFileCallback, callback);
+    DEALLOCATE_OBJECT(callback);
 }
 
 static SDL_WindowFlags to_sdl_flags(WindowFlags_ flags)

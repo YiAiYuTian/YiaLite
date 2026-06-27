@@ -121,7 +121,7 @@ template <typename T>
 List<T>::~List() noexcept
 {
     clear();
-    DEALLOCATE(m_data);
+    DEALLOCATE_SIZED(m_data);
 }
 
 template <typename T>
@@ -199,7 +199,7 @@ void List<T>::shrink_to_fit()
 
     if(m_size == 0)
     {
-        DEALLOCATE(m_data);
+        DEALLOCATE_SIZED(m_data);
         m_data = nullptr;
         m_capacity = 0;
         return;
@@ -212,7 +212,7 @@ void List<T>::shrink_to_fit()
         new (new_data + i) T(std::move(m_data[i]));
         m_data[i].~T();
     }
-    DEALLOCATE(m_data);
+    DEALLOCATE_SIZED(m_data);
 
     m_data = new_data;
     m_capacity = target_cap;
@@ -322,7 +322,7 @@ List<T>& List<T>::operator=(const List<T>& other)
     if(this == &other) return *this;
 
     clear();
-    DEALLOCATE(m_data);
+    DEALLOCATE_SIZED(m_data);
     m_capacity = other.m_capacity;
     m_size = other.m_size;
 
@@ -344,7 +344,7 @@ List<T>& List<T>::operator=(List<T> &&other) noexcept
     if(this == &other) return *this;
 
     clear();
-    DEALLOCATE(m_data);
+    DEALLOCATE_SIZED(m_data);
 
     m_data = other.m_data;
     m_size = other.m_size;
@@ -390,7 +390,7 @@ void List<T>::reserve(size_t capacity)
         new (new_data + i) T(std::move(m_data[i]));
         m_data[i].~T();
     }
-    DEALLOCATE(m_data);
+    DEALLOCATE_SIZED(m_data);
 
     m_data = new_data;
     m_capacity = capacity;

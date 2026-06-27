@@ -11,6 +11,7 @@ namespace yialite
 
 class YIALITE_API AudioManager
 {
+    FRIEND_ALLOCATOR
 public:
     ~AudioManager();
 
