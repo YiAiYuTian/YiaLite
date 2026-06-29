@@ -28,6 +28,7 @@ struct MemoryInfo
     AllocType alloc_src = AllocType::UNKNOWN;
 };
 
+//Can not allocate aligned memory
 class YIALITE_API Allocator
 {
 public:

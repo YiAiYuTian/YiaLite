@@ -1,14 +1,16 @@
 #ifndef YIALITE_WINDOW_CONFIG_H
 #define YIALITE_WINDOW_CONFIG_H
 
+#include "../utils/handle.h"
 #include "../utils/base_types.h"
 #include "../core/flag_macros.h"
 
 namespace yialite
 {
 
-typedef Uint32 WindowID;
-inline constexpr WindowID INVALID_WINDOW_ID = 0;
+struct WindowTag;
+using WindowID = Handle<Uint32, WindowTag>; 
+inline constexpr WindowID INVALID_WINDOW_ID = WindowID{0};
 
 typedef Uint64 WindowFlags_;
 enum class WindowFlags : Uint64

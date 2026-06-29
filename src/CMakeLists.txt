@@ -57,6 +57,7 @@ set(YIA_HEADERS
   "utils/hash_key.h"
   "utils/delegate.h"
   "utils/utility.h"
+  "utils/handle.h"
   "utils/base_types.h"
   "window/window_config.h"
   "window/window_manager.h"

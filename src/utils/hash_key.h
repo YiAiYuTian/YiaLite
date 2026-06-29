@@ -2,6 +2,7 @@
 #define YIALITE_HASH_KEY_H
 
 #include "base_types.h"
+#include "handle.h"
 #include "string/yia_string.h"
 
 #include <cstring>
@@ -181,6 +182,15 @@ struct HashKey<yialite::StringView>
             hash *= detail::hash_key_prime;
         }
         return hash;
+    }
+};
+
+template<typename T, typename Tag>
+struct HashKey<yialite::Handle<T, Tag>>
+{
+    size_t operator()(const yialite::Handle<T, Tag>& h) const noexcept
+    {
+        return HashKey<T>{}(h.id);
     }
 };
 

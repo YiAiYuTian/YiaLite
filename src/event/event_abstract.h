@@ -7,13 +7,15 @@
 #include "../utils/base_types.h"
 #include "../utils/hash_key.h"
 #include "../utils/utility.h"
+#include "../utils/handle.h"
 #include "../window/window_config.h"
 
 namespace yialite
 {
 
-typedef Uint8 EventPriorityID;
-enum class EventPriority : EventPriorityID
+struct EventPriorityTag; 
+using EventPriorityID = Handle<Uint8, EventPriorityTag>;
+enum class EventPriority : Uint8
 {
     UI = 0,
     GameLogic = 1,
@@ -23,7 +25,8 @@ enum class EventPriority : EventPriorityID
 };
 inline constexpr size_t EVENT_PRIORITY_COUNT = static_cast<size_t>(EventPriority::Max);
 
-typedef Uint64 EventTypeID;
+struct EventTypeTag;
+using EventTypeID = Handle<Uint64, EventTypeTag>;
 class IEvent
 {
 public:
@@ -40,7 +43,7 @@ template<typename SelfType>
 class EventBase : public IEvent
 {
 public:
-    constexpr static EventTypeID evt_t_hash = HashKey<StringView>{}(get_unique_type_sig<SelfType>());
+    constexpr static EventTypeID evt_t_hash = EventTypeID(HashKey<StringView>{}(get_unique_type_sig<SelfType>()));
 
     EventTypeID get_event_type_id() const noexcept override { return evt_t_hash; }
 protected:

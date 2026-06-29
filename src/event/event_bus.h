@@ -8,13 +8,14 @@
 namespace yialite
 {
 
-typedef Uint64  EventCallbackID;
-inline constexpr EventCallbackID INVALID_EVENT_CALLBACK_UID = 0;
+struct EventCallbackTag;
+using EventCallbackID = Handle<Uint64, EventCallbackTag>;
+inline constexpr EventCallbackID INVALID_EVENT_CALLBACK_UID = EventCallbackID(0);
 
 struct Subscription
 {
-    EventTypeID event_type_id = 0;
-    EventPriorityID prio_id = 0;
+    EventTypeID event_type_id = EventTypeID(0);
+    EventPriorityID prio_id = EventPriorityID(0);
     EventCallbackID callback_id = INVALID_EVENT_CALLBACK_UID;
 };
 
@@ -49,7 +50,7 @@ public:
     Subscription subscribe(EventPriority prio, Delegate<void(const T&)> callback)
     {
         const EventTypeID event_type_id = T::evt_t_hash;
-        const EventPriorityID priority_id = static_cast<EventPriorityID>(prio);
+        const EventPriorityID priority_id = EventPriorityID(static_cast<Uint8>(prio));
         const EventCallbackID callback_id = ++m_next_id;
 
         EventHandle wrapper = 
@@ -59,7 +60,7 @@ public:
             };
 
         auto& wrapped_handle_group = m_groups[event_type_id];
-        wrapped_handle_group.handles[priority_id].emplace_back(callback_id, std::move(wrapper));
+        wrapped_handle_group.handles[priority_id.id].emplace_back(callback_id, std::move(wrapper));
 
         return { event_type_id, priority_id, callback_id };
     }
@@ -74,7 +75,7 @@ public:
     Subscription callback_once(EventPriority prio, Delegate<void(const T&)> callback)
     {
         const EventTypeID event_type_id = T::evt_t_hash;
-        const EventPriorityID priority_id = static_cast<EventPriorityID>(prio);
+        const EventPriorityID priority_id = EventPriorityID(static_cast<Uint8>(prio));
         const EventCallbackID callback_id = ++m_next_id;
 
         EventHandle wrapper = 
@@ -85,7 +86,7 @@ public:
             };
         
         auto& wrapped_handle_group = m_groups[event_type_id];
-        wrapped_handle_group.handles[priority_id].emplace_back(callback_id, std::move(wrapper));
+        wrapped_handle_group.handles[priority_id.id].emplace_back(callback_id, std::move(wrapper));
 
         return { event_type_id, priority_id, callback_id };
     }
@@ -143,7 +144,7 @@ private:
         WrappedHandleGroup* group = m_groups.find(sp.event_type_id);
         if(!group) return;
 
-        auto& handle_list = group->handles[sp.prio_id];
+        auto& handle_list = group->handles[sp.prio_id.id];
         for (auto& h : handle_list)
         {
             if (h.id == sp.callback_id) { h.dead = true; return; }

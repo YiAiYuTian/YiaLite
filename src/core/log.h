@@ -2,6 +2,7 @@
 #define YIALITE_LOG_H
 
 #include "core.h"
+#include "../utils/handle.h"
 #include "../utils/string/yia_string.h"
 
 #include <format>
@@ -44,6 +45,22 @@ struct std::formatter<yialite::String>
     auto format(const yialite::String& str, FormatContext& ctx) const
     {
         return std::format_to(ctx.out(), "{}", str.c_str());
+    }
+};
+
+template<typename T, typename Tag>
+struct std::formatter<yialite::Handle<T, Tag>>
+{
+    template <class ParseContext>
+    constexpr auto parse(ParseContext& ctx) const
+    {
+        return ctx.begin();
+    }
+
+    template <class FormatContext>
+    auto format(const yialite::Handle<T, Tag>& h, FormatContext& ctx) const
+    {
+        return std::format_to(ctx.out(), "{}", h.id);
     }
 };
 

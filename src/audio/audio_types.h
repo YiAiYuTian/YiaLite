@@ -2,12 +2,14 @@
 #define YIALITE_AUDIO_TYPES_H
 
 #include "../utils/base_types.h"
+#include "../utils/handle.h"
 
 namespace yialite
 {
 
-typedef Uint64 SoundID;
-inline constexpr SoundID INVALID_SOUND_ID = 0;
+struct SoundTag;
+using SoundID = Handle<Uint64, SoundTag>;
+inline constexpr SoundID INVALID_SOUND_ID = SoundID(0);
 
 struct VoiceID
 {

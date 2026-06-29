@@ -48,7 +48,7 @@ public:
     inline int get_width() const override         { int w; SDL_GetWindowSize(m_window, &w, nullptr); return w;   }
     inline int get_height() const override        { int h; SDL_GetWindowSize(m_window, nullptr, &h); return h;   }
     inline const char* get_title() const override { return SDL_GetWindowTitle(m_window);                         }
-    inline WindowID get_id() const override       { return SDL_GetWindowID(m_window);                                   }
+    inline WindowID get_id() const override       { return WindowID(SDL_GetWindowID(m_window));                                   }
     inline bool is_fullscreen() const override    { return SDL_GetWindowFlags(m_window) & SDL_WINDOW_FULLSCREEN; }
 
     //For internal use only

@@ -2,6 +2,7 @@
 #define YIALITE_LOGGER_H
 
 #include "../core/core.h"
+#include "../utils/handle.h"
 #include "../utils/singleton.h"
 #include "../utils/string/yia_string.h"
 
@@ -85,6 +86,21 @@ struct fmt::formatter<yialite::String>
     auto format(const yialite::String& str, FormatContext& ctx) const
     {
         return fmt::format_to(ctx.out(), "{}", str.c_str());
+    }
+};
+
+template<typename T, typename Tag>
+struct fmt::formatter<yialite::Handle<T, Tag>>
+{
+    constexpr auto parse(format_parse_context& ctx)
+    {
+        return ctx.begin();
+    }
+
+    template<typename FormatContext>
+    auto format(const yialite::Handle<T, Tag>& h, FormatContext& ctx) const
+    {
+        return fmt::format_to(ctx.out(), "{}", h.id);
     }
 };
 
